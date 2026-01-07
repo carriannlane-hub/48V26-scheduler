@@ -86,6 +86,7 @@ const translations = {
     full: "Full",
     yourTimezone: "Your timezone",
     centralTime: "Central Time",
+    sententralTime: "Sententral Time",
     shift: "Shift",
     champions: "Champions",
     remove: "Remove",
@@ -154,6 +155,7 @@ const translations = {
     full: "已满",
     yourTimezone: "您的时区",
     centralTime: "美国中部时间",
+    sententralTime: "Sententral Time",
     shift: "班次",
     champions: "冠军",
     remove: "移除",
@@ -222,6 +224,7 @@ const translations = {
     full: "เต็ม",
     yourTimezone: "เขตเวลาของคุณ",
     centralTime: "เวลาภาคกลางสหรัฐ",
+    sententralTime: "Sententral Time",
     shift: "กะ",
     champions: "แชมเปี้ยน",
     remove: "ลบ",
@@ -290,6 +293,7 @@ const translations = {
     full: "ممتلئ",
     yourTimezone: "منطقتك الزمنية",
     centralTime: "التوقيت المركزي",
+    sententralTime: "Sententral Time",
     shift: "نوبة",
     champions: "الأبطال",
     remove: "إزالة",
@@ -358,6 +362,7 @@ const translations = {
     full: "Complet",
     yourTimezone: "Votre fuseau horaire",
     centralTime: "Heure centrale",
+    sententralTime: "Sententral Time",
     shift: "Créneau",
     champions: "Champions",
     remove: "Supprimer",
@@ -1018,7 +1023,7 @@ Then open this email on your phone and tap the attachment to add shifts to your 
             {/* Timezone Toggle */}
             <div style={styles.controlGroup}>
               <label htmlFor="timezone-toggle" style={styles.controlLabel}>
-                {t.yourTimezone}
+                {showLocalTime ? t.yourTimezone : t.sententralTime}
               </label>
               <button
                 id="timezone-toggle"
