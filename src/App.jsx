@@ -15,7 +15,7 @@ const supabase = createClient(
 const EVENT_CONFIG = {
   name: "GamiCon48V 2026",
   startTime: new Date('2026-03-21T19:00:00-05:00'), // 7 PM Central (CDT is UTC-5 in March)
-  endTime: new Date('2026-03-23T07:00:00-05:00'),   // 7 AM Central
+  endTime: new Date('2026-03-23T19:00:00-05:00'),   // 7 PM Central (48 hours)
   shiftDurationHours: 2,
   maxChampionsPerShift: 2,
   maxConsecutiveHours: 4,
