@@ -72,6 +72,7 @@ const translations = {
     email: "Your Email",
     selectShifts: "Select Your Shifts",
     submit: "Submit Sign-Up",
+    submitting: "Submitting...",
     cancel: "Cancel",
     adminMode: "Admin Mode",
     exitAdmin: "Exit Admin",
@@ -141,6 +142,7 @@ const translations = {
     email: "您的邮箱",
     selectShifts: "选择您的班次",
     submit: "提交报名",
+    submitting: "提交中...",
     cancel: "取消",
     adminMode: "管理员模式",
     exitAdmin: "退出管理",
@@ -210,6 +212,7 @@ const translations = {
     email: "อีเมลของคุณ",
     selectShifts: "เลือกกะของคุณ",
     submit: "ส่งการลงทะเบียน",
+    submitting: "กำลังส่ง...",
     cancel: "ยกเลิก",
     adminMode: "โหมดผู้ดูแล",
     exitAdmin: "ออกจากโหมดผู้ดูแล",
@@ -279,6 +282,7 @@ const translations = {
     email: "بريدك الإلكتروني",
     selectShifts: "اختر نوباتك",
     submit: "إرسال التسجيل",
+    submitting: "جارٍ الإرسال...",
     cancel: "إلغاء",
     adminMode: "وضع المسؤول",
     exitAdmin: "خروج المسؤول",
@@ -348,6 +352,7 @@ const translations = {
     email: "Votre e-mail",
     selectShifts: "Sélectionnez vos créneaux",
     submit: "Soumettre l'inscription",
+    submitting: "Envoi en cours...",
     cancel: "Annuler",
     adminMode: "Mode admin",
     exitAdmin: "Quitter admin",
@@ -510,6 +515,7 @@ export default function App() {
   const [formEmail, setFormEmail] = useState('');
   const [selectedShifts, setSelectedShifts] = useState([]);
   const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Refs for focus management
   const signUpButtonRef = React.useRef(null);
@@ -732,32 +738,39 @@ export default function App() {
   
   const handleSubmit = async () => {
     if (!validateForm()) return;
+    if (isSubmitting) return; // Prevent double-submission
     
-    // Store the shifts being signed up for calendar export
-    const signedUpShiftData = selectedShifts.map(id => shifts.find(s => s.id === id));
+    setIsSubmitting(true);
     
-    const newShifts = shifts.map(shift => {
-      if (selectedShifts.includes(shift.id)) {
-        return {
-          ...shift,
-          champions: [...shift.champions, { name: formName.trim(), email: formEmail.trim() }]
-        };
-      }
-      return shift;
-    });
-    
-    setShifts(newShifts);
-    await saveShifts(newShifts);
-    
-    // Store for calendar export before clearing
-    setLastSignedUpShifts(signedUpShiftData);
-    setLastSignedUpEmail(formEmail.trim());
-    
-    setFormName('');
-    setFormEmail('');
-    setSelectedShifts([]);
-    closeSignUpModal();
-    setShowSuccessModal(true);
+    try {
+      // Store the shifts being signed up for calendar export
+      const signedUpShiftData = selectedShifts.map(id => shifts.find(s => s.id === id));
+      
+      const newShifts = shifts.map(shift => {
+        if (selectedShifts.includes(shift.id)) {
+          return {
+            ...shift,
+            champions: [...shift.champions, { name: formName.trim(), email: formEmail.trim() }]
+          };
+        }
+        return shift;
+      });
+      
+      setShifts(newShifts);
+      await saveShifts(newShifts);
+      
+      // Store for calendar export before clearing
+      setLastSignedUpShifts(signedUpShiftData);
+      setLastSignedUpEmail(formEmail.trim());
+      
+      setFormName('');
+      setFormEmail('');
+      setSelectedShifts([]);
+      closeSignUpModal();
+      setShowSuccessModal(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const handleAdminRemove = async (shiftId, championIndex) => {
@@ -1290,11 +1303,19 @@ Then open this email on your phone and tap the attachment to add shifts to your 
             </fieldset>
             
             <div style={styles.modalActions}>
-              <button onClick={closeSignUpModal} style={styles.secondaryButton}>
+              <button onClick={closeSignUpModal} style={styles.secondaryButton} disabled={isSubmitting}>
                 {t.cancel}
               </button>
-              <button onClick={handleSubmit} style={styles.primaryButton}>
-                {t.submit}
+              <button 
+                onClick={handleSubmit} 
+                style={{
+                  ...styles.primaryButton,
+                  ...(isSubmitting ? { opacity: 0.7, cursor: 'not-allowed' } : {})
+                }}
+                disabled={isSubmitting}
+                aria-busy={isSubmitting}
+              >
+                {isSubmitting ? t.submitting : t.submit}
               </button>
             </div>
           </div>
