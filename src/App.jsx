@@ -14,10 +14,11 @@ const supabase = createClient(
 // ============================================
 const EVENT_CONFIG = {
   name: "GamiCon48V 2026",
-  startTime: new Date('2026-03-21T19:00:00-05:00'), // 7 PM Central (CDT is UTC-5 in March)
+  startTime: new Date('2026-03-21T19:00:00-05:00'), // 7 PM Central
   endTime: new Date('2026-03-23T19:00:00-05:00'),   // 7 PM Central (48 hours)
   shiftDurationHours: 2,
   maxChampionsPerShift: 2,
+  maxTechPerShift: 1,
   maxConsecutiveHours: 4,
   requiredBreakHours: 2,
   maxHoursTotal: 12,
@@ -35,6 +36,7 @@ const themes = {
     textMuted: '#a89984',
     title: '#e2e8f0',
     accent: '#14b8a6',
+    techAccent: '#f59e0b', // Warm amber/orange for tech
     border: '#4a4a6a',
     available: '#10b981',
     partial: '#0ea5e9',
@@ -42,6 +44,7 @@ const themes = {
     selectedBorder: '#2dd4bf',
     error: '#e57373',
     overlay: 'rgba(0,0,0,0.8)',
+    expandBg: '#3d3d5c',
   },
   light: {
     bg: '#f8fafc',
@@ -50,6 +53,7 @@ const themes = {
     textMuted: '#64748b',
     title: '#0f172a',
     accent: '#0d9488',
+    techAccent: '#d97706', // Warm amber for tech in light mode
     border: '#cbd5e1',
     available: '#059669',
     partial: '#0284c7',
@@ -57,6 +61,7 @@ const themes = {
     selectedBorder: '#14b8a6',
     error: '#dc2626',
     overlay: 'rgba(0,0,0,0.5)',
+    expandBg: '#e2e8f0',
   }
 };
 
@@ -71,6 +76,10 @@ const translations = {
     name: "Your Name",
     email: "Your Email",
     selectShifts: "Select Your Shifts",
+    selectRole: "Select Your Role",
+    eventChampion: "Event Champion",
+    techSupport: "Tech Support Champion",
+    techDescription: "Technical troubleshooting experience required. You'll help with A/V, streaming, and technical issues.",
     submit: "Submit Sign-Up",
     submitting: "Submitting...",
     cancel: "Cancel",
@@ -90,14 +99,17 @@ const translations = {
     sententralTime: "Sententral Time",
     shift: "Shift",
     champions: "Champions",
+    tech: "Tech",
     remove: "Remove",
     add: "Add Champion",
+    addTech: "Add Tech",
     save: "Save",
     noShifts: "No shifts selected",
     rules: "How Shifts Work",
     rule1: "Maximum 4 consecutive hours (2 shifts), then 2-hour break required",
-    rule2: "Maximum 12 hours per day",
-    rule3: "2 Champions per shift (ideal), 1 minimum",
+    rule2: "Maximum 12 hours total",
+    rule3: "2 Event Champions per shift (ideal), 1 minimum",
+    rule4: "1 Tech Support Champion per shift",
     rulesDialogue: "Hey Champions! Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max), then please rest for at least 2 hours. We would like you to take up to 12 hours total. We want you energized, not exhausted! If you have questions, contact Carriann Lane. She's happy to help.",
     blocked: "Blocked (need 2-hour break)",
     dayLimit: "Total limit reached",
@@ -132,7 +144,16 @@ const translations = {
     downloadIcs: "Download .ics",
     emailIcs: "Email to myself",
     calendarEventTitle: "GamiCon48V - Event Champion",
-    icsEmailTip: "Tip: Open the email on your phone, tap the attachment, then tap Add to Calendar."
+    calendarEventTitleTech: "GamiCon48V - Tech Support",
+    icsEmailTip: "Tip: Open the email on your phone, tap the attachment, then tap Add to Calendar.",
+    tapToExpand: "TAP TO SEE SHIFTS",
+    shiftsAvailable: "shifts available",
+    currentShift: "NOW",
+    upNext: "UP NEXT",
+    eventEnded: "Event has ended. Thank you Champions!",
+    confirmTechRole: "Tech Support requires technical experience. Are you sure?",
+    techConfirmYes: "Yes, I have tech experience",
+    techConfirmNo: "No, go back",
   },
   zh: {
     title: "活动冠军调度器",
@@ -141,6 +162,10 @@ const translations = {
     name: "您的姓名",
     email: "您的邮箱",
     selectShifts: "选择您的班次",
+    selectRole: "选择您的角色",
+    eventChampion: "活动冠军",
+    techSupport: "技术支持冠军",
+    techDescription: "需要技术故障排除经验。您将帮助处理音视频、流媒体和技术问题。",
     submit: "提交报名",
     submitting: "提交中...",
     cancel: "取消",
@@ -160,14 +185,17 @@ const translations = {
     sententralTime: "Sententral Time",
     shift: "班次",
     champions: "冠军",
+    tech: "技术",
     remove: "移除",
     add: "添加冠军",
+    addTech: "添加技术",
     save: "保存",
     noShifts: "未选择班次",
     rules: "班次说明",
     rule1: "最多连续4小时（2个班次），之后需要2小时休息",
-    rule2: "每天最多12小时",
-    rule3: "每班次2名冠军（理想），最少1名",
+    rule2: "总共最多12小时",
+    rule3: "每班次2名活动冠军（理想），最少1名",
+    rule4: "每班次1名技术支持冠军",
     rulesDialogue: "嗨，冠军们！每个班次2小时。您可以连续值班最多2个班次（4小时），之后请休息至少2小时。我们希望每人总共承担最多12小时。我们希望您精力充沛，而不是疲惫不堪！如有问题，请联系 Carriann Lane，她很乐意帮助您。",
     blocked: "已阻止（需要2小时休息）",
     dayLimit: "已达总时限",
@@ -202,7 +230,16 @@ const translations = {
     downloadIcs: "下载 .ics",
     emailIcs: "发送到我的邮箱",
     calendarEventTitle: "GamiCon48V - 活动冠军",
-    icsEmailTip: "提示：在手机上打开邮件，点击附件，然后点击添加到日历。"
+    calendarEventTitleTech: "GamiCon48V - 技术支持",
+    icsEmailTip: "提示：在手机上打开邮件，点击附件，然后点击添加到日历。",
+    tapToExpand: "点击查看班次",
+    shiftsAvailable: "个班次可用",
+    currentShift: "现在",
+    upNext: "下一个",
+    eventEnded: "活动已结束。感谢冠军们！",
+    confirmTechRole: "技术支持需要技术经验。您确定吗？",
+    techConfirmYes: "是的，我有技术经验",
+    techConfirmNo: "不，返回",
   },
   th: {
     title: "ตารางเวลาแชมเปี้ยนอีเวนต์",
@@ -211,6 +248,10 @@ const translations = {
     name: "ชื่อของคุณ",
     email: "อีเมลของคุณ",
     selectShifts: "เลือกกะของคุณ",
+    selectRole: "เลือกบทบาทของคุณ",
+    eventChampion: "แชมเปี้ยนอีเวนต์",
+    techSupport: "แชมเปี้ยนฝ่ายเทคนิค",
+    techDescription: "ต้องมีประสบการณ์ด้านเทคนิค คุณจะช่วยเรื่องเสียง/ภาพ การสตรีม และปัญหาทางเทคนิค",
     submit: "ส่งการลงทะเบียน",
     submitting: "กำลังส่ง...",
     cancel: "ยกเลิก",
@@ -230,14 +271,17 @@ const translations = {
     sententralTime: "Sententral Time",
     shift: "กะ",
     champions: "แชมเปี้ยน",
+    tech: "เทคนิค",
     remove: "ลบ",
     add: "เพิ่มแชมเปี้ยน",
+    addTech: "เพิ่มเทคนิค",
     save: "บันทึก",
     noShifts: "ไม่ได้เลือกกะ",
     rules: "วิธีการทำงานกะ",
     rule1: "สูงสุด 4 ชั่วโมงติดต่อกัน (2 กะ) จากนั้นต้องพัก 2 ชั่วโมง",
-    rule2: "สูงสุด 12 ชั่วโมงต่อวัน",
-    rule3: "2 แชมเปี้ยนต่อกะ (เหมาะสม) อย่างน้อย 1 คน",
+    rule2: "รวมสูงสุด 12 ชั่วโมง",
+    rule3: "2 แชมเปี้ยนอีเวนต์ต่อกะ (เหมาะสม) อย่างน้อย 1 คน",
+    rule4: "1 แชมเปี้ยนฝ่ายเทคนิคต่อกะ",
     rulesDialogue: "สวัสดีแชมเปี้ยน! แต่ละกะใช้เวลา 2 ชั่วโมง คุณสามารถทำงานติดต่อกันได้สูงสุด 2 กะ (4 ชั่วโมง) จากนั้นกรุณาพักอย่างน้อย 2 ชั่วโมง เราอยากให้คุณรับรวมสูงสุด 12 ชั่วโมง เราอยากให้คุณมีพลัง ไม่ใช่เหนื่อยล้า! หากมีคำถาม ติดต่อ Carriann Lane เธอยินดีช่วยเหลือ",
     blocked: "ถูกบล็อก (ต้องพัก 2 ชั่วโมง)",
     dayLimit: "ถึงขีดจำกัดแล้ว",
@@ -272,7 +316,16 @@ const translations = {
     downloadIcs: "ดาวน์โหลด .ics",
     emailIcs: "ส่งอีเมลถึงตัวเอง",
     calendarEventTitle: "GamiCon48V - แชมเปี้ยนอีเวนต์",
-    icsEmailTip: "เคล็ดลับ: เปิดอีเมลบนโทรศัพท์ แตะไฟล์แนบ แล้วแตะเพิ่มไปยังปฏิทิน"
+    calendarEventTitleTech: "GamiCon48V - ฝ่ายเทคนิค",
+    icsEmailTip: "เคล็ดลับ: เปิดอีเมลบนโทรศัพท์ แตะไฟล์แนบ แล้วแตะเพิ่มไปยังปฏิทิน",
+    tapToExpand: "แตะเพื่อดูกะ",
+    shiftsAvailable: "กะที่ว่าง",
+    currentShift: "ตอนนี้",
+    upNext: "ถัดไป",
+    eventEnded: "อีเวนต์สิ้นสุดแล้ว ขอบคุณแชมเปี้ยนทุกคน!",
+    confirmTechRole: "ฝ่ายเทคนิคต้องมีประสบการณ์ทางเทคนิค คุณแน่ใจหรือไม่?",
+    techConfirmYes: "ใช่ ฉันมีประสบการณ์",
+    techConfirmNo: "ไม่ กลับ",
   },
   ar: {
     title: "جدول أبطال الحدث",
@@ -281,6 +334,10 @@ const translations = {
     name: "اسمك",
     email: "بريدك الإلكتروني",
     selectShifts: "اختر نوباتك",
+    selectRole: "اختر دورك",
+    eventChampion: "بطل الحدث",
+    techSupport: "بطل الدعم الفني",
+    techDescription: "يتطلب خبرة في استكشاف الأخطاء التقنية. ستساعد في الصوت والفيديو والبث والمشاكل التقنية.",
     submit: "إرسال التسجيل",
     submitting: "جارٍ الإرسال...",
     cancel: "إلغاء",
@@ -300,14 +357,17 @@ const translations = {
     sententralTime: "Sententral Time",
     shift: "نوبة",
     champions: "الأبطال",
+    tech: "فني",
     remove: "إزالة",
     add: "إضافة بطل",
+    addTech: "إضافة فني",
     save: "حفظ",
     noShifts: "لم يتم اختيار نوبات",
     rules: "كيف تعمل النوبات",
     rule1: "بحد أقصى 4 ساعات متتالية (نوبتان)، ثم استراحة إلزامية لمدة ساعتين",
-    rule2: "بحد أقصى 12 ساعة في اليوم",
+    rule2: "بحد أقصى 12 ساعة إجمالاً",
     rule3: "بطلان لكل نوبة (مثالي)، واحد كحد أدنى",
+    rule4: "بطل دعم فني واحد لكل نوبة",
     rulesDialogue: "مرحباً أيها الأبطال! كل نوبة مدتها ساعتان. يمكنك أخذ نوبتين متتاليتين (4 ساعات كحد أقصى)، ثم نرجو أن ترتاح ساعتين على الأقل. نود منك أن تأخذ حتى 12 ساعة إجمالاً. نريدك نشيطاً، لا منهكاً! إذا كانت لديك أسئلة، تواصل مع Carriann Lane. ستكون سعيدة بمساعدتك.",
     blocked: "محظور (تحتاج استراحة ساعتين)",
     dayLimit: "تم الوصول للحد الأقصى",
@@ -342,7 +402,16 @@ const translations = {
     downloadIcs: "تحميل .ics",
     emailIcs: "إرسال إلى بريدي",
     calendarEventTitle: "GamiCon48V - بطل الحدث",
-    icsEmailTip: "نصيحة: افتح البريد على هاتفك، اضغط على المرفق، ثم اضغط على إضافة إلى التقويم."
+    calendarEventTitleTech: "GamiCon48V - الدعم الفني",
+    icsEmailTip: "نصيحة: افتح البريد على هاتفك، اضغط على المرفق، ثم اضغط على إضافة إلى التقويم.",
+    tapToExpand: "انقر لعرض النوبات",
+    shiftsAvailable: "نوبات متاحة",
+    currentShift: "الآن",
+    upNext: "التالي",
+    eventEnded: "انتهى الحدث. شكراً للأبطال!",
+    confirmTechRole: "الدعم الفني يتطلب خبرة تقنية. هل أنت متأكد؟",
+    techConfirmYes: "نعم، لدي خبرة تقنية",
+    techConfirmNo: "لا، العودة",
   },
   fr: {
     title: "Planificateur des Champions",
@@ -351,6 +420,10 @@ const translations = {
     name: "Votre nom",
     email: "Votre e-mail",
     selectShifts: "Sélectionnez vos créneaux",
+    selectRole: "Sélectionnez votre rôle",
+    eventChampion: "Champion d'événement",
+    techSupport: "Champion support technique",
+    techDescription: "Expérience technique requise. Vous aiderez avec l'audio/vidéo, le streaming et les problèmes techniques.",
     submit: "Soumettre l'inscription",
     submitting: "Envoi en cours...",
     cancel: "Annuler",
@@ -370,14 +443,17 @@ const translations = {
     sententralTime: "Sententral Time",
     shift: "Créneau",
     champions: "Champions",
+    tech: "Tech",
     remove: "Supprimer",
     add: "Ajouter un Champion",
+    addTech: "Ajouter Tech",
     save: "Enregistrer",
     noShifts: "Aucun créneau sélectionné",
     rules: "Comment ça marche",
     rule1: "Maximum 4 heures consécutives (2 créneaux), puis pause de 2 heures requise",
     rule2: "Maximum 12 heures au total",
     rule3: "2 Champions par créneau (idéal), 1 minimum",
+    rule4: "1 Champion support technique par créneau",
     rulesDialogue: "Salut les Champions ! Chaque créneau dure 2 heures. Vous pouvez enchaîner jusqu'à 2 créneaux (4 heures max), puis veuillez vous reposer au moins 2 heures. Nous souhaitons que vous preniez jusqu'à 12 heures au total. Nous voulons que vous soyez en forme, pas épuisés ! Si vous avez des questions, contactez Carriann Lane. Elle sera ravie de vous aider.",
     blocked: "Bloqué (pause de 2h requise)",
     dayLimit: "Limite totale atteinte",
@@ -412,7 +488,16 @@ const translations = {
     downloadIcs: "Télécharger .ics",
     emailIcs: "M'envoyer par e-mail",
     calendarEventTitle: "GamiCon48V - Champion d'événement",
-    icsEmailTip: "Astuce : Ouvrez l'e-mail sur votre téléphone, appuyez sur la pièce jointe, puis appuyez sur Ajouter au calendrier."
+    calendarEventTitleTech: "GamiCon48V - Support technique",
+    icsEmailTip: "Astuce : Ouvrez l'e-mail sur votre téléphone, appuyez sur la pièce jointe, puis appuyez sur Ajouter au calendrier.",
+    tapToExpand: "APPUYEZ POUR VOIR",
+    shiftsAvailable: "créneaux disponibles",
+    currentShift: "EN COURS",
+    upNext: "SUIVANT",
+    eventEnded: "L'événement est terminé. Merci Champions !",
+    confirmTechRole: "Le support technique nécessite une expérience technique. Êtes-vous sûr ?",
+    techConfirmYes: "Oui, j'ai l'expérience",
+    techConfirmNo: "Non, retour",
   }
 };
 
@@ -432,7 +517,8 @@ const generateShifts = () => {
       id: id++,
       start,
       end,
-      champions: []
+      champions: [],
+      techChampions: []
     });
     
     current = end;
@@ -459,12 +545,22 @@ const formatDate = (date, timezone = 'America/Chicago') => {
   });
 };
 
-const getDay = (date, timezone = 'America/Chicago') => {
-  return new Date(date.toLocaleString('en-US', { timeZone: timezone })).getDay();
-};
-
 const getUserTimezone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
+};
+
+// Get display name for timezone (e.g., "CST", "PST", "GMT+7")
+const getTimezoneName = (timezone) => {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      timeZoneName: 'short'
+    }).formatToParts(new Date());
+    const tzPart = parts.find(part => part.type === 'timeZoneName');
+    return tzPart ? tzPart.value : timezone.split('/').pop().replace('_', ' ');
+  } catch {
+    return timezone.split('/').pop().replace('_', ' ');
+  }
 };
 
 // Get time period (morning, afternoon, evening, night) based on hour
@@ -488,6 +584,89 @@ const timePeriodIcons = {
   night: '🌙'
 };
 
+// Group shifts into time blocks for collapsible sections
+const groupShiftsIntoBlocks = (shifts, timezone) => {
+  const blocks = [];
+  let currentBlock = null;
+  
+  shifts.forEach((shift) => {
+    const period = getTimePeriod(shift.start, timezone);
+    const dateStr = formatDate(shift.start, timezone);
+    const blockKey = `${dateStr}-${period}`;
+    
+    if (!currentBlock || currentBlock.key !== blockKey) {
+      currentBlock = {
+        key: blockKey,
+        date: dateStr,
+        period,
+        shifts: [],
+        label: `${dateStr} - ${period.charAt(0).toUpperCase() + period.slice(1)}`
+      };
+      blocks.push(currentBlock);
+    }
+    currentBlock.shifts.push(shift);
+  });
+  
+  return blocks;
+};
+
+// Determine which block should be expanded based on current time
+const getDefaultExpandedBlocks = (blocks, isEventActive, isEventOver) => {
+  const now = new Date();
+  
+  if (isEventOver) {
+    return {}; // All collapsed after event
+  }
+  
+  if (!isEventActive) {
+    // Before event: first block expanded
+    return blocks.length > 0 ? { [blocks[0].key]: true } : {};
+  }
+  
+  // During event: find current/next block
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    const lastShift = block.shifts[block.shifts.length - 1];
+    
+    // If this block contains current or future shifts
+    if (lastShift.end > now) {
+      return { [block.key]: true };
+    }
+  }
+  
+  return {};
+};
+
+// Check if event is currently active
+const isEventCurrentlyActive = () => {
+  const now = new Date();
+  return now >= EVENT_CONFIG.startTime && now <= EVENT_CONFIG.endTime;
+};
+
+// Check if event is over
+const isEventOver = () => {
+  return new Date() > EVENT_CONFIG.endTime;
+};
+
+// Get current shift index (for highlighting)
+const getCurrentShiftIndex = (shifts) => {
+  const now = new Date();
+  return shifts.findIndex(s => now >= s.start && now < s.end);
+};
+
+// Get next upcoming shift index
+const getNextShiftIndex = (shifts) => {
+  const now = new Date();
+  return shifts.findIndex(s => s.start > now);
+};
+
+// Filter shifts for during-event view (only current and future)
+const filterShiftsForEvent = (shifts) => {
+  const now = new Date();
+  // Show shifts that haven't ended yet
+  return shifts.filter(s => s.end > now);
+};
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -509,11 +688,15 @@ export default function App() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastSignedUpShifts, setLastSignedUpShifts] = useState([]);
   const [lastSignedUpEmail, setLastSignedUpEmail] = useState('');
+  const [lastSignedUpRole, setLastSignedUpRole] = useState('champion');
+  const [expandedBlocks, setExpandedBlocks] = useState({});
+  const [showTechConfirm, setShowTechConfirm] = useState(false);
   
   // Sign-up form state
   const [formName, setFormName] = useState('');
   const [formEmail, setFormEmail] = useState('');
   const [selectedShifts, setSelectedShifts] = useState([]);
+  const [selectedRole, setSelectedRole] = useState('champion'); // 'champion' or 'tech'
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -528,9 +711,30 @@ export default function App() {
   const t = translations[language];
   const isRTL = language === 'ar';
   const colors = themes[theme];
+  const timezone = showLocalTime ? userTimezone : 'America/Chicago';
+  
+  // Event status
+  const eventActive = isEventCurrentlyActive();
+  const eventOver = isEventOver();
+  
+  // Get display shifts (filtered during event)
+  const displayShifts = eventActive ? filterShiftsForEvent(shifts) : shifts;
+  
+  // Group shifts into blocks
+  const shiftBlocks = groupShiftsIntoBlocks(displayShifts, timezone);
+  
+  // Current/next shift indices for highlighting
+  const currentShiftIdx = getCurrentShiftIndex(shifts);
+  const nextShiftIdx = getNextShiftIndex(shifts);
   
   // Generate theme-aware styles
   const styles = getStyles(colors);
+  
+  // Initialize expanded blocks on first render
+  useEffect(() => {
+    const defaultExpanded = getDefaultExpandedBlocks(shiftBlocks, eventActive, eventOver);
+    setExpandedBlocks(defaultExpanded);
+  }, [eventActive, eventOver]); // Re-run when event status changes
   
   // Focus management for sign-up modal
   useEffect(() => {
@@ -549,8 +753,11 @@ export default function App() {
   // Escape key handler and focus trap
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Escape to close modals
       if (e.key === 'Escape') {
+        if (showTechConfirm) {
+          setShowTechConfirm(false);
+          return;
+        }
         if (showSignUp) {
           setShowSignUp(false);
           signUpButtonRef.current?.focus();
@@ -588,16 +795,16 @@ export default function App() {
       }
     };
     
-    if (showSignUp || showAdminLogin || showExport || showSuccessModal) {
+    if (showSignUp || showAdminLogin || showExport || showSuccessModal || showTechConfirm) {
       document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden'; // Prevent background scroll
+      document.body.style.overflow = 'hidden';
     }
     
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [showSignUp, showAdminLogin, showExport, showSuccessModal]);
+  }, [showSignUp, showAdminLogin, showExport, showSuccessModal, showTechConfirm]);
   
   // Load data from Supabase
   useEffect(() => {
@@ -605,17 +812,20 @@ export default function App() {
       try {
         const { data, error } = await supabase
           .from('shifts')
-          .select('id, champions')
+          .select('id, champions, tech_champions')
           .order('id');
         
         if (error) throw error;
         
         if (data && data.length > 0) {
-          // Merge saved champions with generated shifts
           const baseShifts = generateShifts();
           const mergedShifts = baseShifts.map(shift => {
             const saved = data.find(s => s.id === shift.id);
-            return saved ? { ...shift, champions: saved.champions || [] } : shift;
+            return saved ? { 
+              ...shift, 
+              champions: saved.champions || [],
+              techChampions: saved.tech_champions || []
+            } : shift;
           });
           setShifts(mergedShifts);
         }
@@ -630,11 +840,13 @@ export default function App() {
   // Save data to Supabase
   const saveShifts = useCallback(async (newShifts) => {
     try {
-      // Update each shift that has champions
       for (const shift of newShifts) {
         const { error } = await supabase
           .from('shifts')
-          .update({ champions: shift.champions })
+          .update({ 
+            champions: shift.champions,
+            tech_champions: shift.techChampions 
+          })
           .eq('id', shift.id);
         
         if (error) throw error;
@@ -647,6 +859,8 @@ export default function App() {
   // Close modal and return focus
   const closeSignUpModal = () => {
     setShowSignUp(false);
+    setSelectedRole('champion');
+    setShowTechConfirm(false);
     setTimeout(() => signUpButtonRef.current?.focus(), 0);
   };
   
@@ -655,32 +869,48 @@ export default function App() {
     setTimeout(() => adminButtonRef.current?.focus(), 0);
   };
   
+  // Toggle block expansion
+  const toggleBlock = (blockKey) => {
+    setExpandedBlocks(prev => ({
+      ...prev,
+      [blockKey]: !prev[blockKey]
+    }));
+  };
+  
   // Check if shift can be selected based on rules
-  const canSelectShift = (shiftId, currentSelections, userEmail = null) => {
+  const canSelectShift = (shiftId, currentSelections, userEmail = null, role = 'champion') => {
     const shift = shifts.find(s => s.id === shiftId);
     if (!shift) return { allowed: false, reason: 'invalid' };
     
-    // Check if already full
-    if (shift.champions.length >= EVENT_CONFIG.maxChampionsPerShift) {
+    // Check if already full for this role
+    if (role === 'champion' && shift.champions.length >= EVENT_CONFIG.maxChampionsPerShift) {
+      return { allowed: false, reason: 'full' };
+    }
+    if (role === 'tech' && shift.techChampions.length >= EVENT_CONFIG.maxTechPerShift) {
       return { allowed: false, reason: 'full' };
     }
     
-    // Check if user already signed up for this shift
-    if (userEmail && shift.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase())) {
-      return { allowed: false, reason: 'alreadySignedUp' };
+    // Check if user already signed up for this shift (either role)
+    if (userEmail) {
+      const inChampions = shift.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+      const inTech = shift.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+      if (inChampions || inTech) {
+        return { allowed: false, reason: 'alreadySignedUp' };
+      }
     }
     
-    // Get all shifts this user would have (current selections + already signed up)
+    // Get all shifts this user would have
     const allUserShiftIds = [...currentSelections];
     if (userEmail) {
       shifts.forEach(s => {
-        if (s.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase())) {
+        const inC = s.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+        const inT = s.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+        if (inC || inT) {
           allUserShiftIds.push(s.id);
         }
       });
     }
     
-    // Add the potential new shift
     const potentialShifts = [...new Set([...allUserShiftIds, shiftId])].sort((a, b) => a - b);
     
     // Check consecutive hours rule
@@ -692,7 +922,6 @@ export default function App() {
         consecutiveCount++;
         maxConsecutive = Math.max(maxConsecutive, consecutiveCount);
       } else {
-        // Check if there's enough break
         const gap = potentialShifts[i] - potentialShifts[i - 1];
         const breakHours = gap * EVENT_CONFIG.shiftDurationHours;
         if (consecutiveCount >= 2 && breakHours < EVENT_CONFIG.requiredBreakHours) {
@@ -719,11 +948,26 @@ export default function App() {
     if (selectedShifts.includes(shiftId)) {
       setSelectedShifts(selectedShifts.filter(id => id !== shiftId));
     } else {
-      const check = canSelectShift(shiftId, selectedShifts, formEmail);
+      const check = canSelectShift(shiftId, selectedShifts, formEmail, selectedRole);
       if (check.allowed) {
         setSelectedShifts([...selectedShifts, shiftId]);
       }
     }
+  };
+  
+  const handleRoleChange = (role) => {
+    if (role === 'tech' && selectedRole !== 'tech') {
+      setShowTechConfirm(true);
+    } else {
+      setSelectedRole(role);
+      setSelectedShifts([]); // Clear selections when changing role
+    }
+  };
+  
+  const confirmTechRole = () => {
+    setSelectedRole('tech');
+    setSelectedShifts([]);
+    setShowTechConfirm(false);
   };
   
   const validateForm = () => {
@@ -738,20 +982,26 @@ export default function App() {
   
   const handleSubmit = async () => {
     if (!validateForm()) return;
-    if (isSubmitting) return; // Prevent double-submission
+    if (isSubmitting) return;
     
     setIsSubmitting(true);
     
     try {
-      // Store the shifts being signed up for calendar export
       const signedUpShiftData = selectedShifts.map(id => shifts.find(s => s.id === id));
       
       const newShifts = shifts.map(shift => {
         if (selectedShifts.includes(shift.id)) {
-          return {
-            ...shift,
-            champions: [...shift.champions, { name: formName.trim(), email: formEmail.trim() }]
-          };
+          if (selectedRole === 'tech') {
+            return {
+              ...shift,
+              techChampions: [...shift.techChampions, { name: formName.trim(), email: formEmail.trim() }]
+            };
+          } else {
+            return {
+              ...shift,
+              champions: [...shift.champions, { name: formName.trim(), email: formEmail.trim() }]
+            };
+          }
         }
         return shift;
       });
@@ -759,13 +1009,14 @@ export default function App() {
       setShifts(newShifts);
       await saveShifts(newShifts);
       
-      // Store for calendar export before clearing
       setLastSignedUpShifts(signedUpShiftData);
       setLastSignedUpEmail(formEmail.trim());
+      setLastSignedUpRole(selectedRole);
       
       setFormName('');
       setFormEmail('');
       setSelectedShifts([]);
+      setSelectedRole('champion');
       closeSignUpModal();
       setShowSuccessModal(true);
     } finally {
@@ -773,14 +1024,20 @@ export default function App() {
     }
   };
   
-  const handleAdminRemove = async (shiftId, championIndex) => {
+  const handleAdminRemove = async (shiftId, championIndex, isTech = false) => {
     if (!window.confirm(t.removeConfirm)) return;
     
     const newShifts = shifts.map(shift => {
       if (shift.id === shiftId) {
-        const newChampions = [...shift.champions];
-        newChampions.splice(championIndex, 1);
-        return { ...shift, champions: newChampions };
+        if (isTech) {
+          const newTech = [...shift.techChampions];
+          newTech.splice(championIndex, 1);
+          return { ...shift, techChampions: newTech };
+        } else {
+          const newChampions = [...shift.champions];
+          newChampions.splice(championIndex, 1);
+          return { ...shift, champions: newChampions };
+        }
       }
       return shift;
     });
@@ -789,15 +1046,22 @@ export default function App() {
     await saveShifts(newShifts);
   };
   
-  const handleAdminAdd = async (shiftId, name, email) => {
+  const handleAdminAdd = async (shiftId, name, email, isTech = false) => {
     if (!name.trim() || !email.trim()) return;
     
     const newShifts = shifts.map(shift => {
       if (shift.id === shiftId) {
-        return {
-          ...shift,
-          champions: [...shift.champions, { name: name.trim(), email: email.trim() }]
-        };
+        if (isTech) {
+          return {
+            ...shift,
+            techChampions: [...shift.techChampions, { name: name.trim(), email: email.trim() }]
+          };
+        } else {
+          return {
+            ...shift,
+            champions: [...shift.champions, { name: name.trim(), email: email.trim() }]
+          };
+        }
       }
       return shift;
     });
@@ -811,7 +1075,8 @@ export default function App() {
     
     const clearedShifts = shifts.map(shift => ({
       ...shift,
-      champions: []
+      champions: [],
+      techChampions: []
     }));
     
     setShifts(clearedShifts);
@@ -823,7 +1088,7 @@ export default function App() {
   const handleAdminLogin = () => {
     if (adminPassword === EVENT_CONFIG.adminPassword) {
       setIsAdmin(true);
-      setShowAdminLogin(false); // Don't use closeAdminModal - button won't exist
+      setShowAdminLogin(false);
       setAdminPassword('');
       setPasswordError(false);
     } else {
@@ -832,21 +1097,23 @@ export default function App() {
   };
   
   const exportSchedule = () => {
-    const timezone = showLocalTime ? userTimezone : 'America/Chicago';
-    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2\n';
+    const tz = showLocalTime ? userTimezone : 'America/Chicago';
+    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2,Tech Support,Tech Email\n';
     
     shifts.forEach((shift, index) => {
-      const timePeriod = getTimePeriod(shift.start, timezone);
+      const timePeriod = getTimePeriod(shift.start, tz);
       const row = [
         index + 1,
-        formatDate(shift.start, timezone),
-        formatTime(shift.start, timezone),
-        formatTime(shift.end, timezone),
+        formatDate(shift.start, tz),
+        formatTime(shift.start, tz),
+        formatTime(shift.end, tz),
         timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1),
         shift.champions[0]?.name || '',
         shift.champions[0]?.email || '',
         shift.champions[1]?.name || '',
-        shift.champions[1]?.email || ''
+        shift.champions[1]?.email || '',
+        shift.techChampions[0]?.name || '',
+        shift.techChampions[0]?.email || ''
       ];
       csv += row.map(cell => `"${cell}"`).join(',') + '\n';
     });
@@ -861,7 +1128,6 @@ export default function App() {
       setSuccessMessage('Copied to clipboard!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
-      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = exportData;
       document.body.appendChild(textArea);
@@ -873,26 +1139,25 @@ export default function App() {
     }
   };
   
-  // Generate Google Calendar URL for shifts
+  // Calendar functions
   const generateGoogleCalendarUrl = (shiftsToAdd) => {
-    // Google Calendar only supports adding one event at a time via URL
-    // So we'll create a URL for the first shift and note about multiple events
     if (shiftsToAdd.length === 0) return null;
     
     const shift = shiftsToAdd[0];
-    const title = encodeURIComponent(t.calendarEventTitle);
+    const title = encodeURIComponent(lastSignedUpRole === 'tech' ? t.calendarEventTitleTech : t.calendarEventTitle);
     const startStr = shift.start.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     const endStr = shift.end.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    const details = encodeURIComponent(`Event Champion shift for GamiCon48V 2026`);
+    const details = encodeURIComponent(`${lastSignedUpRole === 'tech' ? 'Tech Support' : 'Event Champion'} shift for GamiCon48V 2026`);
     
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}`;
   };
   
-  // Generate .ics file content for all shifts with reminders
   const generateIcsContent = (shiftsToAdd) => {
     const formatIcsDate = (date) => {
       return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     };
+    
+    const title = lastSignedUpRole === 'tech' ? t.calendarEventTitleTech : t.calendarEventTitle;
     
     let icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
@@ -908,18 +1173,18 @@ UID:${uid}
 DTSTAMP:${formatIcsDate(new Date())}
 DTSTART:${formatIcsDate(shift.start)}
 DTEND:${formatIcsDate(shift.end)}
-SUMMARY:${t.calendarEventTitle}
-DESCRIPTION:Event Champion shift ${index + 1} for GamiCon48V 2026
+SUMMARY:${title}
+DESCRIPTION:${lastSignedUpRole === 'tech' ? 'Tech Support' : 'Event Champion'} shift ${index + 1} for GamiCon48V 2026
 STATUS:CONFIRMED
 BEGIN:VALARM
 TRIGGER:-P1D
 ACTION:DISPLAY
-DESCRIPTION:Your GamiCon48V Event Champion shift starts tomorrow!
+DESCRIPTION:Your GamiCon48V shift starts tomorrow!
 END:VALARM
 BEGIN:VALARM
 TRIGGER:-PT2H
 ACTION:DISPLAY
-DESCRIPTION:Your GamiCon48V Event Champion shift starts in 2 hours!
+DESCRIPTION:Your GamiCon48V shift starts in 2 hours!
 END:VALARM
 END:VEVENT
 `;
@@ -943,11 +1208,9 @@ END:VEVENT
   };
   
   const emailIcsFile = () => {
-    // First download the file
     downloadIcsFile();
     
-    // Then open mailto with instructions
-    const subject = encodeURIComponent('My GamiCon48V Event Champion Shifts');
+    const subject = encodeURIComponent('My GamiCon48V Shifts');
     const shiftList = lastSignedUpShifts.map((shift, i) => {
       const date = formatDate(shift.start, timezone);
       const start = formatTime(shift.start, timezone);
@@ -956,7 +1219,7 @@ END:VEVENT
     }).join('\n');
     
     const body = encodeURIComponent(
-`Here are my GamiCon48V Event Champion shifts:
+`Here are my GamiCon48V ${lastSignedUpRole === 'tech' ? 'Tech Support' : 'Event Champion'} shifts:
 
 ${shiftList}
 
@@ -969,34 +1232,58 @@ Then open this email on your phone and tap the attachment to add shifts to your 
   };
   
   const openGoogleCalendar = () => {
-    // For multiple shifts, we'll open the first one and show instructions
     const url = generateGoogleCalendarUrl(lastSignedUpShifts);
     if (url) {
       window.open(url, '_blank');
     }
   };
   
-  const getShiftStatus = (shift) => {
+  // Get status helpers
+  const getChampionStatus = (shift) => {
     if (shift.champions.length >= EVENT_CONFIG.maxChampionsPerShift) return 'full';
     if (shift.champions.length === 1) return 'partial';
     return 'available';
   };
   
-  const timezone = showLocalTime ? userTimezone : 'America/Chicago';
+  const getTechStatus = (shift) => {
+    if (shift.techChampions.length >= EVENT_CONFIG.maxTechPerShift) return 'full';
+    return 'available';
+  };
   
-  // Group shifts by day
-  const shiftsByDay = shifts.reduce((acc, shift) => {
-    const dayKey = formatDate(shift.start, timezone);
-    if (!acc[dayKey]) acc[dayKey] = [];
-    acc[dayKey].push(shift);
-    return acc;
-  }, {});
+  // Count available spots in a block
+  const countAvailableInBlock = (block) => {
+    let count = 0;
+    block.shifts.forEach(shift => {
+      if (shift.champions.length < EVENT_CONFIG.maxChampionsPerShift) count++;
+      if (shift.techChampions.length < EVENT_CONFIG.maxTechPerShift) count++;
+    });
+    return count;
+  };
 
   if (isLoading) {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.loadingSpinner} aria-label="Loading">
           <div style={styles.spinnerGear}>⚙</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (eventOver) {
+    return (
+      <div style={{ ...styles.container, direction: isRTL ? 'rtl' : 'ltr' }}>
+        <header style={styles.header}>
+          <div style={styles.headerContent}>
+            <div style={styles.titleGroup}>
+              <h1 style={styles.title}>{t.title}</h1>
+              <p style={styles.subtitle}>{t.subtitle}</p>
+            </div>
+          </div>
+        </header>
+        <div style={styles.eventEndedMessage}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
+          <h2>{t.eventEnded}</h2>
         </div>
       </div>
     );
@@ -1044,7 +1331,7 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                 style={styles.toggleButton}
                 aria-pressed={showLocalTime}
               >
-                {showLocalTime ? userTimezone.split('/').pop().replace('_', ' ') : t.centralTime}
+                {showLocalTime ? getTimezoneName(userTimezone) : t.centralTime}
               </button>
             </div>
             
@@ -1113,7 +1400,6 @@ Then open this email on your phone and tap the attachment to add shifts to your 
       </div>
       
       {/* Rules Panel */}
-      {/* Rules - Friendly Dialogue */}
       <details style={styles.rulesPanel}>
         <summary style={styles.rulesSummary}>{t.rules}</summary>
         <p style={styles.rulesDialogue}>{t.rulesDialogue}</p>
@@ -1133,80 +1419,178 @@ Then open this email on your phone and tap the attachment to add shifts to your 
           <span style={{ ...styles.legendDot, backgroundColor: colors.full }} aria-hidden="true"></span>
           <span>{t.full}</span>
         </div>
+        <div style={styles.legendItem} role="listitem">
+          <span style={{ ...styles.legendDot, backgroundColor: colors.techAccent }} aria-hidden="true"></span>
+          <span>{t.techSupport}</span>
+        </div>
       </div>
       
-      {/* Schedule Grid */}
+      {/* Schedule - Collapsible Blocks */}
       <main style={styles.scheduleContainer}>
-        {Object.entries(shiftsByDay).map(([day, dayShifts]) => (
-          <section key={day} style={styles.daySection}>
-            <h2 style={styles.dayHeader}>{day}</h2>
-            <div style={styles.shiftsGrid}>
-              {dayShifts.map((shift) => {
-                const status = getShiftStatus(shift);
-                const openSpots = EVENT_CONFIG.maxChampionsPerShift - shift.champions.length;
-                const timePeriod = getTimePeriod(shift.start, timezone);
-                
-                return (
-                  <div
-                    key={shift.id}
-                    style={{
-                      ...styles.shiftCard,
-                      ...styles[`shiftCard_${status}`]
-                    }}
-                    role="article"
-                    aria-label={`${t.shift} ${shift.id + 1}: ${formatTime(shift.start, timezone)} - ${formatTime(shift.end, timezone)}, ${t[timePeriod]}, ${openSpots} ${openSpots === 1 ? t.spot : t.spots} ${t.open}`}
-                  >
-                    <div style={styles.timePeriodBadge}>
-                      <span aria-hidden="true">{timePeriodIcons[timePeriod]}</span> {t[timePeriod]}
-                    </div>
+        {shiftBlocks.map((block, blockIndex) => {
+          const isExpanded = expandedBlocks[block.key];
+          const availableCount = countAvailableInBlock(block);
+          const isFirstBlock = blockIndex === 0;
+          
+          return (
+            <section key={block.key} style={styles.blockSection}>
+              {/* Block Header - Always visible */}
+              <button
+                onClick={() => toggleBlock(block.key)}
+                style={{
+                  ...styles.blockHeader,
+                  ...(isExpanded ? styles.blockHeaderExpanded : {}),
+                  ...(!isExpanded && isFirstBlock && !eventActive ? styles.blockHeaderHighlight : {})
+                }}
+                aria-expanded={isExpanded}
+                aria-controls={`block-${block.key}`}
+              >
+                <div style={styles.blockHeaderLeft}>
+                  <span style={styles.blockIcon} aria-hidden="true">
+                    {timePeriodIcons[block.period]}
+                  </span>
+                  <span style={styles.blockTitle}>
+                    {block.date} • {t[block.period]}
+                  </span>
+                </div>
+                <div style={styles.blockHeaderRight}>
+                  {!isExpanded && (
+                    <span style={styles.availableBadge}>
+                      {availableCount} {t.shiftsAvailable}
+                    </span>
+                  )}
+                  <span style={styles.expandIcon} aria-hidden="true">
+                    {isExpanded ? '▼' : '▶'}
+                  </span>
+                </div>
+              </button>
+              
+              {/* Block Content - Shifts */}
+              {isExpanded && (
+                <div id={`block-${block.key}`} style={styles.blockContent}>
+                  {block.shifts.map((shift) => {
+                    const champStatus = getChampionStatus(shift);
+                    const techStatus = getTechStatus(shift);
+                    const isCurrent = shift.id === currentShiftIdx;
+                    const isNext = shift.id === nextShiftIdx && !isCurrent;
                     
-                    <div style={styles.shiftTime}>
-                      {formatTime(shift.start, timezone)} - {formatTime(shift.end, timezone)}
-                    </div>
-                    
-                    <div style={styles.shiftStatus}>
-                      {status === 'available' && (
-                        <span style={styles.statusBadge_available}>2 {t.spots} {t.open}</span>
-                      )}
-                      {status === 'partial' && (
-                        <span style={styles.statusBadge_partial}>1 {t.spot} {t.open}</span>
-                      )}
-                      {status === 'full' && (
-                        <span style={styles.statusBadge_full}>{t.full}</span>
-                      )}
-                    </div>
-                    
-                    <div style={styles.championsList}>
-                      {shift.champions.map((champion, idx) => (
-                        <div key={idx} style={styles.championItem}>
-                          <span style={styles.championName}>{champion.name}</span>
-                          {isAdmin && (
-                            <button
-                              onClick={() => handleAdminRemove(shift.id, idx)}
-                              style={styles.removeButton}
-                              aria-label={`${t.removeFrom}: ${champion.name}`}
-                            >
-                              ✕
-                            </button>
-                          )}
+                    return (
+                      <div
+                        key={shift.id}
+                        style={{
+                          ...styles.shiftRow,
+                          ...(isCurrent ? styles.shiftRowCurrent : {}),
+                          ...(isNext ? styles.shiftRowNext : {})
+                        }}
+                      >
+                        {/* Time column */}
+                        <div style={styles.shiftTimeCol}>
+                          <div style={styles.shiftTime}>
+                            {formatTime(shift.start, timezone)}
+                          </div>
+                          <div style={styles.shiftTimeTo}>to</div>
+                          <div style={styles.shiftTime}>
+                            {formatTime(shift.end, timezone)}
+                          </div>
+                          {isCurrent && <div style={styles.nowBadge}>{t.currentShift}</div>}
+                          {isNext && <div style={styles.nextBadge}>{t.upNext}</div>}
                         </div>
-                      ))}
-                    </div>
-                    
-                    {isAdmin && shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && (
-                      <AdminAddForm
-                        shiftId={shift.id}
-                        onAdd={handleAdminAdd}
-                        t={t}
-                        styles={styles}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        ))}
+                        
+                        {/* Champions column */}
+                        <div style={styles.roleColumn}>
+                          <div style={styles.roleHeader}>
+                            <span style={{ ...styles.roleLabel, color: colors.accent }}>
+                              {t.champions}
+                            </span>
+                            <span style={{
+                              ...styles.statusDot,
+                              backgroundColor: champStatus === 'full' ? colors.full : 
+                                              champStatus === 'partial' ? colors.partial : colors.available
+                            }} />
+                          </div>
+                          <div style={styles.championsList}>
+                            {shift.champions.map((champ, idx) => (
+                              <div key={idx} style={styles.championChip}>
+                                <span>{champ.name}</span>
+                                {isAdmin && (
+                                  <button
+                                    onClick={() => handleAdminRemove(shift.id, idx, false)}
+                                    style={styles.removeChip}
+                                    aria-label={`${t.remove} ${champ.name}`}
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            {shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && (
+                              <div style={styles.openSlot}>
+                                {EVENT_CONFIG.maxChampionsPerShift - shift.champions.length} {t.open}
+                              </div>
+                            )}
+                            {isAdmin && shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && (
+                              <AdminAddForm
+                                shiftId={shift.id}
+                                onAdd={(id, name, email) => handleAdminAdd(id, name, email, false)}
+                                t={t}
+                                styles={styles}
+                                colors={colors}
+                              />
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Tech column */}
+                        <div style={styles.roleColumn}>
+                          <div style={styles.roleHeader}>
+                            <span style={{ ...styles.roleLabel, color: colors.techAccent }}>
+                              {t.tech}
+                            </span>
+                            <span style={{
+                              ...styles.statusDot,
+                              backgroundColor: techStatus === 'full' ? colors.full : colors.techAccent
+                            }} />
+                          </div>
+                          <div style={styles.championsList}>
+                            {shift.techChampions.map((tech, idx) => (
+                              <div key={idx} style={{ ...styles.championChip, borderColor: colors.techAccent }}>
+                                <span>{tech.name}</span>
+                                {isAdmin && (
+                                  <button
+                                    onClick={() => handleAdminRemove(shift.id, idx, true)}
+                                    style={styles.removeChip}
+                                    aria-label={`${t.remove} ${tech.name}`}
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            {shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
+                              <div style={{ ...styles.openSlot, color: colors.techAccent }}>
+                                1 {t.open}
+                              </div>
+                            )}
+                            {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
+                              <AdminAddForm
+                                shiftId={shift.id}
+                                onAdd={(id, name, email) => handleAdminAdd(id, name, email, true)}
+                                t={t}
+                                styles={styles}
+                                colors={colors}
+                                isTech={true}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          );
+        })}
       </main>
       
       {/* Sign Up Modal */}
@@ -1254,6 +1638,42 @@ Then open this email on your phone and tap the attachment to add shifts to your 
               )}
             </div>
             
+            {/* Role Selection */}
+            <fieldset style={styles.fieldset}>
+              <legend style={styles.legend2}>{t.selectRole}</legend>
+              <div style={styles.roleSelection}>
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('champion')}
+                  style={{
+                    ...styles.roleButton,
+                    ...(selectedRole === 'champion' ? styles.roleButtonSelected : {})
+                  }}
+                  aria-pressed={selectedRole === 'champion'}
+                >
+                  <span style={styles.roleButtonIcon}>🏆</span>
+                  <span style={styles.roleButtonText}>{t.eventChampion}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('tech')}
+                  style={{
+                    ...styles.roleButton,
+                    ...styles.roleButtonTech,
+                    ...(selectedRole === 'tech' ? styles.roleButtonTechSelected : {})
+                  }}
+                  aria-pressed={selectedRole === 'tech'}
+                >
+                  <span style={styles.roleButtonIcon}>🔧</span>
+                  <span style={styles.roleButtonText}>{t.techSupport}</span>
+                </button>
+              </div>
+              {selectedRole === 'tech' && (
+                <p style={styles.techDescription}>{t.techDescription}</p>
+              )}
+            </fieldset>
+            
+            {/* Shift Selection */}
             <fieldset style={styles.fieldset}>
               <legend style={styles.legend2}>{t.selectShifts}</legend>
               {formErrors.shifts && (
@@ -1262,9 +1682,9 @@ Then open this email on your phone and tap the attachment to add shifts to your 
               
               <div style={styles.shiftSelectionGrid}>
                 {shifts.map((shift) => {
-                  const status = getShiftStatus(shift);
+                  const status = selectedRole === 'tech' ? getTechStatus(shift) : getChampionStatus(shift);
                   const isSelected = selectedShifts.includes(shift.id);
-                  const checkResult = canSelectShift(shift.id, selectedShifts.filter(id => id !== shift.id), formEmail);
+                  const checkResult = canSelectShift(shift.id, selectedShifts.filter(id => id !== shift.id), formEmail, selectedRole);
                   const canSelect = isSelected || checkResult.allowed;
                   const timePeriod = getTimePeriod(shift.start, timezone);
                   
@@ -1275,11 +1695,11 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                       disabled={!canSelect && !isSelected}
                       style={{
                         ...styles.shiftSelectButton,
-                        ...(isSelected ? styles.shiftSelectButton_selected : {}),
+                        ...(isSelected ? (selectedRole === 'tech' ? styles.shiftSelectButtonTechSelected : styles.shiftSelectButton_selected) : {}),
                         ...(!canSelect && !isSelected ? styles.shiftSelectButton_disabled : {})
                       }}
                       aria-pressed={isSelected}
-                      aria-label={`${formatDate(shift.start, timezone)} ${formatTime(shift.start, timezone)} - ${formatTime(shift.end, timezone)}, ${t[timePeriod]}${!canSelect && !isSelected ? `, ${t[checkResult.reason] || t.blocked}` : ''}`}
+                      aria-label={`${formatDate(shift.start, timezone)} ${formatTime(shift.start, timezone)} - ${formatTime(shift.end, timezone)}`}
                     >
                       <span style={styles.shiftSelectPeriod}>
                         <span aria-hidden="true">{timePeriodIcons[timePeriod]}</span> {t[timePeriod]}
@@ -1293,7 +1713,7 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                           {t[checkResult.reason] || t.blocked}
                         </span>
                       )}
-                      {status === 'partial' && !isSelected && canSelect && (
+                      {status === 'partial' && !isSelected && canSelect && selectedRole === 'champion' && (
                         <span style={styles.shiftSelectPartial}>1 {t.spot}</span>
                       )}
                     </button>
@@ -1310,12 +1730,45 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                 onClick={handleSubmit} 
                 style={{
                   ...styles.primaryButton,
+                  ...(selectedRole === 'tech' ? { backgroundColor: colors.techAccent } : {}),
                   ...(isSubmitting ? { opacity: 0.7, cursor: 'not-allowed' } : {})
                 }}
                 disabled={isSubmitting}
                 aria-busy={isSubmitting}
               >
                 {isSubmitting ? t.submitting : t.submit}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Tech Confirmation Modal */}
+      {showTechConfirm && (
+        <div
+          style={styles.modalOverlay}
+          onClick={(e) => e.target === e.currentTarget && setShowTechConfirm(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="tech-confirm-title"
+        >
+          <div style={{ ...styles.modal, maxWidth: '450px', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔧</div>
+            <h2 id="tech-confirm-title" style={{ ...styles.modalTitle, color: colors.techAccent }}>
+              {t.techSupport}
+            </h2>
+            <p style={{ color: colors.text, marginBottom: '1.5rem', lineHeight: 1.6 }}>
+              {t.confirmTechRole}
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button onClick={() => setShowTechConfirm(false)} style={styles.secondaryButton}>
+                {t.techConfirmNo}
+              </button>
+              <button 
+                onClick={confirmTechRole} 
+                style={{ ...styles.primaryButton, backgroundColor: colors.techAccent }}
+              >
+                {t.techConfirmYes}
               </button>
             </div>
           </div>
@@ -1424,10 +1877,17 @@ Then open this email on your phone and tap the attachment to add shifts to your 
         >
           <div style={{ ...styles.modal, maxWidth: '500px', textAlign: 'center' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
-            <h2 id="success-title" style={styles.modalTitle}>{t.signUpSuccess}</h2>
+            <h2 id="success-title" style={{
+              ...styles.modalTitle,
+              color: lastSignedUpRole === 'tech' ? colors.techAccent : colors.accent
+            }}>
+              {t.signUpSuccess}
+            </h2>
             
             <p style={{ color: colors.textMuted, marginBottom: '1.5rem' }}>
               {lastSignedUpShifts.length} {lastSignedUpShifts.length === 1 ? t.shift : 'shifts'} 
+              {' • '}
+              {lastSignedUpRole === 'tech' ? t.techSupport : t.eventChampion}
             </p>
             
             <div style={{ marginBottom: '1.5rem' }}>
@@ -1484,7 +1944,10 @@ Then open this email on your phone and tap the attachment to add shifts to your 
             
             <button 
               onClick={() => setShowSuccessModal(false)} 
-              style={styles.primaryButton}
+              style={{
+                ...styles.primaryButton,
+                ...(lastSignedUpRole === 'tech' ? { backgroundColor: colors.techAccent } : {})
+              }}
             >
               {t.close}
             </button>
@@ -1496,7 +1959,7 @@ Then open this email on your phone and tap the attachment to add shifts to your 
 }
 
 // Admin Add Form Component
-function AdminAddForm({ shiftId, onAdd, t, styles }) {
+function AdminAddForm({ shiftId, onAdd, t, styles, colors, isTech = false }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -1510,8 +1973,14 @@ function AdminAddForm({ shiftId, onAdd, t, styles }) {
   
   if (!isOpen) {
     return (
-      <button onClick={() => setIsOpen(true)} style={styles.addButton}>
-        + {t.add}
+      <button 
+        onClick={() => setIsOpen(true)} 
+        style={{
+          ...styles.addButton,
+          ...(isTech ? { borderColor: colors.techAccent, color: colors.techAccent } : {})
+        }}
+      >
+        + {isTech ? t.addTech : t.add}
       </button>
     );
   }
@@ -1538,7 +2007,13 @@ function AdminAddForm({ shiftId, onAdd, t, styles }) {
         <button onClick={() => setIsOpen(false)} style={styles.smallSecondaryButton}>
           {t.cancel}
         </button>
-        <button onClick={handleSubmit} style={styles.smallPrimaryButton}>
+        <button 
+          onClick={handleSubmit} 
+          style={{
+            ...styles.smallPrimaryButton,
+            ...(isTech ? { backgroundColor: colors.techAccent } : {})
+          }}
+        >
           {t.save}
         </button>
       </div>
@@ -1573,6 +2048,17 @@ const getStyles = (colors) => ({
     fontSize: '4rem',
     color: colors.accent,
     animation: 'spin 2s linear infinite',
+  },
+  
+  eventEndedMessage: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '50vh',
+    textAlign: 'center',
+    padding: '2rem',
+    color: colors.accent,
   },
   
   header: {
@@ -1792,204 +2278,278 @@ const getStyles = (colors) => ({
     paddingBottom: 'max(3rem, env(safe-area-inset-bottom))',
   },
   
-  daySection: {
-    marginBottom: '2rem',
-  },
-  
-  dayHeader: {
-    fontSize: '1.5rem',
-    color: colors.accent,
-    borderBottom: `2px solid ${colors.border}`,
-    paddingBottom: '0.5rem',
+  // Collapsible Block Styles
+  blockSection: {
     marginBottom: '1rem',
+    borderRadius: '12px',
+    overflow: 'hidden',
+    border: `2px solid ${colors.border}`,
   },
   
-  shiftsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))',
+  blockHeader: {
+    width: '100%',
+    padding: '1rem 1.25rem',
+    backgroundColor: colors.bgSecondary,
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '1rem',
+    transition: 'all 0.2s ease',
+    minHeight: '60px',
+    touchAction: 'manipulation',
+  },
+  
+  blockHeaderExpanded: {
+    backgroundColor: colors.accent,
+    color: colors.bg,
+  },
+  
+  blockHeaderHighlight: {
+    animation: 'pulse 2s infinite',
+    boxShadow: `0 0 0 3px ${colors.accent}`,
+  },
+  
+  blockHeaderLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+  },
+  
+  blockIcon: {
+    fontSize: '1.5rem',
+  },
+  
+  blockTitle: {
+    fontSize: '1.1rem',
+    fontWeight: '600',
+  },
+  
+  blockHeaderRight: {
+    display: 'flex',
+    alignItems: 'center',
     gap: '1rem',
   },
   
-  shiftCard: {
+  availableBadge: {
+    backgroundColor: colors.available,
+    color: '#fff',
+    padding: '0.25rem 0.75rem',
+    borderRadius: '20px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+  },
+  
+  expandIcon: {
+    fontSize: '1rem',
+    transition: 'transform 0.2s ease',
+  },
+  
+  tapHint: {
+    backgroundColor: colors.expandBg,
+    color: colors.accent,
+    textAlign: 'center',
+    padding: '0.75rem',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    borderTop: `1px dashed ${colors.border}`,
+    animation: 'bounce 1s infinite',
+  },
+  
+  blockContent: {
+    backgroundColor: colors.bg,
+    padding: '1rem',
+  },
+  
+  // Shift Row Styles (combined layout)
+  shiftRow: {
+    display: 'grid',
+    gridTemplateColumns: '100px 1fr 1fr',
+    gap: '1rem',
+    padding: '1rem',
     backgroundColor: colors.bgSecondary,
-    borderRadius: '12px',
-    padding: '1.25rem',
-    border: '2px solid',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    borderRadius: '8px',
+    marginBottom: '0.75rem',
+    alignItems: 'start',
   },
   
-  shiftCard_available: {
-    borderColor: colors.available,
+  shiftRowCurrent: {
+    border: `3px solid ${colors.available}`,
+    boxShadow: `0 0 15px ${colors.available}40`,
   },
   
-  shiftCard_partial: {
-    borderColor: colors.partial,
+  shiftRowNext: {
+    border: `2px dashed ${colors.partial}`,
   },
   
-  shiftCard_full: {
-    borderColor: colors.full,
-    opacity: 0.85,
-  },
-  
-  timePeriodBadge: {
-    fontSize: '0.8rem',
-    color: colors.textMuted,
-    marginBottom: '0.25rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.35rem',
+  shiftTimeCol: {
+    textAlign: 'center',
+    paddingTop: '0.25rem',
   },
   
   shiftTime: {
-    fontSize: '1.25rem',
+    fontSize: '1rem',
     fontWeight: '700',
     color: colors.text,
+  },
+  
+  shiftTimeTo: {
+    fontSize: '0.75rem',
+    color: colors.textMuted,
+    margin: '0.125rem 0',
+  },
+  
+  nowBadge: {
+    backgroundColor: colors.available,
+    color: '#fff',
+    padding: '0.2rem 0.5rem',
+    borderRadius: '4px',
+    fontSize: '0.7rem',
+    fontWeight: '700',
+    marginTop: '0.5rem',
+    display: 'inline-block',
+  },
+  
+  nextBadge: {
+    backgroundColor: colors.partial,
+    color: '#fff',
+    padding: '0.2rem 0.5rem',
+    borderRadius: '4px',
+    fontSize: '0.7rem',
+    fontWeight: '700',
+    marginTop: '0.5rem',
+    display: 'inline-block',
+  },
+  
+  roleColumn: {
+    minWidth: 0,
+  },
+  
+  roleHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
     marginBottom: '0.5rem',
   },
   
-  shiftStatus: {
-    marginBottom: '0.75rem',
-  },
-  
-  statusBadge_available: {
-    display: 'inline-block',
-    padding: '0.25rem 0.75rem',
-    backgroundColor: colors.available,
-    color: '#fff',
-    borderRadius: '20px',
+  roleLabel: {
     fontSize: '0.85rem',
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
   },
   
-  statusBadge_partial: {
-    display: 'inline-block',
-    padding: '0.25rem 0.75rem',
-    backgroundColor: colors.partial,
-    color: '#fff',
-    borderRadius: '20px',
-    fontSize: '0.85rem',
-    fontWeight: '600',
-  },
-  
-  statusBadge_full: {
-    display: 'inline-block',
-    padding: '0.25rem 0.75rem',
-    backgroundColor: colors.full,
-    color: '#fff',
-    borderRadius: '20px',
-    fontSize: '0.85rem',
-    fontWeight: '600',
+  statusDot: {
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%',
   },
   
   championsList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.5rem',
+    gap: '0.4rem',
   },
   
-  championItem: {
+  championChip: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: colors.bg,
-    padding: '0.5rem 0.75rem',
+    padding: '0.4rem 0.6rem',
     borderRadius: '6px',
+    fontSize: '0.9rem',
+    border: `1px solid ${colors.accent}`,
   },
   
-  championName: {
-    fontWeight: '600',
-  },
-  
-  removeButton: {
-    backgroundColor: 'transparent',
-    color: colors.error,
+  removeChip: {
+    background: 'none',
     border: 'none',
+    color: colors.error,
     cursor: 'pointer',
-    fontSize: '1.25rem',
-    padding: '0.5rem',
-    borderRadius: '4px',
-    transition: 'background-color 0.2s',
-    minWidth: '44px',
-    minHeight: '44px',
+    padding: '0.25rem',
+    fontSize: '0.9rem',
+    minWidth: '28px',
+    minHeight: '28px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    touchAction: 'manipulation',
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
+  },
+  
+  openSlot: {
+    fontSize: '0.8rem',
+    color: colors.textMuted,
+    fontStyle: 'italic',
+    padding: '0.25rem 0',
   },
   
   addButton: {
-    marginTop: '0.75rem',
-    padding: '0.75rem',
+    marginTop: '0.5rem',
+    padding: '0.5rem',
     width: '100%',
     backgroundColor: 'transparent',
     color: colors.accent,
-    border: `2px dashed ${colors.accent}`,
+    border: `1px dashed ${colors.accent}`,
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '0.9rem',
+    fontSize: '0.85rem',
     fontWeight: '600',
-    minHeight: '48px',
+    minHeight: '36px',
     touchAction: 'manipulation',
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
   },
   
   adminAddForm: {
-    marginTop: '0.75rem',
+    marginTop: '0.5rem',
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.5rem',
+    gap: '0.4rem',
   },
   
   adminInput: {
-    padding: '0.75rem',
-    fontSize: '16px',
+    padding: '0.5rem',
+    fontSize: '14px',
     backgroundColor: colors.bg,
     color: colors.text,
     border: `1px solid ${colors.border}`,
     borderRadius: '4px',
-    minHeight: '44px',
+    minHeight: '36px',
     WebkitAppearance: 'none',
     appearance: 'none',
   },
   
   adminAddActions: {
     display: 'flex',
-    gap: '0.5rem',
+    gap: '0.4rem',
     justifyContent: 'flex-end',
   },
   
   smallSecondaryButton: {
-    padding: '0.5rem 1rem',
-    fontSize: '0.9rem',
+    padding: '0.4rem 0.75rem',
+    fontSize: '0.85rem',
     backgroundColor: 'transparent',
     color: colors.textMuted,
     border: `1px solid ${colors.border}`,
     borderRadius: '4px',
     cursor: 'pointer',
-    minHeight: '44px',
+    minHeight: '36px',
     touchAction: 'manipulation',
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
   },
   
   smallPrimaryButton: {
-    padding: '0.5rem 1rem',
-    fontSize: '0.9rem',
+    padding: '0.4rem 0.75rem',
+    fontSize: '0.85rem',
     backgroundColor: colors.accent,
     color: colors.bg,
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
     fontWeight: '600',
-    minHeight: '44px',
+    minHeight: '36px',
     touchAction: 'manipulation',
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
   },
   
+  // Modal styles
   modalOverlay: {
     position: 'fixed',
     top: 0,
@@ -2075,19 +2635,79 @@ const getStyles = (colors) => ({
     padding: '0 0.5rem',
   },
   
+  // Role selection
+  roleSelection: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '1rem',
+    marginTop: '0.75rem',
+  },
+  
+  roleButton: {
+    padding: '1rem',
+    backgroundColor: colors.bg,
+    color: colors.text,
+    border: `2px solid ${colors.border}`,
+    borderRadius: '12px',
+    cursor: 'pointer',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '0.5rem',
+    transition: 'all 0.2s ease',
+    minHeight: '80px',
+  },
+  
+  roleButtonSelected: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+    color: colors.bg,
+  },
+  
+  roleButtonTech: {
+    borderColor: colors.techAccent,
+  },
+  
+  roleButtonTechSelected: {
+    backgroundColor: colors.techAccent,
+    borderColor: colors.techAccent,
+    color: '#fff',
+  },
+  
+  roleButtonIcon: {
+    fontSize: '1.5rem',
+  },
+  
+  roleButtonText: {
+    fontSize: '0.95rem',
+    fontWeight: '600',
+  },
+  
+  techDescription: {
+    marginTop: '1rem',
+    padding: '0.75rem',
+    backgroundColor: `${colors.techAccent}20`,
+    borderRadius: '8px',
+    fontSize: '0.9rem',
+    color: colors.text,
+    lineHeight: '1.5',
+    borderLeft: `3px solid ${colors.techAccent}`,
+  },
+  
+  // Shift selection grid
   shiftSelectionGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(min(180px, 100%), 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(min(160px, 100%), 1fr))',
     gap: '0.75rem',
     marginTop: '1rem',
-    maxHeight: '50vh',
+    maxHeight: '45vh',
     overflow: 'auto',
     padding: '0.5rem',
     WebkitOverflowScrolling: 'touch',
   },
   
   shiftSelectButton: {
-    padding: '1rem',
+    padding: '0.75rem',
     backgroundColor: colors.bg,
     color: colors.text,
     border: `2px solid ${colors.border}`,
@@ -2097,8 +2717,8 @@ const getStyles = (colors) => ({
     transition: 'all 0.2s ease',
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.25rem',
-    minHeight: '72px',
+    gap: '0.2rem',
+    minHeight: '70px',
     touchAction: 'manipulation',
     userSelect: 'none',
     WebkitUserSelect: 'none',
@@ -2108,6 +2728,13 @@ const getStyles = (colors) => ({
   shiftSelectButton_selected: {
     backgroundColor: colors.available,
     borderColor: colors.selectedBorder,
+    color: '#fff',
+  },
+  
+  shiftSelectButtonTechSelected: {
+    backgroundColor: colors.techAccent,
+    borderColor: colors.techAccent,
+    color: '#fff',
   },
   
   shiftSelectButton_disabled: {
@@ -2117,7 +2744,7 @@ const getStyles = (colors) => ({
   },
   
   shiftSelectPeriod: {
-    fontSize: '0.75rem',
+    fontSize: '0.7rem',
     color: colors.textMuted,
     display: 'flex',
     alignItems: 'center',
@@ -2126,25 +2753,25 @@ const getStyles = (colors) => ({
   },
   
   shiftSelectDate: {
-    fontSize: '0.85rem',
+    fontSize: '0.8rem',
     color: colors.textMuted,
   },
   
   shiftSelectTime: {
-    fontSize: '1.1rem',
+    fontSize: '1rem',
     fontWeight: '600',
   },
   
   shiftSelectReason: {
-    fontSize: '0.8rem',
+    fontSize: '0.75rem',
     color: colors.error,
-    marginTop: '0.25rem',
+    marginTop: '0.2rem',
   },
   
   shiftSelectPartial: {
-    fontSize: '0.8rem',
+    fontSize: '0.75rem',
     color: colors.partial,
-    marginTop: '0.25rem',
+    marginTop: '0.2rem',
   },
   
   modalActions: {
@@ -2155,12 +2782,22 @@ const getStyles = (colors) => ({
   },
 });
 
-// Add CSS animation for spinner
+// Add CSS animation for spinner and pulse
 const styleSheet = document.createElement('style');
 styleSheet.textContent = `
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
   }
   
   @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
@@ -2235,10 +2872,10 @@ styleSheet.textContent = `
     }
   }
   
-  /* Improve modal behavior on mobile with keyboard open */
-  @supports (padding: max(0px)) {
-    .modal-open {
-      padding-bottom: env(keyboard-inset-height, 0px);
+  /* Responsive grid for shift rows on mobile */
+  @media (max-width: 600px) {
+    .shift-row-mobile {
+      grid-template-columns: 1fr !important;
     }
   }
 `;
