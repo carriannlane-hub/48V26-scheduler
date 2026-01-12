@@ -32,36 +32,46 @@ const themes = {
   dark: {
     bg: '#1a1a2e',
     bgSecondary: '#2d2d44',
-    text: '#e8e0d5',
-    textMuted: '#a89984',
+    text: '#f0ebe5', // Lightened for better contrast
+    textMuted: '#c4b5a5', // Lightened for better contrast (was #a89984)
     title: '#e2e8f0',
     accent: '#14b8a6',
-    techAccent: '#f59e0b', // Warm amber/orange for tech
-    border: '#4a4a6a',
+    techAccent: '#f59e0b',
+    border: '#6a6a8a', // Lightened for better visibility (was #4a4a6a)
     available: '#10b981',
     partial: '#0ea5e9',
     full: '#94a3b8',
     selectedBorder: '#2dd4bf',
-    error: '#e57373',
+    error: '#fca5a5', // Lightened for better contrast (was #e57373)
     overlay: 'rgba(0,0,0,0.8)',
     expandBg: '#3d3d5c',
+    // High contrast text for colored backgrounds
+    onAccent: '#042f2e', // Dark teal on teal backgrounds
+    onAvailable: '#052e16', // Dark green on green backgrounds
+    onPartial: '#082f49', // Darker blue for better contrast on blue backgrounds
+    onTechAccent: '#451a03', // Dark brown on amber backgrounds
   },
   light: {
     bg: '#f8fafc',
     bgSecondary: '#ffffff',
     text: '#1e293b',
-    textMuted: '#64748b',
+    textMuted: '#475569', // Darkened for better contrast (was #64748b)
     title: '#0f172a',
-    accent: '#0d9488',
-    techAccent: '#d97706', // Warm amber for tech in light mode
-    border: '#cbd5e1',
-    available: '#059669',
-    partial: '#0284c7',
-    full: '#64748b',
+    accent: '#0f766e', // Darkened for better contrast (was #0d9488)
+    techAccent: '#b45309', // Darkened for better contrast (was #d97706)
+    border: '#94a3b8', // Darkened for better visibility (was #cbd5e1)
+    available: '#047857', // Darkened (was #059669)
+    partial: '#0369a1', // Darkened (was #0284c7)
+    full: '#475569', // Darkened (was #64748b)
     selectedBorder: '#14b8a6',
     error: '#dc2626',
     overlay: 'rgba(0,0,0,0.5)',
     expandBg: '#e2e8f0',
+    // High contrast text for colored backgrounds
+    onAccent: '#f0fdfa', // Light teal on teal backgrounds
+    onAvailable: '#f0fdf4', // Light green on green backgrounds
+    onPartial: '#f0f9ff', // Light blue on blue backgrounds
+    onTechAccent: '#fffbeb', // Light cream on amber backgrounds
   }
 };
 
@@ -674,7 +684,6 @@ export default function App() {
   const [shifts, setShifts] = useState(generateShifts());
   const [language, setLanguage] = useState('en');
   const [theme, setTheme] = useState('dark');
-  const [showSignUp, setShowSignUp] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
@@ -690,22 +699,25 @@ export default function App() {
   const [lastSignedUpEmail, setLastSignedUpEmail] = useState('');
   const [lastSignedUpRole, setLastSignedUpRole] = useState('champion');
   const [expandedBlocks, setExpandedBlocks] = useState({});
-  const [showTechConfirm, setShowTechConfirm] = useState(false);
+  const [inlineSignUp, setInlineSignUp] = useState(null); // { shiftId, role }
+  const [savedUserInfo, setSavedUserInfo] = useState(() => {
+    try {
+      const saved = localStorage.getItem('gamicon48v-user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   
-  // Sign-up form state
-  const [formName, setFormName] = useState('');
-  const [formEmail, setFormEmail] = useState('');
-  const [selectedShifts, setSelectedShifts] = useState([]);
-  const [selectedRole, setSelectedRole] = useState('champion'); // 'champion' or 'tech'
-  const [formErrors, setFormErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Inline sign-up form state
+  const [inlineName, setInlineName] = useState('');
+  const [inlineEmail, setInlineEmail] = useState('');
+  const [inlineErrors, setInlineErrors] = useState({});
+  const [isInlineSubmitting, setIsInlineSubmitting] = useState(false);
   
   // Refs for focus management
-  const signUpButtonRef = React.useRef(null);
   const adminButtonRef = React.useRef(null);
-  const signUpModalRef = React.useRef(null);
   const adminModalRef = React.useRef(null);
-  const signUpFirstInputRef = React.useRef(null);
   const adminFirstInputRef = React.useRef(null);
   
   const t = translations[language];
@@ -736,13 +748,6 @@ export default function App() {
     setExpandedBlocks(defaultExpanded);
   }, [eventActive, eventOver]); // Re-run when event status changes
   
-  // Focus management for sign-up modal
-  useEffect(() => {
-    if (showSignUp && signUpFirstInputRef.current) {
-      signUpFirstInputRef.current.focus();
-    }
-  }, [showSignUp]);
-  
   // Focus management for admin modal
   useEffect(() => {
     if (showAdminLogin && adminFirstInputRef.current) {
@@ -754,14 +759,6 @@ export default function App() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        if (showTechConfirm) {
-          setShowTechConfirm(false);
-          return;
-        }
-        if (showSignUp) {
-          setShowSignUp(false);
-          signUpButtonRef.current?.focus();
-        }
         if (showAdminLogin) {
           setShowAdminLogin(false);
           adminButtonRef.current?.focus();
@@ -772,11 +769,14 @@ export default function App() {
         if (showSuccessModal) {
           setShowSuccessModal(false);
         }
+        if (inlineSignUp) {
+          setInlineSignUp(null);
+        }
       }
       
       // Focus trap for modals
       if (e.key === 'Tab') {
-        const activeModal = showSignUp ? signUpModalRef.current : showAdminLogin ? adminModalRef.current : null;
+        const activeModal = showAdminLogin ? adminModalRef.current : null;
         if (!activeModal) return;
         
         const focusableElements = activeModal.querySelectorAll(
@@ -795,7 +795,7 @@ export default function App() {
       }
     };
     
-    if (showSignUp || showAdminLogin || showExport || showSuccessModal || showTechConfirm) {
+    if (showAdminLogin || showExport || showSuccessModal) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
     }
@@ -804,7 +804,7 @@ export default function App() {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [showSignUp, showAdminLogin, showExport, showSuccessModal, showTechConfirm]);
+  }, [showAdminLogin, showExport, showSuccessModal, inlineSignUp]);
   
   // Load data from Supabase
   useEffect(() => {
@@ -855,14 +855,6 @@ export default function App() {
       console.error('Failed to save:', e);
     }
   }, []);
-  
-  // Close modal and return focus
-  const closeSignUpModal = () => {
-    setShowSignUp(false);
-    setSelectedRole('champion');
-    setShowTechConfirm(false);
-    setTimeout(() => signUpButtonRef.current?.focus(), 0);
-  };
   
   const closeAdminModal = () => {
     setShowAdminLogin(false);
@@ -942,86 +934,6 @@ export default function App() {
     }
     
     return { allowed: true };
-  };
-  
-  const handleShiftToggle = (shiftId) => {
-    if (selectedShifts.includes(shiftId)) {
-      setSelectedShifts(selectedShifts.filter(id => id !== shiftId));
-    } else {
-      const check = canSelectShift(shiftId, selectedShifts, formEmail, selectedRole);
-      if (check.allowed) {
-        setSelectedShifts([...selectedShifts, shiftId]);
-      }
-    }
-  };
-  
-  const handleRoleChange = (role) => {
-    if (role === 'tech' && selectedRole !== 'tech') {
-      setShowTechConfirm(true);
-    } else {
-      setSelectedRole(role);
-      setSelectedShifts([]); // Clear selections when changing role
-    }
-  };
-  
-  const confirmTechRole = () => {
-    setSelectedRole('tech');
-    setSelectedShifts([]);
-    setShowTechConfirm(false);
-  };
-  
-  const validateForm = () => {
-    const errors = {};
-    if (!formName.trim()) errors.name = t.nameRequired;
-    if (!formEmail.trim()) errors.email = t.emailRequired;
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formEmail)) errors.email = t.emailInvalid;
-    if (selectedShifts.length === 0) errors.shifts = t.noShiftsSelected;
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-  
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-    if (isSubmitting) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      const signedUpShiftData = selectedShifts.map(id => shifts.find(s => s.id === id));
-      
-      const newShifts = shifts.map(shift => {
-        if (selectedShifts.includes(shift.id)) {
-          if (selectedRole === 'tech') {
-            return {
-              ...shift,
-              techChampions: [...shift.techChampions, { name: formName.trim(), email: formEmail.trim() }]
-            };
-          } else {
-            return {
-              ...shift,
-              champions: [...shift.champions, { name: formName.trim(), email: formEmail.trim() }]
-            };
-          }
-        }
-        return shift;
-      });
-      
-      setShifts(newShifts);
-      await saveShifts(newShifts);
-      
-      setLastSignedUpShifts(signedUpShiftData);
-      setLastSignedUpEmail(formEmail.trim());
-      setLastSignedUpRole(selectedRole);
-      
-      setFormName('');
-      setFormEmail('');
-      setSelectedShifts([]);
-      setSelectedRole('champion');
-      closeSignUpModal();
-      setShowSuccessModal(true);
-    } finally {
-      setIsSubmitting(false);
-    }
   };
   
   const handleAdminRemove = async (shiftId, championIndex, isTech = false) => {
@@ -1259,6 +1171,94 @@ Then open this email on your phone and tap the attachment to add shifts to your 
     });
     return count;
   };
+  
+  // Open inline sign-up form for a specific slot
+  const openInlineSignUp = (shiftId, role) => {
+    setInlineSignUp({ shiftId, role });
+    // Pre-fill with saved info if available
+    if (savedUserInfo) {
+      setInlineName(savedUserInfo.name);
+      setInlineEmail(savedUserInfo.email);
+    } else {
+      setInlineName('');
+      setInlineEmail('');
+    }
+    setInlineErrors({});
+  };
+  
+  // Close inline sign-up
+  const closeInlineSignUp = () => {
+    setInlineSignUp(null);
+    setInlineErrors({});
+  };
+  
+  // Validate inline form
+  const validateInlineForm = () => {
+    const errors = {};
+    if (!inlineName.trim()) errors.name = t.nameRequired;
+    if (!inlineEmail.trim()) errors.email = t.emailRequired;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inlineEmail)) errors.email = t.emailInvalid;
+    setInlineErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+  
+  // Submit inline sign-up
+  const handleInlineSubmit = async () => {
+    if (!validateInlineForm() || isInlineSubmitting || !inlineSignUp) return;
+    
+    const { shiftId, role } = inlineSignUp;
+    
+    // Validate shift rules (consecutive hours, total hours, etc.)
+    const ruleCheck = canSelectShift(shiftId, [], inlineEmail.trim(), role);
+    if (!ruleCheck.allowed) {
+      setInlineErrors(prev => ({
+        ...prev,
+        rules: t[ruleCheck.reason] || t.blocked
+      }));
+      return;
+    }
+    
+    setIsInlineSubmitting(true);
+    
+    try {
+      const shift = shifts.find(s => s.id === shiftId);
+      
+      const newShifts = shifts.map(s => {
+        if (s.id === shiftId) {
+          if (role === 'tech') {
+            return {
+              ...s,
+              techChampions: [...s.techChampions, { name: inlineName.trim(), email: inlineEmail.trim() }]
+            };
+          } else {
+            return {
+              ...s,
+              champions: [...s.champions, { name: inlineName.trim(), email: inlineEmail.trim() }]
+            };
+          }
+        }
+        return s;
+      });
+      
+      setShifts(newShifts);
+      await saveShifts(newShifts);
+      
+      // Save user info for future quick sign-ups
+      const userInfo = { name: inlineName.trim(), email: inlineEmail.trim() };
+      localStorage.setItem('gamicon48v-user', JSON.stringify(userInfo));
+      setSavedUserInfo(userInfo);
+      
+      // Set up success modal
+      setLastSignedUpShifts([shift]);
+      setLastSignedUpEmail(inlineEmail.trim());
+      setLastSignedUpRole(role);
+      
+      closeInlineSignUp();
+      setShowSuccessModal(true);
+    } finally {
+      setIsInlineSubmitting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -1291,6 +1291,27 @@ Then open this email on your phone and tap the attachment to add shifts to your 
 
   return (
     <div style={{ ...styles.container, direction: isRTL ? 'rtl' : 'ltr' }}>
+      {/* Skip Link for keyboard navigation */}
+      <a 
+        href="#main-schedule" 
+        style={styles.skipLink}
+        onFocus={(e) => e.target.style.top = '0'}
+        onBlur={(e) => e.target.style.top = '-100px'}
+      >
+        Skip to schedule
+      </a>
+      
+      {/* Live region for screen reader announcements */}
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true"
+        style={styles.srOnly}
+        id="sr-announcements"
+      >
+        {successMessage}
+      </div>
+      
       {/* Header */}
       <header style={styles.header}>
         <div style={styles.headerContent}>
@@ -1362,15 +1383,6 @@ Then open this email on your phone and tap the attachment to add shifts to your 
       
       {/* Action Bar */}
       <div style={styles.actionBar}>
-        <button
-          ref={signUpButtonRef}
-          onClick={() => setShowSignUp(true)}
-          style={styles.primaryButton}
-          aria-label={t.signUp}
-        >
-          {t.signUp}
-        </button>
-        
         <div style={styles.actionGroup}>
           {isAdmin ? (
             <>
@@ -1426,7 +1438,7 @@ Then open this email on your phone and tap the attachment to add shifts to your 
       </div>
       
       {/* Schedule - Collapsible Blocks */}
-      <main style={styles.scheduleContainer}>
+      <main id="main-schedule" style={styles.scheduleContainer} role="main" aria-label="Shift schedule">
         {shiftBlocks.map((block, blockIndex) => {
           const isExpanded = expandedBlocks[block.key];
           const availableCount = countAvailableInBlock(block);
@@ -1524,11 +1536,89 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                               </div>
                             ))}
                             {shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && (
-                              <div style={styles.openSlot}>
-                                {EVENT_CONFIG.maxChampionsPerShift - shift.champions.length} {t.open}
-                              </div>
+                              inlineSignUp?.shiftId === shift.id && inlineSignUp?.role === 'champion' ? (
+                                <div 
+                                  style={styles.inlineForm}
+                                  role="form"
+                                  aria-label={`Sign up as Event Champion for ${formatTime(shift.start, timezone)} shift`}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Escape') closeInlineSignUp();
+                                    if (e.key === 'Enter' && !isInlineSubmitting) handleInlineSubmit();
+                                  }}
+                                >
+                                  {inlineErrors.rules && (
+                                    <div style={styles.inlineRulesError} role="alert">
+                                      ⚠️ {inlineErrors.rules}
+                                    </div>
+                                  )}
+                                  <label htmlFor={`inline-name-${shift.id}`} style={styles.srOnly}>
+                                    {t.name}
+                                  </label>
+                                  <input
+                                    id={`inline-name-${shift.id}`}
+                                    type="text"
+                                    placeholder={t.name}
+                                    value={inlineName}
+                                    onChange={(e) => setInlineName(e.target.value)}
+                                    style={styles.inlineInput}
+                                    autoFocus
+                                    aria-invalid={!!inlineErrors.name}
+                                    aria-describedby={inlineErrors.name ? `name-error-${shift.id}` : undefined}
+                                  />
+                                  {inlineErrors.name && (
+                                    <span id={`name-error-${shift.id}`} style={styles.inlineError} role="alert">
+                                      {inlineErrors.name}
+                                    </span>
+                                  )}
+                                  <label htmlFor={`inline-email-${shift.id}`} style={styles.srOnly}>
+                                    {t.email}
+                                  </label>
+                                  <input
+                                    id={`inline-email-${shift.id}`}
+                                    type="email"
+                                    placeholder={t.email}
+                                    value={inlineEmail}
+                                    onChange={(e) => setInlineEmail(e.target.value)}
+                                    style={styles.inlineInput}
+                                    aria-invalid={!!inlineErrors.email}
+                                    aria-describedby={inlineErrors.email ? `email-error-${shift.id}` : undefined}
+                                  />
+                                  {inlineErrors.email && (
+                                    <span id={`email-error-${shift.id}`} style={styles.inlineError} role="alert">
+                                      {inlineErrors.email}
+                                    </span>
+                                  )}
+                                  <div style={styles.inlineActions}>
+                                    <button 
+                                      onClick={closeInlineSignUp} 
+                                      style={styles.inlineCancelBtn}
+                                      type="button"
+                                    >
+                                      {t.cancel}
+                                    </button>
+                                    <button 
+                                      onClick={handleInlineSubmit} 
+                                      style={styles.inlineSubmitBtn}
+                                      disabled={isInlineSubmitting}
+                                      aria-busy={isInlineSubmitting}
+                                      type="submit"
+                                    >
+                                      {isInlineSubmitting ? '...' : t.signUp}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => openInlineSignUp(shift.id, 'champion')}
+                                  style={styles.openSlotButton}
+                                  aria-label={`${t.signUpFor} ${formatTime(shift.start, timezone)}`}
+                                >
+                                  <span style={styles.openSlotPlus}>+</span>
+                                  <span>{EVENT_CONFIG.maxChampionsPerShift - shift.champions.length} {t.open}</span>
+                                </button>
+                              )
                             )}
-                            {isAdmin && shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && (
+                            {isAdmin && shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && !inlineSignUp && (
                               <AdminAddForm
                                 shiftId={shift.id}
                                 onAdd={(id, name, email) => handleAdminAdd(id, name, email, false)}
@@ -1567,11 +1657,90 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                               </div>
                             ))}
                             {shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
-                              <div style={{ ...styles.openSlot, color: colors.techAccent }}>
-                                1 {t.open}
-                              </div>
+                              inlineSignUp?.shiftId === shift.id && inlineSignUp?.role === 'tech' ? (
+                                <div 
+                                  style={{ ...styles.inlineForm, borderColor: colors.techAccent }}
+                                  role="form"
+                                  aria-label={`Sign up as Tech Support Champion for ${formatTime(shift.start, timezone)} shift`}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Escape') closeInlineSignUp();
+                                    if (e.key === 'Enter' && !isInlineSubmitting) handleInlineSubmit();
+                                  }}
+                                >
+                                  {inlineErrors.rules && (
+                                    <div style={styles.inlineRulesError} role="alert">
+                                      ⚠️ {inlineErrors.rules}
+                                    </div>
+                                  )}
+                                  <div style={styles.techWarning} role="note">{t.techDescription}</div>
+                                  <label htmlFor={`inline-tech-name-${shift.id}`} style={styles.srOnly}>
+                                    {t.name}
+                                  </label>
+                                  <input
+                                    id={`inline-tech-name-${shift.id}`}
+                                    type="text"
+                                    placeholder={t.name}
+                                    value={inlineName}
+                                    onChange={(e) => setInlineName(e.target.value)}
+                                    style={{ ...styles.inlineInput, borderColor: colors.techAccent }}
+                                    autoFocus
+                                    aria-invalid={!!inlineErrors.name}
+                                    aria-describedby={inlineErrors.name ? `tech-name-error-${shift.id}` : undefined}
+                                  />
+                                  {inlineErrors.name && (
+                                    <span id={`tech-name-error-${shift.id}`} style={styles.inlineError} role="alert">
+                                      {inlineErrors.name}
+                                    </span>
+                                  )}
+                                  <label htmlFor={`inline-tech-email-${shift.id}`} style={styles.srOnly}>
+                                    {t.email}
+                                  </label>
+                                  <input
+                                    id={`inline-tech-email-${shift.id}`}
+                                    type="email"
+                                    placeholder={t.email}
+                                    value={inlineEmail}
+                                    onChange={(e) => setInlineEmail(e.target.value)}
+                                    style={{ ...styles.inlineInput, borderColor: colors.techAccent }}
+                                    aria-invalid={!!inlineErrors.email}
+                                    aria-describedby={inlineErrors.email ? `tech-email-error-${shift.id}` : undefined}
+                                  />
+                                  {inlineErrors.email && (
+                                    <span id={`tech-email-error-${shift.id}`} style={styles.inlineError} role="alert">
+                                      {inlineErrors.email}
+                                    </span>
+                                  )}
+                                  <div style={styles.inlineActions}>
+                                    <button 
+                                      onClick={closeInlineSignUp} 
+                                      style={styles.inlineCancelBtn}
+                                      type="button"
+                                    >
+                                      {t.cancel}
+                                    </button>
+                                    <button 
+                                      onClick={handleInlineSubmit} 
+                                      style={{ ...styles.inlineSubmitBtn, backgroundColor: colors.techAccent, color: colors.onTechAccent }}
+                                      disabled={isInlineSubmitting}
+                                      aria-busy={isInlineSubmitting}
+                                      type="submit"
+                                    >
+                                      {isInlineSubmitting ? '...' : t.signUp}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => openInlineSignUp(shift.id, 'tech')}
+                                  style={{ ...styles.openSlotButton, borderColor: colors.techAccent, color: colors.techAccent }}
+                                  aria-label={`${t.signUpFor} ${t.techSupport} ${formatTime(shift.start, timezone)}`}
+                                >
+                                  <span style={styles.openSlotPlus}>+</span>
+                                  <span>1 {t.open}</span>
+                                </button>
+                              )
                             )}
-                            {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
+                            {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && !inlineSignUp && (
                               <AdminAddForm
                                 shiftId={shift.id}
                                 onAdd={(id, name, email) => handleAdminAdd(id, name, email, true)}
@@ -1592,188 +1761,6 @@ Then open this email on your phone and tap the attachment to add shifts to your 
           );
         })}
       </main>
-      
-      {/* Sign Up Modal */}
-      {showSignUp && (
-        <div
-          style={styles.modalOverlay}
-          onClick={(e) => e.target === e.currentTarget && closeSignUpModal()}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="signup-title"
-        >
-          <div style={styles.modal} ref={signUpModalRef}>
-            <h2 id="signup-title" style={styles.modalTitle}>{t.signUp}</h2>
-            
-            <div style={styles.formGroup}>
-              <label htmlFor="signup-name" style={styles.label}>{t.name}</label>
-              <input
-                id="signup-name"
-                type="text"
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                style={styles.input}
-                ref={signUpFirstInputRef}
-                aria-invalid={!!formErrors.name}
-                aria-describedby={formErrors.name ? 'name-error' : undefined}
-              />
-              {formErrors.name && (
-                <span id="name-error" style={styles.errorText} role="alert">{formErrors.name}</span>
-              )}
-            </div>
-            
-            <div style={styles.formGroup}>
-              <label htmlFor="signup-email" style={styles.label}>{t.email}</label>
-              <input
-                id="signup-email"
-                type="email"
-                value={formEmail}
-                onChange={(e) => setFormEmail(e.target.value)}
-                style={styles.input}
-                aria-invalid={!!formErrors.email}
-                aria-describedby={formErrors.email ? 'email-error' : undefined}
-              />
-              {formErrors.email && (
-                <span id="email-error" style={styles.errorText} role="alert">{formErrors.email}</span>
-              )}
-            </div>
-            
-            {/* Role Selection */}
-            <fieldset style={styles.fieldset}>
-              <legend style={styles.legend2}>{t.selectRole}</legend>
-              <div style={styles.roleSelection}>
-                <button
-                  type="button"
-                  onClick={() => handleRoleChange('champion')}
-                  style={{
-                    ...styles.roleButton,
-                    ...(selectedRole === 'champion' ? styles.roleButtonSelected : {})
-                  }}
-                  aria-pressed={selectedRole === 'champion'}
-                >
-                  <span style={styles.roleButtonIcon}>🏆</span>
-                  <span style={styles.roleButtonText}>{t.eventChampion}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleRoleChange('tech')}
-                  style={{
-                    ...styles.roleButton,
-                    ...styles.roleButtonTech,
-                    ...(selectedRole === 'tech' ? styles.roleButtonTechSelected : {})
-                  }}
-                  aria-pressed={selectedRole === 'tech'}
-                >
-                  <span style={styles.roleButtonIcon}>🔧</span>
-                  <span style={styles.roleButtonText}>{t.techSupport}</span>
-                </button>
-              </div>
-              {selectedRole === 'tech' && (
-                <p style={styles.techDescription}>{t.techDescription}</p>
-              )}
-            </fieldset>
-            
-            {/* Shift Selection */}
-            <fieldset style={styles.fieldset}>
-              <legend style={styles.legend2}>{t.selectShifts}</legend>
-              {formErrors.shifts && (
-                <span style={styles.errorText} role="alert">{formErrors.shifts}</span>
-              )}
-              
-              <div style={styles.shiftSelectionGrid}>
-                {shifts.map((shift) => {
-                  const status = selectedRole === 'tech' ? getTechStatus(shift) : getChampionStatus(shift);
-                  const isSelected = selectedShifts.includes(shift.id);
-                  const checkResult = canSelectShift(shift.id, selectedShifts.filter(id => id !== shift.id), formEmail, selectedRole);
-                  const canSelect = isSelected || checkResult.allowed;
-                  const timePeriod = getTimePeriod(shift.start, timezone);
-                  
-                  return (
-                    <button
-                      key={shift.id}
-                      onClick={() => handleShiftToggle(shift.id)}
-                      disabled={!canSelect && !isSelected}
-                      style={{
-                        ...styles.shiftSelectButton,
-                        ...(isSelected ? (selectedRole === 'tech' ? styles.shiftSelectButtonTechSelected : styles.shiftSelectButton_selected) : {}),
-                        ...(!canSelect && !isSelected ? styles.shiftSelectButton_disabled : {})
-                      }}
-                      aria-pressed={isSelected}
-                      aria-label={`${formatDate(shift.start, timezone)} ${formatTime(shift.start, timezone)} - ${formatTime(shift.end, timezone)}`}
-                    >
-                      <span style={styles.shiftSelectPeriod}>
-                        <span aria-hidden="true">{timePeriodIcons[timePeriod]}</span> {t[timePeriod]}
-                      </span>
-                      <span style={styles.shiftSelectDate}>{formatDate(shift.start, timezone)}</span>
-                      <span style={styles.shiftSelectTime}>
-                        {formatTime(shift.start, timezone)} - {formatTime(shift.end, timezone)}
-                      </span>
-                      {!canSelect && !isSelected && (
-                        <span style={styles.shiftSelectReason}>
-                          {t[checkResult.reason] || t.blocked}
-                        </span>
-                      )}
-                      {status === 'partial' && !isSelected && canSelect && selectedRole === 'champion' && (
-                        <span style={styles.shiftSelectPartial}>1 {t.spot}</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
-            
-            <div style={styles.modalActions}>
-              <button onClick={closeSignUpModal} style={styles.secondaryButton} disabled={isSubmitting}>
-                {t.cancel}
-              </button>
-              <button 
-                onClick={handleSubmit} 
-                style={{
-                  ...styles.primaryButton,
-                  ...(selectedRole === 'tech' ? { backgroundColor: colors.techAccent } : {}),
-                  ...(isSubmitting ? { opacity: 0.7, cursor: 'not-allowed' } : {})
-                }}
-                disabled={isSubmitting}
-                aria-busy={isSubmitting}
-              >
-                {isSubmitting ? t.submitting : t.submit}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Tech Confirmation Modal */}
-      {showTechConfirm && (
-        <div
-          style={styles.modalOverlay}
-          onClick={(e) => e.target === e.currentTarget && setShowTechConfirm(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="tech-confirm-title"
-        >
-          <div style={{ ...styles.modal, maxWidth: '450px', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔧</div>
-            <h2 id="tech-confirm-title" style={{ ...styles.modalTitle, color: colors.techAccent }}>
-              {t.techSupport}
-            </h2>
-            <p style={{ color: colors.text, marginBottom: '1.5rem', lineHeight: 1.6 }}>
-              {t.confirmTechRole}
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button onClick={() => setShowTechConfirm(false)} style={styles.secondaryButton}>
-                {t.techConfirmNo}
-              </button>
-              <button 
-                onClick={confirmTechRole} 
-                style={{ ...styles.primaryButton, backgroundColor: colors.techAccent }}
-              >
-                {t.techConfirmYes}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       
       {/* Admin Login Modal */}
       {showAdminLogin && (
@@ -2032,6 +2019,35 @@ const getStyles = (colors) => ({
     fontFamily: '"Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   
+  // Skip link for keyboard navigation (visible on focus)
+  skipLink: {
+    position: 'absolute',
+    top: '-100px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    backgroundColor: colors.accent,
+    color: colors.onAccent,
+    padding: '1rem 2rem',
+    borderRadius: '0 0 8px 8px',
+    zIndex: 9999,
+    fontWeight: '600',
+    textDecoration: 'none',
+    transition: 'top 0.2s ease',
+  },
+  
+  // Screen reader only (visually hidden)
+  srOnly: {
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: 0,
+    margin: '-1px',
+    overflow: 'hidden',
+    clip: 'rect(0, 0, 0, 0)',
+    whiteSpace: 'nowrap',
+    border: 0,
+  },
+  
   loadingContainer: {
     minHeight: '100vh',
     display: 'flex',
@@ -2148,7 +2164,7 @@ const getStyles = (colors) => ({
   
   successBanner: {
     backgroundColor: colors.available,
-    color: '#fff',
+    color: colors.onAvailable,
     padding: '1rem',
     textAlign: 'center',
     fontSize: '1.1rem',
@@ -2177,7 +2193,7 @@ const getStyles = (colors) => ({
     fontSize: '1rem',
     fontWeight: '600',
     backgroundColor: colors.accent,
-    color: colors.bg,
+    color: colors.onAccent,
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
@@ -2334,7 +2350,7 @@ const getStyles = (colors) => ({
   
   availableBadge: {
     backgroundColor: colors.available,
-    color: '#fff',
+    color: colors.onAvailable,
     padding: '0.25rem 0.75rem',
     borderRadius: '20px',
     fontSize: '0.85rem',
@@ -2402,7 +2418,7 @@ const getStyles = (colors) => ({
   
   nowBadge: {
     backgroundColor: colors.available,
-    color: '#fff',
+    color: colors.onAvailable,
     padding: '0.2rem 0.5rem',
     borderRadius: '4px',
     fontSize: '0.7rem',
@@ -2413,7 +2429,7 @@ const getStyles = (colors) => ({
   
   nextBadge: {
     backgroundColor: colors.partial,
-    color: '#fff',
+    color: colors.onPartial,
     padding: '0.2rem 0.5rem',
     borderRadius: '4px',
     fontSize: '0.7rem',
@@ -2484,6 +2500,106 @@ const getStyles = (colors) => ({
     padding: '0.25rem 0',
   },
   
+  openSlotButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.5rem 0.75rem',
+    backgroundColor: 'transparent',
+    color: colors.accent,
+    border: `2px dashed ${colors.accent}`,
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
+    width: '100%',
+    justifyContent: 'center',
+  },
+  
+  openSlotPlus: {
+    fontSize: '1.1rem',
+    fontWeight: '700',
+  },
+  
+  inlineForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+    padding: '0.75rem',
+    backgroundColor: colors.bg,
+    borderRadius: '8px',
+    border: `2px solid ${colors.accent}`,
+  },
+  
+  inlineInput: {
+    padding: '0.6rem',
+    fontSize: '14px',
+    backgroundColor: colors.bgSecondary,
+    color: colors.text,
+    border: `2px solid ${colors.accent}`,
+    borderRadius: '6px',
+    width: '100%',
+    boxSizing: 'border-box',
+  },
+  
+  inlineError: {
+    color: colors.error,
+    fontSize: '0.75rem',
+    marginTop: '-0.25rem',
+  },
+  
+  inlineRulesError: {
+    color: colors.error,
+    fontSize: '0.8rem',
+    padding: '0.5rem',
+    backgroundColor: `${colors.error}15`,
+    borderRadius: '4px',
+    lineHeight: '1.4',
+    fontWeight: '500',
+  },
+  
+  inlineActions: {
+    display: 'flex',
+    gap: '0.5rem',
+    marginTop: '0.25rem',
+  },
+  
+  inlineCancelBtn: {
+    flex: 1,
+    padding: '0.5rem',
+    fontSize: '0.85rem',
+    backgroundColor: 'transparent',
+    color: colors.text,
+    border: `2px solid ${colors.border}`,
+    borderRadius: '6px',
+    cursor: 'pointer',
+    minHeight: '44px',
+    fontWeight: '500',
+  },
+  
+  inlineSubmitBtn: {
+    flex: 1,
+    padding: '0.5rem',
+    fontSize: '0.85rem',
+    backgroundColor: colors.accent,
+    color: colors.onAccent,
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    minHeight: '44px',
+  },
+  
+  techWarning: {
+    fontSize: '0.75rem',
+    color: colors.techAccent,
+    padding: '0.5rem',
+    backgroundColor: `${colors.techAccent}15`,
+    borderRadius: '4px',
+    lineHeight: '1.4',
+  },
+  
   addButton: {
     marginTop: '0.5rem',
     padding: '0.5rem',
@@ -2525,27 +2641,27 @@ const getStyles = (colors) => ({
   },
   
   smallSecondaryButton: {
-    padding: '0.4rem 0.75rem',
+    padding: '0.5rem 0.75rem',
     fontSize: '0.85rem',
     backgroundColor: 'transparent',
-    color: colors.textMuted,
-    border: `1px solid ${colors.border}`,
+    color: colors.text,
+    border: `2px solid ${colors.border}`,
     borderRadius: '4px',
     cursor: 'pointer',
-    minHeight: '36px',
+    minHeight: '44px',
     touchAction: 'manipulation',
   },
   
   smallPrimaryButton: {
-    padding: '0.4rem 0.75rem',
+    padding: '0.5rem 0.75rem',
     fontSize: '0.85rem',
     backgroundColor: colors.accent,
-    color: colors.bg,
+    color: colors.onAccent,
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
     fontWeight: '600',
-    minHeight: '36px',
+    minHeight: '44px',
     touchAction: 'manipulation',
   },
   
@@ -2671,7 +2787,7 @@ const getStyles = (colors) => ({
   roleButtonTechSelected: {
     backgroundColor: colors.techAccent,
     borderColor: colors.techAccent,
-    color: '#fff',
+    color: colors.onTechAccent,
   },
   
   roleButtonIcon: {
@@ -2728,13 +2844,13 @@ const getStyles = (colors) => ({
   shiftSelectButton_selected: {
     backgroundColor: colors.available,
     borderColor: colors.selectedBorder,
-    color: '#fff',
+    color: colors.onAvailable,
   },
   
   shiftSelectButtonTechSelected: {
     backgroundColor: colors.techAccent,
     borderColor: colors.techAccent,
-    color: '#fff',
+    color: colors.onTechAccent,
   },
   
   shiftSelectButton_disabled: {
@@ -2816,15 +2932,27 @@ styleSheet.textContent = `
     opacity: 0.9;
   }
   
-  button:focus-visible {
+  /* Enhanced focus indicators for accessibility - 3px solid outline */
+  button:focus-visible,
+  a:focus-visible,
+  summary:focus-visible {
     outline: 3px solid #14b8a6;
-    outline-offset: 2px;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(20, 184, 166, 0.25);
   }
   
-  input:focus-visible, select:focus-visible {
+  input:focus-visible, 
+  select:focus-visible,
+  textarea:focus-visible {
     outline: 3px solid #14b8a6;
     outline-offset: 2px;
     border-color: #14b8a6;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2);
+  }
+  
+  /* Ensure focus is never hidden by other elements */
+  *:focus-visible {
+    z-index: 1;
   }
   
   details[open] summary {
