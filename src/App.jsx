@@ -92,6 +92,7 @@ const translations = {
     techDescription: "Technical troubleshooting experience required. You'll help with A/V, streaming, and technical issues.",
     submit: "Submit Sign-Up",
     submitting: "Submitting...",
+    timezoneNote: "All shifts are displayed in your local time. \"Sententral Time\" is Central Time (US).",
     cancel: "Cancel",
     adminMode: "Admin Mode",
     exitAdmin: "Exit Admin",
@@ -192,6 +193,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     techDescription: "需要技术故障排除经验。您将帮助处理音视频、流媒体和技术问题。",
     submit: "提交报名",
     submitting: "提交中...",
+    timezoneNote: "所有班次均以您当地时间显示。\"Sententral Time\" 是美国中部时间。",
     cancel: "取消",
     adminMode: "管理员模式",
     exitAdmin: "退出管理",
@@ -282,6 +284,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     techDescription: "ต้องมีประสบการณ์ด้านเทคนิค คุณจะช่วยเรื่องเสียง/ภาพ การสตรีม และปัญหาทางเทคนิค",
     submit: "ส่งการลงทะเบียน",
     submitting: "กำลังส่ง...",
+    timezoneNote: "กะทั้งหมดแสดงตามเวลาท้องถิ่นของคุณ \"Sententral Time\" คือเวลามาตรฐานกลางสหรัฐ",
     cancel: "ยกเลิก",
     adminMode: "โหมดผู้ดูแล",
     exitAdmin: "ออกจากโหมดผู้ดูแล",
@@ -372,6 +375,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     techDescription: "يتطلب خبرة في استكشاف الأخطاء التقنية. ستساعد في الصوت والفيديو والبث والمشاكل التقنية.",
     submit: "إرسال التسجيل",
     submitting: "جارٍ الإرسال...",
+    timezoneNote: "جميع النوبات معروضة بتوقيتك المحلي. \"Sententral Time\" هو التوقيت المركزي الأمريكي.",
     cancel: "إلغاء",
     adminMode: "وضع المسؤول",
     exitAdmin: "خروج المسؤول",
@@ -462,6 +466,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     techDescription: "Expérience technique requise. Vous aiderez avec l'audio/vidéo, le streaming et les problèmes techniques.",
     submit: "Soumettre l'inscription",
     submitting: "Envoi en cours...",
+    timezoneNote: "Tous les créneaux sont affichés dans votre heure locale. \"Sententral Time\" correspond à l'heure centrale américaine.",
     cancel: "Annuler",
     adminMode: "Mode admin",
     exitAdmin: "Quitter admin",
@@ -1398,6 +1403,11 @@ Then open this email on your phone and tap the attachment to add shifts to your 
         </div>
       </header>
       
+      {/* Timezone Note */}
+      <div style={styles.timezoneNote}>
+        📍 {t.timezoneNote}
+      </div>
+      
       {/* Success Message */}
       {successMessage && (
         <div style={styles.successBanner} role="status" aria-live="polite">
@@ -1443,26 +1453,6 @@ Then open this email on your phone and tap the attachment to add shifts to your 
         <summary style={styles.rulesSummary}>{t.rules}</summary>
         <div style={styles.rulesDialogue} dangerouslySetInnerHTML={{ __html: t.rulesDialogue.replace(/\n\n/g, '<br/><br/>') }} />
       </details>
-      
-      {/* Legend */}
-      <div style={styles.legend} role="list" aria-label="Shift status legend">
-        <div style={styles.legendItem} role="listitem">
-          <span style={{ ...styles.legendDot, backgroundColor: colors.available }} aria-hidden="true"></span>
-          <span>{t.available}</span>
-        </div>
-        <div style={styles.legendItem} role="listitem">
-          <span style={{ ...styles.legendDot, backgroundColor: colors.partial }} aria-hidden="true"></span>
-          <span>{t.partial}</span>
-        </div>
-        <div style={styles.legendItem} role="listitem">
-          <span style={{ ...styles.legendDot, backgroundColor: colors.full }} aria-hidden="true"></span>
-          <span>{t.full}</span>
-        </div>
-        <div style={styles.legendItem} role="listitem">
-          <span style={{ ...styles.legendDot, backgroundColor: colors.techAccent }} aria-hidden="true"></span>
-          <span>{t.techSupport}</span>
-        </div>
-      </div>
       
       {/* Schedule - Collapsible Blocks */}
       <main id="main-schedule" style={styles.scheduleContainer} role="main" aria-label="Shift schedule">
@@ -2202,6 +2192,15 @@ const getStyles = (colors) => ({
     WebkitUserSelect: 'none',
   },
   
+  timezoneNote: {
+    backgroundColor: colors.bgSecondary,
+    color: colors.textMuted,
+    padding: '0.75rem 1rem',
+    textAlign: 'center',
+    fontSize: '0.9rem',
+    borderBottom: `1px solid ${colors.border}`,
+  },
+  
   successBanner: {
     backgroundColor: colors.available,
     color: colors.onAvailable,
@@ -2310,7 +2309,7 @@ const getStyles = (colors) => ({
   
   rulesPanel: {
     maxWidth: '1400px',
-    margin: '0 auto 1rem auto',
+    margin: '1.5rem auto 1rem auto',
     padding: '0 2rem',
   },
   
@@ -2330,28 +2329,6 @@ const getStyles = (colors) => ({
     lineHeight: '1.7',
     fontSize: '1rem',
     color: colors.text,
-  },
-  
-  legend: {
-    maxWidth: '1400px',
-    margin: '0 auto 1.5rem auto',
-    padding: '0 2rem',
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '1.5rem',
-  },
-  
-  legendItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-  },
-  
-  legendDot: {
-    width: '16px',
-    height: '16px',
-    borderRadius: '50%',
-    border: `2px solid ${colors.border}`,
   },
   
   scheduleContainer: {
