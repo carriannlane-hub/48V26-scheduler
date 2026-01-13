@@ -1438,35 +1438,25 @@ Then open this email on your phone and tap the attachment to add shifts to your 
         </div>
       )}
       
-      {/* Action Bar */}
-      <div style={styles.actionBar}>
-        <div style={styles.actionGroup}>
-          {isAdmin ? (
-            <>
-              <button onClick={exportSchedule} style={styles.secondaryButton}>
-                {t.export}
-              </button>
-              <button onClick={handleClearAll} style={styles.dangerButton}>
-                {t.clearAll}
-              </button>
-              <button
-                onClick={() => setIsAdmin(false)}
-                style={styles.secondaryButton}
-              >
-                {t.exitAdmin}
-              </button>
-            </>
-          ) : (
+      {/* Admin Action Bar - only visible when in admin mode */}
+      {isAdmin && (
+        <div style={styles.actionBar}>
+          <div style={styles.actionGroup}>
+            <button onClick={exportSchedule} style={styles.secondaryButton}>
+              {t.export}
+            </button>
+            <button onClick={handleClearAll} style={styles.dangerButton}>
+              {t.clearAll}
+            </button>
             <button
-              ref={adminButtonRef}
-              onClick={() => setShowAdminLogin(true)}
+              onClick={() => setIsAdmin(false)}
               style={styles.secondaryButton}
             >
-              {t.adminMode}
+              {t.exitAdmin}
             </button>
-          )}
+          </div>
         </div>
-      </div>
+      )}
       
       {/* Pending Calendar Shifts Banner */}
       {pendingCalendarShifts.length > 0 && (
@@ -1606,87 +1596,14 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                               </div>
                             ))}
                             {shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && (
-                              inlineSignUp?.shiftId === shift.id && inlineSignUp?.role === 'champion' ? (
-                                <div 
-                                  style={styles.inlineForm}
-                                  role="form"
-                                  aria-label={`Sign up as Event Champion for ${formatTime(shift.start, timezone)} shift`}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Escape') closeInlineSignUp();
-                                    if (e.key === 'Enter' && !isInlineSubmitting) handleInlineSubmit();
-                                  }}
-                                >
-                                  {inlineErrors.rules && (
-                                    <div style={styles.inlineRulesError} role="alert">
-                                      ⚠️ {inlineErrors.rules}
-                                    </div>
-                                  )}
-                                  <label htmlFor={`inline-name-${shift.id}`} style={styles.srOnly}>
-                                    {t.name}
-                                  </label>
-                                  <input
-                                    id={`inline-name-${shift.id}`}
-                                    type="text"
-                                    placeholder={t.name}
-                                    value={inlineName}
-                                    onChange={(e) => setInlineName(e.target.value)}
-                                    style={styles.inlineInput}
-                                    autoFocus
-                                    aria-invalid={!!inlineErrors.name}
-                                    aria-describedby={inlineErrors.name ? `name-error-${shift.id}` : undefined}
-                                  />
-                                  {inlineErrors.name && (
-                                    <span id={`name-error-${shift.id}`} style={styles.inlineError} role="alert">
-                                      {inlineErrors.name}
-                                    </span>
-                                  )}
-                                  <label htmlFor={`inline-email-${shift.id}`} style={styles.srOnly}>
-                                    {t.email}
-                                  </label>
-                                  <input
-                                    id={`inline-email-${shift.id}`}
-                                    type="email"
-                                    placeholder={t.email}
-                                    value={inlineEmail}
-                                    onChange={(e) => setInlineEmail(e.target.value)}
-                                    style={styles.inlineInput}
-                                    aria-invalid={!!inlineErrors.email}
-                                    aria-describedby={inlineErrors.email ? `email-error-${shift.id}` : undefined}
-                                  />
-                                  {inlineErrors.email && (
-                                    <span id={`email-error-${shift.id}`} style={styles.inlineError} role="alert">
-                                      {inlineErrors.email}
-                                    </span>
-                                  )}
-                                  <div style={styles.inlineActions}>
-                                    <button 
-                                      onClick={closeInlineSignUp} 
-                                      style={styles.inlineCancelBtn}
-                                      type="button"
-                                    >
-                                      {t.cancel}
-                                    </button>
-                                    <button 
-                                      onClick={handleInlineSubmit} 
-                                      style={styles.inlineSubmitBtn}
-                                      disabled={isInlineSubmitting}
-                                      aria-busy={isInlineSubmitting}
-                                      type="submit"
-                                    >
-                                      {isInlineSubmitting ? '...' : t.signUp}
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <button
-                                  onClick={() => openInlineSignUp(shift.id, 'champion')}
-                                  style={styles.openSlotButton}
-                                  aria-label={`${t.signUpFor} ${formatTime(shift.start, timezone)}`}
-                                >
-                                  <span style={styles.openSlotPlus}>+</span>
-                                  <span>{EVENT_CONFIG.maxChampionsPerShift - shift.champions.length} {t.open}</span>
-                                </button>
-                              )
+                              <button
+                                onClick={() => openInlineSignUp(shift.id, 'champion')}
+                                style={styles.openSlotButton}
+                                aria-label={`${t.signUpFor} ${formatTime(shift.start, timezone)}`}
+                              >
+                                <span style={styles.openSlotPlus}>+</span>
+                                <span>{EVENT_CONFIG.maxChampionsPerShift - shift.champions.length} {t.open}</span>
+                              </button>
                             )}
                             {isAdmin && shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && !inlineSignUp && (
                               <AdminAddForm
@@ -1727,88 +1644,14 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                               </div>
                             ))}
                             {shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
-                              inlineSignUp?.shiftId === shift.id && inlineSignUp?.role === 'tech' ? (
-                                <div 
-                                  style={{ ...styles.inlineForm, borderColor: colors.techAccent }}
-                                  role="form"
-                                  aria-label={`Sign up as Tech Support Champion for ${formatTime(shift.start, timezone)} shift`}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Escape') closeInlineSignUp();
-                                    if (e.key === 'Enter' && !isInlineSubmitting) handleInlineSubmit();
-                                  }}
-                                >
-                                  {inlineErrors.rules && (
-                                    <div style={styles.inlineRulesError} role="alert">
-                                      ⚠️ {inlineErrors.rules}
-                                    </div>
-                                  )}
-                                  <div style={styles.techWarning} role="note">{t.techDescription}</div>
-                                  <label htmlFor={`inline-tech-name-${shift.id}`} style={styles.srOnly}>
-                                    {t.name}
-                                  </label>
-                                  <input
-                                    id={`inline-tech-name-${shift.id}`}
-                                    type="text"
-                                    placeholder={t.name}
-                                    value={inlineName}
-                                    onChange={(e) => setInlineName(e.target.value)}
-                                    style={{ ...styles.inlineInput, borderColor: colors.techAccent }}
-                                    autoFocus
-                                    aria-invalid={!!inlineErrors.name}
-                                    aria-describedby={inlineErrors.name ? `tech-name-error-${shift.id}` : undefined}
-                                  />
-                                  {inlineErrors.name && (
-                                    <span id={`tech-name-error-${shift.id}`} style={styles.inlineError} role="alert">
-                                      {inlineErrors.name}
-                                    </span>
-                                  )}
-                                  <label htmlFor={`inline-tech-email-${shift.id}`} style={styles.srOnly}>
-                                    {t.email}
-                                  </label>
-                                  <input
-                                    id={`inline-tech-email-${shift.id}`}
-                                    type="email"
-                                    placeholder={t.email}
-                                    value={inlineEmail}
-                                    onChange={(e) => setInlineEmail(e.target.value)}
-                                    style={{ ...styles.inlineInput, borderColor: colors.techAccent }}
-                                    aria-invalid={!!inlineErrors.email}
-                                    aria-describedby={inlineErrors.email ? `tech-email-error-${shift.id}` : undefined}
-                                  />
-                                  {inlineErrors.email && (
-                                    <span id={`tech-email-error-${shift.id}`} style={styles.inlineError} role="alert">
-                                      {inlineErrors.email}
-                                    </span>
-                                  )}
-                                  <div style={styles.inlineActions}>
-                                    <button 
-                                      onClick={closeInlineSignUp} 
-                                      style={styles.inlineCancelBtn}
-                                      type="button"
-                                    >
-                                      {t.cancel}
-                                    </button>
-                                    <button 
-                                      onClick={handleInlineSubmit} 
-                                      style={{ ...styles.inlineSubmitBtn, backgroundColor: colors.techAccent, color: colors.onTechAccent }}
-                                      disabled={isInlineSubmitting}
-                                      aria-busy={isInlineSubmitting}
-                                      type="submit"
-                                    >
-                                      {isInlineSubmitting ? '...' : t.signUp}
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <button
-                                  onClick={() => openInlineSignUp(shift.id, 'tech')}
-                                  style={{ ...styles.openSlotButton, borderColor: colors.techAccent, color: colors.techAccent }}
-                                  aria-label={`${t.signUpFor} ${t.techSupport} ${formatTime(shift.start, timezone)}`}
-                                >
-                                  <span style={styles.openSlotPlus}>+</span>
-                                  <span>1 {t.open}</span>
-                                </button>
-                              )
+                              <button
+                                onClick={() => openInlineSignUp(shift.id, 'tech')}
+                                style={{ ...styles.openSlotButton, borderColor: colors.techAccent, color: colors.techAccent }}
+                                aria-label={`${t.signUpFor} ${t.techSupport} ${formatTime(shift.start, timezone)}`}
+                              >
+                                <span style={styles.openSlotPlus}>+</span>
+                                <span>1 {t.open}</span>
+                              </button>
                             )}
                             {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && !inlineSignUp && (
                               <AdminAddForm
@@ -1831,6 +1674,19 @@ Then open this email on your phone and tap the attachment to add shifts to your 
           );
         })}
       </main>
+      
+      {/* Footer with Admin Access */}
+      {!isAdmin && (
+        <footer style={styles.footer}>
+          <button 
+            ref={adminButtonRef}
+            onClick={() => setShowAdminLogin(true)} 
+            style={styles.footerAdminButton}
+          >
+            {t.adminMode}
+          </button>
+        </footer>
+      )}
       
       {/* Admin Login Modal */}
       {showAdminLogin && (
@@ -2056,6 +1912,111 @@ Then open this email on your phone and tap the attachment to add shifts to your 
             </button>
           </div>
         </div>
+      )}
+      
+      {/* Sign-Up Bottom Sheet Modal (mobile-friendly) */}
+      {inlineSignUp && (
+        <>
+          <div 
+            style={styles.modalOverlay} 
+            onClick={closeInlineSignUp}
+          />
+          <div style={styles.bottomSheet}>
+            <div style={styles.bottomSheetHandle} />
+            
+            <div style={styles.bottomSheetHeader}>
+              <div style={styles.bottomSheetTitle}>
+                {t.signUp}
+              </div>
+              <div style={styles.bottomSheetSubtitle}>
+                {(() => {
+                  const shift = shifts.find(s => s.id === inlineSignUp.shiftId);
+                  if (!shift) return '';
+                  return `${formatTime(shift.start, timezone)} - ${formatTime(shift.end, timezone)}`;
+                })()}
+              </div>
+              <div style={{
+                ...styles.bottomSheetRole,
+                backgroundColor: inlineSignUp.role === 'tech' ? `${colors.techAccent}20` : `${colors.accent}20`,
+                color: inlineSignUp.role === 'tech' ? colors.techAccent : colors.accent,
+              }}>
+                {inlineSignUp.role === 'tech' ? `🔧 ${t.techSupport}` : `🏆 ${t.eventChampion}`}
+              </div>
+            </div>
+            
+            {inlineSignUp.role === 'tech' && (
+              <div style={styles.techWarning} role="note">
+                {t.techDescription}
+              </div>
+            )}
+            
+            {inlineErrors.rules && (
+              <div style={styles.bottomSheetRulesError} role="alert">
+                ⚠️ {inlineErrors.rules}
+              </div>
+            )}
+            
+            <div style={styles.bottomSheetForm}>
+              <div>
+                <label htmlFor="bottom-sheet-name" style={styles.srOnly}>{t.name}</label>
+                <input
+                  id="bottom-sheet-name"
+                  type="text"
+                  placeholder={t.name}
+                  value={inlineName}
+                  onChange={(e) => setInlineName(e.target.value)}
+                  style={{
+                    ...styles.bottomSheetInput,
+                    borderColor: inlineSignUp.role === 'tech' ? colors.techAccent : colors.accent,
+                  }}
+                  autoFocus
+                  aria-invalid={!!inlineErrors.name}
+                />
+                {inlineErrors.name && <div style={styles.bottomSheetError} role="alert">{inlineErrors.name}</div>}
+              </div>
+              
+              <div>
+                <label htmlFor="bottom-sheet-email" style={styles.srOnly}>{t.email}</label>
+                <input
+                  id="bottom-sheet-email"
+                  type="email"
+                  placeholder={t.email}
+                  value={inlineEmail}
+                  onChange={(e) => setInlineEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleInlineSubmit()}
+                  style={{
+                    ...styles.bottomSheetInput,
+                    borderColor: inlineSignUp.role === 'tech' ? colors.techAccent : colors.accent,
+                  }}
+                  aria-invalid={!!inlineErrors.email}
+                />
+                {inlineErrors.email && <div style={styles.bottomSheetError} role="alert">{inlineErrors.email}</div>}
+              </div>
+              
+              <div style={styles.bottomSheetActions}>
+                <button 
+                  onClick={closeInlineSignUp} 
+                  style={styles.bottomSheetCancel}
+                  type="button"
+                >
+                  {t.cancel}
+                </button>
+                <button 
+                  onClick={handleInlineSubmit} 
+                  style={{
+                    ...styles.bottomSheetSubmit,
+                    backgroundColor: inlineSignUp.role === 'tech' ? colors.techAccent : colors.accent,
+                  }}
+                  disabled={isInlineSubmitting}
+                  aria-busy={isInlineSubmitting}
+                  type="submit"
+                >
+                  {isInlineSubmitting ? '...' : t.signUp}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
@@ -2659,6 +2620,7 @@ const getStyles = (colors) => ({
     transition: 'all 0.2s ease',
     width: '100%',
     justifyContent: 'center',
+    minHeight: '44px',
   },
   
   openSlotPlus: {
@@ -2666,82 +2628,133 @@ const getStyles = (colors) => ({
     fontWeight: '700',
   },
   
-  inlineForm: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-    padding: '0.75rem',
-    backgroundColor: colors.bg,
-    borderRadius: '8px',
-    border: `2px solid ${colors.accent}`,
+  // Bottom sheet modal for sign-up (mobile-friendly)
+  bottomSheet: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.bgSecondary,
+    borderTopLeftRadius: '20px',
+    borderTopRightRadius: '20px',
+    padding: '1.5rem',
+    paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))',
+    boxShadow: '0 -4px 20px rgba(0,0,0,0.3)',
+    zIndex: 1001,
+    maxHeight: '85vh',
+    overflowY: 'auto',
   },
   
-  inlineInput: {
-    padding: '0.6rem',
-    fontSize: '14px',
-    backgroundColor: colors.bgSecondary,
+  bottomSheetHandle: {
+    width: '40px',
+    height: '4px',
+    backgroundColor: colors.border,
+    borderRadius: '2px',
+    margin: '0 auto 1rem',
+  },
+  
+  bottomSheetHeader: {
+    textAlign: 'center',
+    marginBottom: '1.5rem',
+  },
+  
+  bottomSheetTitle: {
+    fontSize: '1.25rem',
+    fontWeight: '700',
     color: colors.text,
-    border: `2px solid ${colors.accent}`,
-    borderRadius: '6px',
+    marginBottom: '0.5rem',
+  },
+  
+  bottomSheetSubtitle: {
+    fontSize: '1rem',
+    color: colors.textMuted,
+  },
+  
+  bottomSheetRole: {
+    display: 'inline-block',
+    padding: '0.25rem 0.75rem',
+    borderRadius: '20px',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    marginTop: '0.5rem',
+  },
+  
+  bottomSheetForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+  
+  bottomSheetInput: {
+    padding: '1rem',
+    fontSize: '16px', // Prevents iOS zoom
+    backgroundColor: colors.bg,
+    color: colors.text,
+    border: `2px solid ${colors.border}`,
+    borderRadius: '12px',
     width: '100%',
     boxSizing: 'border-box',
   },
   
-  inlineError: {
+  bottomSheetError: {
     color: colors.error,
-    fontSize: '0.75rem',
-    marginTop: '-0.25rem',
+    fontSize: '0.85rem',
+    marginTop: '0.5rem',
   },
   
-  inlineRulesError: {
+  bottomSheetRulesError: {
     color: colors.error,
-    fontSize: '0.8rem',
-    padding: '0.5rem',
+    fontSize: '0.9rem',
+    padding: '0.75rem',
     backgroundColor: `${colors.error}15`,
-    borderRadius: '4px',
+    borderRadius: '8px',
     lineHeight: '1.4',
     fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: '1rem',
   },
   
-  inlineActions: {
+  bottomSheetActions: {
     display: 'flex',
-    gap: '0.5rem',
-    marginTop: '0.25rem',
+    gap: '1rem',
+    marginTop: '0.5rem',
   },
   
-  inlineCancelBtn: {
+  bottomSheetCancel: {
     flex: 1,
-    padding: '0.5rem',
-    fontSize: '0.85rem',
+    padding: '1rem',
+    fontSize: '1rem',
+    fontWeight: '600',
     backgroundColor: 'transparent',
-    color: colors.text,
+    color: colors.textMuted,
     border: `2px solid ${colors.border}`,
-    borderRadius: '6px',
+    borderRadius: '12px',
     cursor: 'pointer',
-    minHeight: '44px',
-    fontWeight: '500',
+    minHeight: '52px',
   },
   
-  inlineSubmitBtn: {
-    flex: 1,
-    padding: '0.5rem',
-    fontSize: '0.85rem',
+  bottomSheetSubmit: {
+    flex: 2,
+    padding: '1rem',
+    fontSize: '1rem',
+    fontWeight: '600',
     backgroundColor: colors.accent,
     color: colors.onAccent,
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '12px',
     cursor: 'pointer',
-    fontWeight: '600',
-    minHeight: '44px',
+    minHeight: '52px',
   },
   
   techWarning: {
-    fontSize: '0.75rem',
+    fontSize: '0.85rem',
     color: colors.techAccent,
-    padding: '0.5rem',
+    padding: '0.75rem',
     backgroundColor: `${colors.techAccent}15`,
-    borderRadius: '4px',
+    borderRadius: '8px',
     lineHeight: '1.4',
+    textAlign: 'center',
+    marginBottom: '1rem',
   },
   
   addButton: {
@@ -2806,6 +2819,26 @@ const getStyles = (colors) => ({
     cursor: 'pointer',
     fontWeight: '600',
     minHeight: '44px',
+    touchAction: 'manipulation',
+  },
+  
+  // Footer styles
+  footer: {
+    padding: '2rem 1rem',
+    textAlign: 'center',
+    borderTop: `1px solid ${colors.border}`,
+    marginTop: '2rem',
+  },
+  
+  footerAdminButton: {
+    padding: '0.5rem 1rem',
+    fontSize: '0.85rem',
+    backgroundColor: 'transparent',
+    color: colors.textMuted,
+    border: `1px solid ${colors.border}`,
+    borderRadius: '6px',
+    cursor: 'pointer',
+    opacity: 0.6,
     touchAction: 'manipulation',
   },
   
