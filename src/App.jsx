@@ -677,34 +677,9 @@ const getDefaultExpandedBlocks = (blocks, isEventActive, isEventOver) => {
   return {};
 };
 
-// Check if event is currently active
-const isEventCurrentlyActive = () => {
-  const now = new Date();
-  return now >= EVENT_CONFIG.startTime && now <= EVENT_CONFIG.endTime;
-};
-
 // Check if event is over
 const isEventOver = () => {
   return new Date() > EVENT_CONFIG.endTime;
-};
-
-// Get current shift index (for highlighting)
-const getCurrentShiftIndex = (shifts) => {
-  const now = new Date();
-  return shifts.findIndex(s => now >= s.start && now < s.end);
-};
-
-// Get next upcoming shift index
-const getNextShiftIndex = (shifts) => {
-  const now = new Date();
-  return shifts.findIndex(s => s.start > now);
-};
-
-// Filter shifts for during-event view (only current and future)
-const filterShiftsForEvent = (shifts) => {
-  const now = new Date();
-  // Show shifts that haven't ended yet
-  return shifts.filter(s => s.end > now);
 };
 
 // ============================================
@@ -758,27 +733,19 @@ export default function App() {
   const timezone = showLocalTime ? userTimezone : 'America/Chicago';
   
   // Event status
-  const eventActive = isEventCurrentlyActive();
   const eventOver = isEventOver();
   
-  // Get display shifts (filtered during event)
-  const displayShifts = eventActive ? filterShiftsForEvent(shifts) : shifts;
-  
   // Group shifts into blocks
-  const shiftBlocks = groupShiftsIntoBlocks(displayShifts, timezone);
-  
-  // Current/next shift indices for highlighting
-  const currentShiftIdx = getCurrentShiftIndex(shifts);
-  const nextShiftIdx = getNextShiftIndex(shifts);
+  const shiftBlocks = groupShiftsIntoBlocks(shifts, timezone);
   
   // Generate theme-aware styles
   const styles = getStyles(colors);
   
   // Initialize expanded blocks on first render
   useEffect(() => {
-    const defaultExpanded = getDefaultExpandedBlocks(shiftBlocks, eventActive, eventOver);
+    const defaultExpanded = getDefaultExpandedBlocks(shiftBlocks, false, eventOver);
     setExpandedBlocks(defaultExpanded);
-  }, [eventActive, eventOver]); // Re-run when event status changes
+  }, [eventOver]); // Re-run when event status changes
   
   // Focus management for admin modal
   useEffect(() => {
@@ -1511,8 +1478,7 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                 onClick={() => toggleBlock(block.key)}
                 style={{
                   ...styles.blockHeader,
-                  ...(isExpanded ? styles.blockHeaderExpanded : {}),
-                  ...(!isExpanded && isFirstBlock && !eventActive ? styles.blockHeaderHighlight : {})
+                  ...(isExpanded ? styles.blockHeaderExpanded : {})
                 }}
                 aria-expanded={isExpanded}
                 aria-controls={`block-${block.key}`}
@@ -1543,17 +1509,11 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                   {block.shifts.map((shift) => {
                     const champStatus = getChampionStatus(shift);
                     const techStatus = getTechStatus(shift);
-                    const isCurrent = shift.id === currentShiftIdx;
-                    const isNext = shift.id === nextShiftIdx && !isCurrent;
                     
                     return (
                       <div
                         key={shift.id}
-                        style={{
-                          ...styles.shiftRow,
-                          ...(isCurrent ? styles.shiftRowCurrent : {}),
-                          ...(isNext ? styles.shiftRowNext : {})
-                        }}
+                        style={styles.shiftRow}
                       >
                         {/* Time column */}
                         <div style={styles.shiftTimeCol}>
@@ -1564,8 +1524,6 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                           <div style={styles.shiftTime}>
                             {formatTime(shift.end, timezone)}
                           </div>
-                          {isCurrent && <div style={styles.nowBadge}>{t.currentShift}</div>}
-                          {isNext && <div style={styles.nextBadge}>{t.upNext}</div>}
                         </div>
                         
                         {/* Champions column */}
@@ -1996,7 +1954,11 @@ Then open this email on your phone and tap the attachment to add shifts to your 
               <div style={styles.bottomSheetActions}>
                 <button 
                   onClick={closeInlineSignUp} 
-                  style={styles.bottomSheetCancel}
+                  style={{
+                    ...styles.bottomSheetCancel,
+                    ...(isInlineSubmitting ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
+                  }}
+                  disabled={isInlineSubmitting}
                   type="button"
                 >
                   {t.cancel}
@@ -2006,12 +1968,13 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                   style={{
                     ...styles.bottomSheetSubmit,
                     backgroundColor: inlineSignUp.role === 'tech' ? colors.techAccent : colors.accent,
+                    ...(isInlineSubmitting ? { opacity: 0.7, cursor: 'wait' } : {}),
                   }}
                   disabled={isInlineSubmitting}
                   aria-busy={isInlineSubmitting}
                   type="submit"
                 >
-                  {isInlineSubmitting ? '...' : t.signUp}
+                  {isInlineSubmitting ? t.submitting : t.signUp}
                 </button>
               </div>
             </div>
@@ -2427,11 +2390,6 @@ const getStyles = (colors) => ({
     color: colors.onAccent,
   },
   
-  blockHeaderHighlight: {
-    animation: 'pulse 2s infinite',
-    boxShadow: `0 0 0 3px ${colors.accent}`,
-  },
-  
   blockHeaderLeft: {
     display: 'flex',
     alignItems: 'center',
@@ -2495,15 +2453,6 @@ const getStyles = (colors) => ({
     alignItems: 'start',
   },
   
-  shiftRowCurrent: {
-    border: `3px solid ${colors.available}`,
-    boxShadow: `0 0 15px ${colors.available}40`,
-  },
-  
-  shiftRowNext: {
-    border: `2px dashed ${colors.partial}`,
-  },
-  
   shiftTimeCol: {
     textAlign: 'center',
     paddingTop: '0.25rem',
@@ -2519,28 +2468,6 @@ const getStyles = (colors) => ({
     fontSize: '0.75rem',
     color: colors.textMuted,
     margin: '0.125rem 0',
-  },
-  
-  nowBadge: {
-    backgroundColor: colors.available,
-    color: colors.onAvailable,
-    padding: '0.2rem 0.5rem',
-    borderRadius: '4px',
-    fontSize: '0.7rem',
-    fontWeight: '700',
-    marginTop: '0.5rem',
-    display: 'inline-block',
-  },
-  
-  nextBadge: {
-    backgroundColor: colors.partial,
-    color: colors.onPartial,
-    padding: '0.2rem 0.5rem',
-    borderRadius: '4px',
-    fontSize: '0.7rem',
-    fontWeight: '700',
-    marginTop: '0.5rem',
-    display: 'inline-block',
   },
   
   roleColumn: {
