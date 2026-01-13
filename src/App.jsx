@@ -2306,6 +2306,7 @@ const getStyles = (colors) => ({
     width: '100%',
     padding: '1rem 1.25rem',
     backgroundColor: colors.bgSecondary,
+    color: colors.text,
     border: 'none',
     cursor: 'pointer',
     display: 'flex',
@@ -2319,7 +2320,7 @@ const getStyles = (colors) => ({
   
   blockHeaderExpanded: {
     backgroundColor: colors.accent,
-    color: colors.bg,
+    color: colors.onAccent,
   },
   
   blockHeaderHighlight: {
