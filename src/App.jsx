@@ -126,6 +126,10 @@ const translations = {
     totalLimit: "12-hour limit reached",
     alreadySignedUp: "You're signed up",
     signUpSuccess: "Successfully signed up!",
+    scheduleMore: "Schedule More Shifts",
+    addToCalendarNow: "Add to Calendar",
+    pendingShifts: "shifts ready to add to calendar",
+    addAllToCalendar: "Add All to Calendar",
     removeConfirm: "Remove this champion?",
     languageLabel: "Language",
     scheduleFor: "Schedule for",
@@ -212,6 +216,10 @@ const translations = {
     totalLimit: "已达12小时上限",
     alreadySignedUp: "您已报名",
     signUpSuccess: "报名成功！",
+    scheduleMore: "安排更多班次",
+    addToCalendarNow: "添加到日历",
+    pendingShifts: "个班次待添加到日历",
+    addAllToCalendar: "全部添加到日历",
     removeConfirm: "移除此冠军？",
     languageLabel: "语言",
     scheduleFor: "日程安排",
@@ -298,6 +306,10 @@ const translations = {
     totalLimit: "ถึงขีดจำกัด 12 ชั่วโมงแล้ว",
     alreadySignedUp: "คุณลงทะเบียนแล้ว",
     signUpSuccess: "ลงทะเบียนสำเร็จ!",
+    scheduleMore: "ลงทะเบียนกะเพิ่มเติม",
+    addToCalendarNow: "เพิ่มลงปฏิทิน",
+    pendingShifts: "กะรอเพิ่มลงปฏิทิน",
+    addAllToCalendar: "เพิ่มทั้งหมดลงปฏิทิน",
     removeConfirm: "ลบแชมเปี้ยนนี้?",
     languageLabel: "ภาษา",
     scheduleFor: "ตารางสำหรับ",
@@ -384,6 +396,10 @@ const translations = {
     totalLimit: "تم الوصول لحد 12 ساعة",
     alreadySignedUp: "أنت مسجل",
     signUpSuccess: "تم التسجيل بنجاح!",
+    scheduleMore: "جدولة المزيد من النوبات",
+    addToCalendarNow: "أضف إلى التقويم",
+    pendingShifts: "نوبات جاهزة للإضافة إلى التقويم",
+    addAllToCalendar: "أضف الكل إلى التقويم",
     removeConfirm: "إزالة هذا البطل؟",
     languageLabel: "اللغة",
     scheduleFor: "الجدول لـ",
@@ -470,6 +486,10 @@ const translations = {
     totalLimit: "Limite de 12 heures atteinte",
     alreadySignedUp: "Vous êtes inscrit",
     signUpSuccess: "Inscription réussie !",
+    scheduleMore: "Programmer d'autres créneaux",
+    addToCalendarNow: "Ajouter au calendrier",
+    pendingShifts: "créneaux prêts à ajouter au calendrier",
+    addAllToCalendar: "Tout ajouter au calendrier",
     removeConfirm: "Supprimer ce champion ?",
     languageLabel: "Langue",
     scheduleFor: "Planning pour",
@@ -695,9 +715,11 @@ export default function App() {
   const [showExport, setShowExport] = useState(false);
   const [exportData, setExportData] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [lastSignedUpShifts, setLastSignedUpShifts] = useState([]);
   const [lastSignedUpEmail, setLastSignedUpEmail] = useState('');
   const [lastSignedUpRole, setLastSignedUpRole] = useState('champion');
+  const [pendingCalendarShifts, setPendingCalendarShifts] = useState([]); // Accumulates shifts for batch calendar add
   const [expandedBlocks, setExpandedBlocks] = useState({});
   const [inlineSignUp, setInlineSignUp] = useState(null); // { shiftId, role }
   const [savedUserInfo, setSavedUserInfo] = useState(() => {
@@ -767,7 +789,10 @@ export default function App() {
           setShowExport(false);
         }
         if (showSuccessModal) {
-          setShowSuccessModal(false);
+          handleScheduleMore();
+        }
+        if (showCalendarModal) {
+          handleCalendarDone();
         }
         if (inlineSignUp) {
           setInlineSignUp(null);
@@ -795,7 +820,7 @@ export default function App() {
       }
     };
     
-    if (showAdminLogin || showExport || showSuccessModal) {
+    if (showAdminLogin || showExport || showSuccessModal || showCalendarModal) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
     }
@@ -804,7 +829,7 @@ export default function App() {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [showAdminLogin, showExport, showSuccessModal, inlineSignUp]);
+  }, [showAdminLogin, showExport, showSuccessModal, showCalendarModal, inlineSignUp]);
   
   // Load data from Supabase
   useEffect(() => {
@@ -1106,8 +1131,9 @@ END:VEVENT
     return icsContent;
   };
   
-  const downloadIcsFile = () => {
-    const icsContent = generateIcsContent(lastSignedUpShifts);
+  const downloadIcsFile = (shiftsToDownload = null) => {
+    const shiftsForCalendar = shiftsToDownload || pendingCalendarShifts;
+    const icsContent = generateIcsContent(shiftsForCalendar);
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1119,11 +1145,12 @@ END:VEVENT
     URL.revokeObjectURL(url);
   };
   
-  const emailIcsFile = () => {
-    downloadIcsFile();
+  const emailIcsFile = (shiftsToEmail = null) => {
+    const shiftsForCalendar = shiftsToEmail || pendingCalendarShifts;
+    downloadIcsFile(shiftsForCalendar);
     
     const subject = encodeURIComponent('My GamiCon48V Shifts');
-    const shiftList = lastSignedUpShifts.map((shift, i) => {
+    const shiftList = shiftsForCalendar.map((shift, i) => {
       const date = formatDate(shift.start, timezone);
       const start = formatTime(shift.start, timezone);
       const end = formatTime(shift.end, timezone);
@@ -1131,7 +1158,7 @@ END:VEVENT
     }).join('\n');
     
     const body = encodeURIComponent(
-`Here are my GamiCon48V ${lastSignedUpRole === 'tech' ? 'Tech Support' : 'Event Champion'} shifts:
+`Here are my GamiCon48V shifts:
 
 ${shiftList}
 
@@ -1143,11 +1170,31 @@ Then open this email on your phone and tap the attachment to add shifts to your 
     window.location.href = `mailto:${lastSignedUpEmail}?subject=${subject}&body=${body}`;
   };
   
-  const openGoogleCalendar = () => {
-    const url = generateGoogleCalendarUrl(lastSignedUpShifts);
+  const openGoogleCalendar = (shiftsToAdd = null) => {
+    const shiftsForCalendar = shiftsToAdd || pendingCalendarShifts;
+    const url = generateGoogleCalendarUrl(shiftsForCalendar);
     if (url) {
       window.open(url, '_blank');
     }
+  };
+  
+  // Handle "Schedule More" - add to pending and close
+  const handleScheduleMore = () => {
+    setPendingCalendarShifts(prev => [...prev, ...lastSignedUpShifts]);
+    setShowSuccessModal(false);
+  };
+  
+  // Handle "Add to Calendar Now" - add current shift to pending and show calendar modal
+  const handleAddToCalendarNow = () => {
+    setPendingCalendarShifts(prev => [...prev, ...lastSignedUpShifts]);
+    setShowSuccessModal(false);
+    setShowCalendarModal(true);
+  };
+  
+  // Clear pending shifts after adding to calendar
+  const handleCalendarDone = () => {
+    setPendingCalendarShifts([]);
+    setShowCalendarModal(false);
   };
   
   // Get status helpers
@@ -1410,6 +1457,19 @@ Then open this email on your phone and tap the attachment to add shifts to your 
           )}
         </div>
       </div>
+      
+      {/* Pending Calendar Shifts Banner */}
+      {pendingCalendarShifts.length > 0 && (
+        <div style={styles.pendingBanner}>
+          <span>📅 {pendingCalendarShifts.length} {t.pendingShifts}</span>
+          <button 
+            onClick={() => setShowCalendarModal(true)}
+            style={styles.pendingBannerButton}
+          >
+            {t.addAllToCalendar}
+          </button>
+        </div>
+      )}
       
       {/* Rules Panel */}
       <details style={styles.rulesPanel}>
@@ -1853,16 +1913,16 @@ Then open this email on your phone and tap the attachment to add shifts to your 
         </div>
       )}
       
-      {/* Success Modal with Calendar Options */}
+      {/* Success Modal - Choose next action */}
       {showSuccessModal && (
         <div
           style={styles.modalOverlay}
-          onClick={(e) => e.target === e.currentTarget && setShowSuccessModal(false)}
+          onClick={(e) => e.target === e.currentTarget && handleScheduleMore()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="success-title"
         >
-          <div style={{ ...styles.modal, maxWidth: '500px', textAlign: 'center' }}>
+          <div style={{ ...styles.modal, maxWidth: '450px', textAlign: 'center' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
             <h2 id="success-title" style={{
               ...styles.modalTitle,
@@ -1877,64 +1937,110 @@ Then open this email on your phone and tap the attachment to add shifts to your 
               {lastSignedUpRole === 'tech' ? t.techSupport : t.eventChampion}
             </p>
             
-            <div style={{ marginBottom: '1.5rem' }}>
-              <p style={{ color: colors.text, marginBottom: '1rem', fontWeight: '600' }}>
-                {t.addToCalendar}
-              </p>
-              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button 
-                  onClick={openGoogleCalendar} 
-                  style={{
-                    ...styles.secondaryButton,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  📅 {t.googleCalendar}
-                </button>
-                <button 
-                  onClick={downloadIcsFile} 
-                  style={{
-                    ...styles.secondaryButton,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  📥 {t.downloadIcs}
-                </button>
-                <button 
-                  onClick={emailIcsFile} 
-                  style={{
-                    ...styles.secondaryButton,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  ✉️ {t.emailIcs}
-                </button>
-              </div>
+            {pendingCalendarShifts.length > 0 && (
               <p style={{ 
-                color: colors.textMuted, 
-                fontSize: '0.85rem', 
-                marginTop: '1rem',
-                backgroundColor: colors.bg,
-                padding: '0.75rem',
-                borderRadius: '8px',
-                lineHeight: '1.5'
+                color: colors.accent, 
+                fontSize: '0.9rem', 
+                marginBottom: '1rem',
+                backgroundColor: `${colors.accent}15`,
+                padding: '0.5rem 1rem',
+                borderRadius: '8px'
               }}>
-                💡 {t.icsEmailTip}
+                📅 {pendingCalendarShifts.length + lastSignedUpShifts.length} {t.pendingShifts}
               </p>
+            )}
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button 
+                onClick={handleScheduleMore}
+                style={{
+                  ...styles.primaryButton,
+                  ...(lastSignedUpRole === 'tech' ? { backgroundColor: colors.techAccent, color: colors.onTechAccent } : {})
+                }}
+              >
+                {t.scheduleMore}
+              </button>
+              <button 
+                onClick={handleAddToCalendarNow}
+                style={styles.secondaryButton}
+              >
+                📅 {t.addToCalendarNow}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Calendar Modal - Add all pending shifts */}
+      {showCalendarModal && (
+        <div
+          style={styles.modalOverlay}
+          onClick={(e) => e.target === e.currentTarget && handleCalendarDone()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="calendar-title"
+        >
+          <div style={{ ...styles.modal, maxWidth: '500px', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
+            <h2 id="calendar-title" style={styles.modalTitle}>
+              {t.addToCalendar}
+            </h2>
+            
+            <p style={{ color: colors.textMuted, marginBottom: '1.5rem' }}>
+              {pendingCalendarShifts.length} {pendingCalendarShifts.length === 1 ? t.shift : 'shifts'}
+            </p>
+            
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+              <button 
+                onClick={() => openGoogleCalendar()} 
+                style={{
+                  ...styles.secondaryButton,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                📅 {t.googleCalendar}
+              </button>
+              <button 
+                onClick={() => downloadIcsFile()} 
+                style={{
+                  ...styles.secondaryButton,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                📥 {t.downloadIcs}
+              </button>
+              <button 
+                onClick={() => emailIcsFile()} 
+                style={{
+                  ...styles.secondaryButton,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                ✉️ {t.emailIcs}
+              </button>
             </div>
             
+            <p style={{ 
+              color: colors.textMuted, 
+              fontSize: '0.85rem', 
+              marginBottom: '1.5rem',
+              backgroundColor: colors.bg,
+              padding: '0.75rem',
+              borderRadius: '8px',
+              lineHeight: '1.5'
+            }}>
+              💡 {t.icsEmailTip}
+            </p>
+            
             <button 
-              onClick={() => setShowSuccessModal(false)} 
-              style={{
-                ...styles.primaryButton,
-                ...(lastSignedUpRole === 'tech' ? { backgroundColor: colors.techAccent } : {})
-              }}
+              onClick={handleCalendarDone}
+              style={styles.primaryButton}
             >
               {t.close}
             </button>
@@ -2186,6 +2292,33 @@ const getStyles = (colors) => ({
     display: 'flex',
     gap: '0.75rem',
     flexWrap: 'wrap',
+  },
+  
+  pendingBanner: {
+    maxWidth: '1400px',
+    margin: '0 auto',
+    padding: '0.75rem max(1rem, env(safe-area-inset-left))',
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '1rem',
+    backgroundColor: `${colors.accent}15`,
+    borderTop: `2px solid ${colors.accent}`,
+    borderBottom: `2px solid ${colors.accent}`,
+    color: colors.accent,
+    fontWeight: '600',
+  },
+  
+  pendingBannerButton: {
+    padding: '0.5rem 1rem',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    backgroundColor: colors.accent,
+    color: colors.onAccent,
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
   },
   
   primaryButton: {
