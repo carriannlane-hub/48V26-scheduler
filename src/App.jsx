@@ -137,10 +137,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     totalLimit: "12-hour limit reached",
     alreadySignedUp: "You're signed up",
     signUpSuccess: "Successfully signed up!",
-    scheduleMore: "Schedule More Shifts",
-    addToCalendarNow: "Add to Calendar",
-    pendingShifts: "shifts ready to add to calendar",
-    addAllToCalendar: "Add All to Calendar",
     removeConfirm: "Remove this champion?",
     languageLabel: "Language",
     scheduleFor: "Schedule for",
@@ -164,13 +160,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     afternoon: "Afternoon",
     evening: "Evening",
     night: "Night",
-    addToCalendar: "Add to Calendar",
-    googleCalendar: "Google Calendar",
-    downloadIcs: "Download .ics",
-    emailIcs: "Email to myself",
-    calendarEventTitle: "GamiCon48V - Event Champion",
-    calendarEventTitleTech: "GamiCon48V - Tech Support",
-    icsEmailTip: "Tip: Open the email on your phone, tap the attachment, then tap Add to Calendar.",
     tapToExpand: "TAP TO SEE SHIFTS",
     shiftsAvailable: "shifts available",
     currentShift: "NOW",
@@ -180,11 +169,12 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     techConfirmYes: "Yes, I have tech experience",
     techConfirmNo: "No, go back",
     seeMyShifts: "See My Shifts",
+    print: "Print",
+    seeMyShiftsHint: "Use \"See My Shifts\" anytime to view or print your schedule.",
     enterYourEmail: "Enter your email to see your shifts",
     lookupShifts: "Look Up My Shifts",
     noShiftsFound: "No shifts found for this email.",
     myShiftsTitle: "My Shifts",
-    exportAll: "Export All to Calendar",
   },
   zh: {
     title: "活动冠军调度器",
@@ -234,10 +224,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     totalLimit: "已达12小时上限",
     alreadySignedUp: "您已报名",
     signUpSuccess: "报名成功！",
-    scheduleMore: "安排更多班次",
-    addToCalendarNow: "添加到日历",
-    pendingShifts: "个班次待添加到日历",
-    addAllToCalendar: "全部添加到日历",
     removeConfirm: "移除此冠军？",
     languageLabel: "语言",
     scheduleFor: "日程安排",
@@ -261,13 +247,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     afternoon: "下午",
     evening: "傍晚",
     night: "夜间",
-    addToCalendar: "添加到日历",
-    googleCalendar: "Google 日历",
-    downloadIcs: "下载 .ics",
-    emailIcs: "发送到我的邮箱",
-    calendarEventTitle: "GamiCon48V - 活动冠军",
-    calendarEventTitleTech: "GamiCon48V - 技术支持",
-    icsEmailTip: "提示：在手机上打开邮件，点击附件，然后点击添加到日历。",
     tapToExpand: "点击查看班次",
     shiftsAvailable: "个班次可用",
     currentShift: "现在",
@@ -277,11 +256,12 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     techConfirmYes: "是的，我有技术经验",
     techConfirmNo: "不，返回",
     seeMyShifts: "查看我的班次",
+    print: "打印",
+    seeMyShiftsHint: "随时使用「查看我的班次」来查看或打印您的排班。",
     enterYourEmail: "输入您的邮箱查看您的班次",
     lookupShifts: "查找我的班次",
     noShiftsFound: "未找到该邮箱的班次。",
     myShiftsTitle: "我的班次",
-    exportAll: "全部导出到日历",
   },
   th: {
     title: "ตารางเวลาแชมเปี้ยนอีเวนต์",
@@ -331,10 +311,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     totalLimit: "ถึงขีดจำกัด 12 ชั่วโมงแล้ว",
     alreadySignedUp: "คุณลงทะเบียนแล้ว",
     signUpSuccess: "ลงทะเบียนสำเร็จ!",
-    scheduleMore: "ลงทะเบียนกะเพิ่มเติม",
-    addToCalendarNow: "เพิ่มลงปฏิทิน",
-    pendingShifts: "กะรอเพิ่มลงปฏิทิน",
-    addAllToCalendar: "เพิ่มทั้งหมดลงปฏิทิน",
     removeConfirm: "ลบแชมเปี้ยนนี้?",
     languageLabel: "ภาษา",
     scheduleFor: "ตารางสำหรับ",
@@ -358,13 +334,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     afternoon: "บ่าย",
     evening: "เย็น",
     night: "กลางคืน",
-    addToCalendar: "เพิ่มไปยังปฏิทิน",
-    googleCalendar: "Google ปฏิทิน",
-    downloadIcs: "ดาวน์โหลด .ics",
-    emailIcs: "ส่งอีเมลถึงตัวเอง",
-    calendarEventTitle: "GamiCon48V - แชมเปี้ยนอีเวนต์",
-    calendarEventTitleTech: "GamiCon48V - ฝ่ายเทคนิค",
-    icsEmailTip: "เคล็ดลับ: เปิดอีเมลบนโทรศัพท์ แตะไฟล์แนบ แล้วแตะเพิ่มไปยังปฏิทิน",
     tapToExpand: "แตะเพื่อดูกะ",
     shiftsAvailable: "กะที่ว่าง",
     currentShift: "ตอนนี้",
@@ -374,11 +343,12 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     techConfirmYes: "ใช่ ฉันมีประสบการณ์",
     techConfirmNo: "ไม่ กลับ",
     seeMyShifts: "ดูกะของฉัน",
+    print: "พิมพ์",
+    seeMyShiftsHint: "ใช้ 'ดูกะของฉัน' เพื่อดูหรือพิมพ์ตารางของคุณได้ตลอดเวลา",
     enterYourEmail: "ใส่อีเมลเพื่อดูกะของคุณ",
     lookupShifts: "ค้นหากะของฉัน",
     noShiftsFound: "ไม่พบกะสำหรับอีเมลนี้",
     myShiftsTitle: "กะของฉัน",
-    exportAll: "ส่งออกทั้งหมดไปยังปฏิทิน",
   },
   ar: {
     title: "جدول أبطال الحدث",
@@ -428,10 +398,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     totalLimit: "تم الوصول لحد 12 ساعة",
     alreadySignedUp: "أنت مسجل",
     signUpSuccess: "تم التسجيل بنجاح!",
-    scheduleMore: "جدولة المزيد من النوبات",
-    addToCalendarNow: "أضف إلى التقويم",
-    pendingShifts: "نوبات جاهزة للإضافة إلى التقويم",
-    addAllToCalendar: "أضف الكل إلى التقويم",
     removeConfirm: "إزالة هذا البطل؟",
     languageLabel: "اللغة",
     scheduleFor: "الجدول لـ",
@@ -455,13 +421,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     afternoon: "ظهر",
     evening: "مساء",
     night: "ليل",
-    addToCalendar: "إضافة إلى التقويم",
-    googleCalendar: "تقويم Google",
-    downloadIcs: "تحميل .ics",
-    emailIcs: "إرسال إلى بريدي",
-    calendarEventTitle: "GamiCon48V - بطل الحدث",
-    calendarEventTitleTech: "GamiCon48V - الدعم الفني",
-    icsEmailTip: "نصيحة: افتح البريد على هاتفك، اضغط على المرفق، ثم اضغط على إضافة إلى التقويم.",
     tapToExpand: "انقر لعرض النوبات",
     shiftsAvailable: "نوبات متاحة",
     currentShift: "الآن",
@@ -471,11 +430,12 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     techConfirmYes: "نعم، لدي خبرة تقنية",
     techConfirmNo: "لا، العودة",
     seeMyShifts: "عرض نوباتي",
+    print: "طباعة",
+    seeMyShiftsHint: "استخدم 'عرض نوباتي' في أي وقت لعرض أو طباعة جدولك.",
     enterYourEmail: "أدخل بريدك الإلكتروني لعرض نوباتك",
     lookupShifts: "البحث عن نوباتي",
     noShiftsFound: "لم يتم العثور على نوبات لهذا البريد الإلكتروني.",
     myShiftsTitle: "نوباتي",
-    exportAll: "تصدير الكل إلى التقويم",
   },
   fr: {
     title: "Planificateur des Champions",
@@ -525,10 +485,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     totalLimit: "Limite de 12 heures atteinte",
     alreadySignedUp: "Vous êtes inscrit",
     signUpSuccess: "Inscription réussie !",
-    scheduleMore: "Programmer d'autres créneaux",
-    addToCalendarNow: "Ajouter au calendrier",
-    pendingShifts: "créneaux prêts à ajouter au calendrier",
-    addAllToCalendar: "Tout ajouter au calendrier",
     removeConfirm: "Supprimer ce champion ?",
     languageLabel: "Langue",
     scheduleFor: "Planning pour",
@@ -552,13 +508,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     afternoon: "Après-midi",
     evening: "Soir",
     night: "Nuit",
-    addToCalendar: "Ajouter au calendrier",
-    googleCalendar: "Google Agenda",
-    downloadIcs: "Télécharger .ics",
-    emailIcs: "M'envoyer par e-mail",
-    calendarEventTitle: "GamiCon48V - Champion d'événement",
-    calendarEventTitleTech: "GamiCon48V - Support technique",
-    icsEmailTip: "Astuce : Ouvrez l'e-mail sur votre téléphone, appuyez sur la pièce jointe, puis appuyez sur Ajouter au calendrier.",
     tapToExpand: "APPUYEZ POUR VOIR",
     shiftsAvailable: "créneaux disponibles",
     currentShift: "EN COURS",
@@ -568,11 +517,12 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     techConfirmYes: "Oui, j'ai l'expérience",
     techConfirmNo: "Non, retour",
     seeMyShifts: "Voir mes créneaux",
+    print: "Imprimer",
+    seeMyShiftsHint: "Utilisez 'Voir mes créneaux' pour consulter ou imprimer votre planning.",
     enterYourEmail: "Entrez votre e-mail pour voir vos créneaux",
     lookupShifts: "Chercher mes créneaux",
     noShiftsFound: "Aucun créneau trouvé pour cet e-mail.",
     myShiftsTitle: "Mes créneaux",
-    exportAll: "Tout exporter vers le calendrier",
   }
 };
 
@@ -735,11 +685,8 @@ export default function App() {
   const [showExport, setShowExport] = useState(false);
   const [exportData, setExportData] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [lastSignedUpShifts, setLastSignedUpShifts] = useState([]);
-  const [lastSignedUpEmail, setLastSignedUpEmail] = useState('');
   const [lastSignedUpRole, setLastSignedUpRole] = useState('champion');
-  const [pendingCalendarShifts, setPendingCalendarShifts] = useState([]); // Accumulates shifts for batch calendar add
   const [expandedBlocks, setExpandedBlocks] = useState({});
   const [inlineSignUp, setInlineSignUp] = useState(null); // { shiftId, role }
   const [showMyShifts, setShowMyShifts] = useState(false);
@@ -807,10 +754,7 @@ export default function App() {
           setShowExport(false);
         }
         if (showSuccessModal) {
-          handleScheduleMore();
-        }
-        if (showCalendarModal) {
-          handleCalendarDone();
+          setShowSuccessModal(false);
         }
         if (inlineSignUp) {
           setInlineSignUp(null);
@@ -842,7 +786,7 @@ export default function App() {
       }
     };
     
-    if (showAdminLogin || showExport || showSuccessModal || showCalendarModal || showMyShifts) {
+    if (showAdminLogin || showExport || showSuccessModal || showMyShifts) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
     }
@@ -851,7 +795,7 @@ export default function App() {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [showAdminLogin, showExport, showSuccessModal, showCalendarModal, showMyShifts, inlineSignUp]);
+  }, [showAdminLogin, showExport, showSuccessModal, showMyShifts, inlineSignUp]);
   
   // Load data from Supabase
   useEffect(() => {
@@ -1098,121 +1042,9 @@ export default function App() {
     }
   };
   
-  // Calendar functions
-  const generateGoogleCalendarUrl = (shift, role) => {
-    const title = encodeURIComponent(role === 'tech' ? t.calendarEventTitleTech : t.calendarEventTitle);
-    const startStr = shift.start.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    const endStr = shift.end.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    const details = encodeURIComponent(`${role === 'tech' ? 'Tech Support' : 'Event Champion'} shift for GamiCon48V 2026`);
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}`;
-  };
-
-  const generateIcsContent = (shiftsToAdd) => {
-    const formatIcsDate = (date) => {
-      return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    };
-    
-    const title = lastSignedUpRole === 'tech' ? t.calendarEventTitleTech : t.calendarEventTitle;
-    
-    let icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//GamiCon48V//Event Champion Scheduler//EN
-CALSCALE:GREGORIAN
-METHOD:PUBLISH
-`;
-    
-    shiftsToAdd.forEach((shift, index) => {
-      const uid = `gamicon48v-shift-${shift.id}-${Date.now()}@gamicon.org`;
-      icsContent += `BEGIN:VEVENT
-UID:${uid}
-DTSTAMP:${formatIcsDate(new Date())}
-DTSTART:${formatIcsDate(shift.start)}
-DTEND:${formatIcsDate(shift.end)}
-SUMMARY:${title}
-DESCRIPTION:${lastSignedUpRole === 'tech' ? 'Tech Support' : 'Event Champion'} shift ${index + 1} for GamiCon48V 2026
-STATUS:CONFIRMED
-BEGIN:VALARM
-TRIGGER:-P1D
-ACTION:DISPLAY
-DESCRIPTION:Your GamiCon48V shift starts tomorrow!
-END:VALARM
-BEGIN:VALARM
-TRIGGER:-PT2H
-ACTION:DISPLAY
-DESCRIPTION:Your GamiCon48V shift starts in 2 hours!
-END:VALARM
-END:VEVENT
-`;
-    });
-    
-    icsContent += `END:VCALENDAR`;
-    return icsContent;
-  };
-  
-  const downloadIcsFile = (shiftsToDownload = null) => {
-    const shiftsForCalendar = shiftsToDownload || pendingCalendarShifts;
-    const icsContent = generateIcsContent(shiftsForCalendar);
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'gamicon48v-shifts.ics';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-  
-  const emailIcsFile = (shiftsToEmail = null) => {
-    const shiftsForCalendar = shiftsToEmail || pendingCalendarShifts;
-    downloadIcsFile(shiftsForCalendar);
-    
-    const subject = encodeURIComponent('My GamiCon48V Shifts');
-    const shiftList = shiftsForCalendar.map((shift, i) => {
-      const date = formatDate(shift.start, timezone);
-      const start = formatTime(shift.start, timezone);
-      const end = formatTime(shift.end, timezone);
-      return `  Shift ${i + 1}: ${date} ${start} - ${end}`;
-    }).join('\n');
-    
-    const body = encodeURIComponent(
-`Here are my GamiCon48V shifts:
-
-${shiftList}
-
-IMPORTANT: Attach the downloaded file "gamicon48v-shifts.ics" to this email before sending.
-
-Then open this email on your phone and tap the attachment to add shifts to your calendar.`
-    );
-    
-    window.location.href = `mailto:${lastSignedUpEmail}?subject=${subject}&body=${body}`;
-  };
-  
-  const openGoogleCalendar = (shiftsToAdd = null) => {
-    const shiftsForCalendar = shiftsToAdd || pendingCalendarShifts;
-    const role = lastSignedUpRole;
-    shiftsForCalendar.forEach((shift, i) => {
-      const url = generateGoogleCalendarUrl(shift, role);
-      setTimeout(() => window.open(url, '_blank'), i * 500);
-    });
-  };
-  // Handle "Schedule More" - add to pending and close
-  const handleScheduleMore = () => {
-    setPendingCalendarShifts(prev => [...prev, ...lastSignedUpShifts]);
+  // Handle closing success modal
+  const handleSuccessClose = () => {
     setShowSuccessModal(false);
-  };
-  
-  // Handle "Add to Calendar Now" - add current shift to pending and show calendar modal
-  const handleAddToCalendarNow = () => {
-    setPendingCalendarShifts(prev => [...prev, ...lastSignedUpShifts]);
-    setShowSuccessModal(false);
-    setShowCalendarModal(true);
-  };
-  
-  // Clear pending shifts after adding to calendar
-  const handleCalendarDone = () => {
-    setPendingCalendarShifts([]);
-    setShowCalendarModal(false);
   };
 
   // Look up shifts by email
@@ -1241,22 +1073,43 @@ Then open this email on your phone and tap the attachment to add shifts to your 
     });
     setMyShiftsList(found);
     setMyShiftsRole(role);
-    setLastSignedUpEmail(email);
     setLastSignedUpRole(role);
     setMyShiftsLoading(false);
   };
 
-  // Export my looked-up shifts to Google Calendar
-  const exportMyShiftsToGoogle = () => {
-    myShiftsList.forEach((shift, i) => {
-      const url = generateGoogleCalendarUrl(shift, shift.myRole || myShiftsRole);
-      setTimeout(() => window.open(url, '_blank'), i * 500);
-    });
-  };
+  // Print my shifts
+  const printMyShifts = () => {
+    const tz = showLocalTime ? userTimezone : 'America/Chicago';
+    const shiftRows = myShiftsList.map(shift => {
+      const dayName = shift.start.toLocaleDateString(undefined, { weekday: 'long' });
+      const dateStr = shift.start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      const startTime = shift.start.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
+      const endTime = shift.end.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
+      const role = shift.myRole === 'tech' ? t.techSupport : t.eventChampion;
+      return `<tr><td style="padding:8px 12px;border-bottom:1px solid #ddd">${dayName}, ${dateStr}</td><td style="padding:8px 12px;border-bottom:1px solid #ddd">${startTime} – ${endTime}</td><td style="padding:8px 12px;border-bottom:1px solid #ddd">${role}</td></tr>`;
+    }).join('');
 
-  // Download ICS for my looked-up shifts
-  const downloadMyShiftsIcs = () => {
-    downloadIcsFile(myShiftsList);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head><title>My GamiCon48V Shifts</title></head>
+        <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:2rem auto;color:#1e293b">
+          <h1 style="font-size:1.5rem;margin-bottom:0.25rem">My GamiCon48V Shifts</h1>
+          <p style="color:#64748b;margin-bottom:1.5rem">${myShiftsList.length} shift${myShiftsList.length !== 1 ? 's' : ''} scheduled</p>
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f1f5f9">
+              <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #cbd5e1">Day</th>
+              <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #cbd5e1">Time</th>
+              <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #cbd5e1">Role</th>
+            </tr></thead>
+            <tbody>${shiftRows}</tbody>
+          </table>
+          <p style="color:#94a3b8;font-size:0.85rem;margin-top:2rem">Questions? Contact Carriann Lane through the Event Champions WhatsApp group.</p>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
   };
   
   // Get status helpers
@@ -1359,7 +1212,6 @@ Then open this email on your phone and tap the attachment to add shifts to your 
       
       // Set up success modal
       setLastSignedUpShifts([shift]);
-      setLastSignedUpEmail(inlineEmail.trim());
       setLastSignedUpRole(role);
       
       closeInlineSignUp();
@@ -1515,18 +1367,6 @@ Then open this email on your phone and tap the attachment to add shifts to your 
         </div>
       )}
       
-      {/* Pending Calendar Shifts Banner */}
-      {pendingCalendarShifts.length > 0 && (
-        <div style={styles.pendingBanner}>
-          <span>📅 {pendingCalendarShifts.length} {t.pendingShifts}</span>
-          <button 
-            onClick={() => setShowCalendarModal(true)}
-            style={styles.pendingBannerButton}
-          >
-            {t.addAllToCalendar}
-          </button>
-        </div>
-      )}
       
       {/* Rules Panel */}
       <details style={styles.rulesPanel}>
@@ -1821,11 +1661,11 @@ Then open this email on your phone and tap the attachment to add shifts to your 
         </div>
       )}
       
-      {/* Success Modal - Choose next action */}
+      {/* Success Modal */}
       {showSuccessModal && (
         <div
           style={styles.modalOverlay}
-          onClick={(e) => e.target === e.currentTarget && handleScheduleMore()}
+          onClick={(e) => e.target === e.currentTarget && handleSuccessClose()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="success-title"
@@ -1845,110 +1685,16 @@ Then open this email on your phone and tap the attachment to add shifts to your 
               {lastSignedUpRole === 'tech' ? t.techSupport : t.eventChampion}
             </p>
             
-            {pendingCalendarShifts.length > 0 && (
-              <p style={{ 
-                color: colors.accent, 
-                fontSize: '0.9rem', 
-                marginBottom: '1rem',
-                backgroundColor: `${colors.accent}15`,
-                padding: '0.5rem 1rem',
-                borderRadius: '8px'
-              }}>
-                📅 {pendingCalendarShifts.length + lastSignedUpShifts.length} {t.pendingShifts}
-              </p>
-            )}
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <button 
-                onClick={handleScheduleMore}
-                style={{
-                  ...styles.primaryButton,
-                  ...(lastSignedUpRole === 'tech' ? { backgroundColor: colors.techAccent, color: colors.onTechAccent } : {})
-                }}
-              >
-                {t.scheduleMore}
-              </button>
-              <button 
-                onClick={handleAddToCalendarNow}
-                style={styles.secondaryButton}
-              >
-                📅 {t.addToCalendarNow}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Calendar Modal - Add all pending shifts */}
-      {showCalendarModal && (
-        <div
-          style={styles.modalOverlay}
-          onClick={(e) => e.target === e.currentTarget && handleCalendarDone()}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="calendar-title"
-        >
-          <div style={{ ...styles.modal, maxWidth: '500px', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
-            <h2 id="calendar-title" style={styles.modalTitle}>
-              {t.addToCalendar}
-            </h2>
-            
-            <p style={{ color: colors.textMuted, marginBottom: '1.5rem' }}>
-              {pendingCalendarShifts.length} {pendingCalendarShifts.length === 1 ? t.shift : 'shifts'}
-            </p>
-            
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-              <button 
-                onClick={() => openGoogleCalendar()} 
-                style={{
-                  ...styles.secondaryButton,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                📅 {t.googleCalendar}
-              </button>
-              <button 
-                onClick={() => downloadIcsFile()} 
-                style={{
-                  ...styles.secondaryButton,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                📥 {t.downloadIcs}
-              </button>
-              <button 
-                onClick={() => emailIcsFile()} 
-                style={{
-                  ...styles.secondaryButton,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                ✉️ {t.emailIcs}
-              </button>
-            </div>
-            
-            <p style={{ 
-              color: colors.textMuted, 
-              fontSize: '0.85rem', 
-              marginBottom: '1.5rem',
-              backgroundColor: colors.bg,
-              padding: '0.75rem',
-              borderRadius: '8px',
-              lineHeight: '1.5'
-            }}>
-              💡 {t.icsEmailTip}
+            <p style={{ color: colors.textMuted, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              {t.seeMyShiftsHint || 'Use "See My Shifts" anytime to view or print your schedule.'}
             </p>
             
             <button 
-              onClick={handleCalendarDone}
-              style={styles.primaryButton}
+              onClick={handleSuccessClose}
+              style={{
+                ...styles.primaryButton,
+                ...(lastSignedUpRole === 'tech' ? { backgroundColor: colors.techAccent, color: colors.onTechAccent } : {})
+              }}
             >
               {t.close}
             </button>
@@ -2148,18 +1894,9 @@ Then open this email on your phone and tap the attachment to add shifts to your 
                   {myShiftsList.length} {myShiftsList.length === 1 ? t.shift : 'shifts'}
                 </p>
 
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                  <button onClick={exportMyShiftsToGoogle} style={{ ...styles.secondaryButton, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    📅 {t.googleCalendar}
-                  </button>
-                  <button onClick={downloadMyShiftsIcs} style={{ ...styles.secondaryButton, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    📥 {t.downloadIcs}
-                  </button>
-                </div>
-
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-                  <button onClick={() => { setMyShiftsList([]); setMyShiftsEmail(''); }} style={styles.secondaryButton}>
-                    ← {t.lookupShifts}
+                  <button onClick={printMyShifts} style={{ ...styles.secondaryButton, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    🖨️ {t.print || 'Print'}
                   </button>
                   <button onClick={() => setShowMyShifts(false)} style={styles.primaryButton}>
                     {t.close}
