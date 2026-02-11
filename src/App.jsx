@@ -734,6 +734,14 @@ export default function App() {
   // Generate theme-aware styles
   const styles = getStyles(colors);
   
+  // Responsive: detect mobile width
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 600);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 600);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   // Initialize expanded blocks on first render
   useEffect(() => {
     const defaultExpanded = getDefaultExpandedBlocks(shiftBlocks, false, eventOver);
@@ -1522,14 +1530,14 @@ export default function App() {
                     return (
                       <div
                         key={shift.id}
-                        style={styles.shiftRow}
+                        style={isMobile ? styles.shiftRowMobile : styles.shiftRow}
                       >
                         {/* Time column */}
-                        <div style={styles.shiftTimeCol}>
+                        <div style={isMobile ? styles.shiftTimeColMobile : styles.shiftTimeCol}>
                           <div style={styles.shiftTime}>
                             {formatTime(shift.start, timezone)}
                           </div>
-                          <div style={styles.shiftTimeTo}>to</div>
+                          <div style={styles.shiftTimeTo}>{isMobile ? '–' : 'to'}</div>
                           <div style={styles.shiftTime}>
                             {formatTime(shift.end, timezone)}
                           </div>
@@ -2161,7 +2169,7 @@ const getStyles = (colors) => ({
   },
   
   subtitle: {
-    fontSize: '1.1rem',
+    fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)',
     color: colors.textMuted,
     margin: '0.25rem 0 0 0',
     fontStyle: 'italic',
@@ -2250,33 +2258,6 @@ const getStyles = (colors) => ({
     flexWrap: 'wrap',
   },
   
-  pendingBanner: {
-    maxWidth: '1400px',
-    margin: '0 auto',
-    padding: '0.75rem max(1rem, env(safe-area-inset-left))',
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: '1rem',
-    backgroundColor: `${colors.accent}15`,
-    borderTop: `2px solid ${colors.accent}`,
-    borderBottom: `2px solid ${colors.accent}`,
-    color: colors.accent,
-    fontWeight: '600',
-  },
-  
-  pendingBannerButton: {
-    padding: '0.5rem 1rem',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    backgroundColor: colors.accent,
-    color: colors.onAccent,
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-  },
-  
   primaryButton: {
     padding: '0.875rem 1.5rem',
     fontSize: '1rem',
@@ -2333,7 +2314,7 @@ const getStyles = (colors) => ({
   rulesPanel: {
     maxWidth: '1400px',
     margin: '1.5rem auto 1rem auto',
-    padding: '0 2rem',
+    padding: '0 max(2rem, env(safe-area-inset-right)) 0 max(2rem, env(safe-area-inset-left))',
   },
   
   rulesSummary: {
@@ -2453,9 +2434,30 @@ const getStyles = (colors) => ({
     alignItems: 'start',
   },
   
+  // Stacked layout for mobile (applied via className)
+  shiftRowMobile: {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: '0.75rem',
+    padding: '1rem',
+    backgroundColor: colors.bgSecondary,
+    borderRadius: '8px',
+    marginBottom: '0.75rem',
+    alignItems: 'start',
+  },
+  
   shiftTimeCol: {
     textAlign: 'center',
     paddingTop: '0.25rem',
+  },
+  
+  shiftTimeColMobile: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    paddingBottom: '0.5rem',
+    borderBottom: `1px solid ${colors.border}`,
+    marginBottom: '0.25rem',
   },
   
   shiftTime: {
@@ -3004,7 +3006,7 @@ const getStyles = (colors) => ({
   myShiftsBar: {
     maxWidth: '1400px',
     margin: '0.75rem auto 1.5rem',
-    padding: '0 2rem',
+    padding: '0 max(2rem, env(safe-area-inset-right)) 0 max(2rem, env(safe-area-inset-left))',
     textAlign: 'left',
   },
   
@@ -3123,11 +3125,5 @@ styleSheet.textContent = `
     }
   }
   
-  /* Responsive grid for shift rows on mobile */
-  @media (max-width: 600px) {
-    .shift-row-mobile {
-      grid-template-columns: 1fr !important;
-    }
-  }
 `;
 document.head.appendChild(styleSheet);
