@@ -3002,9 +3002,9 @@ const getStyles = (colors) => ({
   },
   
   myShiftsBar: {
-    maxWidth: '1000px',
+    maxWidth: '1400px',
     margin: '0.75rem auto 1.5rem',
-    padding: '0 1.5rem',
+    padding: '0 2rem',
     textAlign: 'left',
   },
   
