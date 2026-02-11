@@ -3003,9 +3003,9 @@ const getStyles = (colors) => ({
   
   myShiftsBar: {
     maxWidth: '1000px',
-    margin: '0.75rem auto 0.25rem',
+    margin: '0.75rem auto 1.5rem',
     padding: '0 1.5rem',
-    textAlign: 'center',
+    textAlign: 'right',
   },
   
   myShiftsButton: {
@@ -3018,8 +3018,6 @@ const getStyles = (colors) => ({
     fontWeight: 700,
     cursor: 'pointer',
     transition: 'all 0.2s',
-    width: '100%',
-    maxWidth: '400px',
   },
 });
 
