@@ -102,6 +102,7 @@ const translations = {
     login: "Login",
     wrongPassword: "Incorrect password",
     export: "Export Schedule",
+    printSchedule: "Print Schedule",
     available: "Available",
     partial: "1 Champion",
     full: "Full",
@@ -199,6 +200,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     login: "登录",
     wrongPassword: "密码错误",
     export: "导出日程",
+    printSchedule: "打印日程",
     available: "可用",
     partial: "1位冠军",
     full: "已满",
@@ -286,6 +288,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     login: "เข้าสู่ระบบ",
     wrongPassword: "รหัสผ่านไม่ถูกต้อง",
     export: "ส่งออกตาราง",
+    printSchedule: "พิมพ์ตาราง",
     available: "ว่าง",
     partial: "1 แชมเปี้ยน",
     full: "เต็ม",
@@ -373,6 +376,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     login: "تسجيل الدخول",
     wrongPassword: "كلمة مرور خاطئة",
     export: "تصدير الجدول",
+    printSchedule: "طباعة الجدول",
     available: "متاح",
     partial: "بطل واحد",
     full: "ممتلئ",
@@ -460,6 +464,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     login: "Connexion",
     wrongPassword: "Mot de passe incorrect",
     export: "Exporter le planning",
+    printSchedule: "Imprimer le planning",
     available: "Disponible",
     partial: "1 Champion",
     full: "Complet",
@@ -1042,6 +1047,84 @@ export default function App() {
     }
   };
   
+  // Print full schedule for coordinator
+  const printFullSchedule = () => {
+    const tz = showLocalTime ? userTimezone : 'America/Chicago';
+    const tzLabel = showLocalTime ? getTimezoneName(userTimezone) : 'Central Time';
+    
+    // Group shifts by day
+    const dayGroups = {};
+    shifts.forEach(shift => {
+      const dayKey = shift.start.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: tz });
+      if (!dayGroups[dayKey]) dayGroups[dayKey] = [];
+      dayGroups[dayKey].push(shift);
+    });
+    
+    let tableRows = '';
+    Object.entries(dayGroups).forEach(([day, dayShifts]) => {
+      // Day header row
+      tableRows += `<tr><td colspan="4" style="padding:12px 12px 8px;font-weight:700;font-size:1.1rem;background:#f1f5f9;border-bottom:2px solid #14b8a6;color:#0f172a">${day}</td></tr>`;
+      
+      dayShifts.forEach(shift => {
+        const startTime = formatTime(shift.start, tz);
+        const endTime = formatTime(shift.end, tz);
+        const timeStr = `${startTime} – ${endTime}`;
+        
+        // Collect all volunteers for this shift
+        const volunteers = [];
+        shift.champions.forEach(c => volunteers.push({ name: c.name, role: 'Event Champion', color: '#14b8a6' }));
+        shift.techChampions.forEach(c => volunteers.push({ name: c.name, role: 'Tech Support', color: '#f59e0b' }));
+        
+        // Empty slots
+        const emptyChampion = EVENT_CONFIG.maxChampionsPerShift - shift.champions.length;
+        const emptyTech = EVENT_CONFIG.maxTechPerShift - shift.techChampions.length;
+        for (let i = 0; i < emptyChampion; i++) volunteers.push({ name: '—', role: 'Event Champion', color: '#94a3b8', empty: true });
+        for (let i = 0; i < emptyTech; i++) volunteers.push({ name: '—', role: 'Tech Support', color: '#94a3b8', empty: true });
+        
+        volunteers.forEach((vol, idx) => {
+          const timeCell = idx === 0 
+            ? `<td rowspan="${volunteers.length}" style="padding:8px 12px;border-bottom:1px solid #e2e8f0;vertical-align:top;font-weight:600;white-space:nowrap">${timeStr}</td>` 
+            : '';
+          const nameStyle = vol.empty ? 'color:#94a3b8;font-style:italic' : 'color:#1e293b';
+          tableRows += `<tr>${timeCell}<td style="padding:4px 12px;border-bottom:${idx === volunteers.length - 1 ? '1px solid #e2e8f0' : 'none'};${nameStyle}">${vol.name}</td><td style="padding:4px 12px;border-bottom:${idx === volunteers.length - 1 ? '1px solid #e2e8f0' : 'none'}"><span style="padding:2px 8px;border-radius:12px;font-size:0.8rem;font-weight:600;background:${vol.color}20;color:${vol.color}">${vol.role}</span></td></tr>`;
+        });
+      });
+    });
+    
+    // Count stats
+    const totalVolunteers = new Set();
+    let filledSlots = 0;
+    let totalSlots = shifts.length * (EVENT_CONFIG.maxChampionsPerShift + EVENT_CONFIG.maxTechPerShift);
+    shifts.forEach(s => {
+      s.champions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
+      s.techChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
+      filledSlots += s.champions.length + s.techChampions.length;
+    });
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head><title>GamiCon48V Full Schedule</title></head>
+        <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:800px;margin:2rem auto;color:#1e293b;padding:0 1rem">
+          <h1 style="font-size:1.5rem;margin-bottom:0.25rem">GamiCon48V 2026 — Full Schedule</h1>
+          <p style="color:#64748b;margin-bottom:0.5rem">All times shown in ${tzLabel}</p>
+          <p style="color:#64748b;margin-bottom:1.5rem;font-size:0.9rem">${totalVolunteers.size} volunteers · ${filledSlots}/${totalSlots} slots filled</p>
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f8fafc">
+              <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #cbd5e1">Time</th>
+              <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #cbd5e1">Volunteer</th>
+              <th style="padding:8px 12px;text-align:left;border-bottom:2px solid #cbd5e1">Role</th>
+            </tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+          <p style="color:#94a3b8;font-size:0.8rem;margin-top:2rem;text-align:center">Printed ${new Date().toLocaleString()}</p>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+  
   // Handle closing success modal
   const handleSuccessClose = () => {
     setShowSuccessModal(false);
@@ -1351,6 +1434,9 @@ export default function App() {
       {isAdmin && (
         <div style={styles.actionBar}>
           <div style={styles.actionGroup}>
+            <button onClick={printFullSchedule} style={styles.secondaryButton}>
+              🖨️ {t.printSchedule || 'Print Schedule'}
+            </button>
             <button onClick={exportSchedule} style={styles.secondaryButton}>
               {t.export}
             </button>
