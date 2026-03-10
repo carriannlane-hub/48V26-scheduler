@@ -156,7 +156,7 @@ If you are an Event Champion, please take "Champions" shifts.
 
 If you have been confirmed as a Tech Support Champion, you can take "Tech" shifts.
 
-<strong>Tech Support Champion Role:</strong> You'll provide proactive technical support for all participants, speakers, and hosts across the global broadcast. Oversee setup, troubleshooting, and smooth operation of all digital platforms, including GoBrunch and the BlueRabbit app, live streaming systems and recordings of all sessions, to ensure flawless execution. <strong>Only take a shift in this role if you have been approved to do so by Monica Cornetti or the Chief of Staff.</strong>
+<strong>Tech Support Champion Role:</strong> You'll provide proactive technical support for all participants, speakers, and hosts across the global broadcast. Oversee setup, troubleshooting, and smooth operation of all digital platforms, including Ripply and the BlueRabbit app, live streaming systems and recordings of all sessions, to ensure flawless execution. <strong>Only take a shift in this role if you have been approved to do so by Monica Cornetti or the Chief of Staff.</strong>
 
 Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max), then please rest for at least 2 hours. We would like you to take up to 12 hours total. We want you energized, not exhausted! If you have questions, please contact Carriann Lane through the Event Champions WhatsApp group. She's happy to help!`,
     blocked: "Blocked (need 2-hour break)",
