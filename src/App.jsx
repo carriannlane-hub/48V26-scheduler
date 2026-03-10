@@ -32,46 +32,44 @@ const themes = {
   dark: {
     bg: '#1a1a2e',
     bgSecondary: '#2d2d44',
-    text: '#f0ebe5', // Lightened for better contrast
-    textMuted: '#c4b5a5', // Lightened for better contrast (was #a89984)
+    text: '#f0ebe5',
+    textMuted: '#c4b5a5',
     title: '#e2e8f0',
     accent: '#14b8a6',
     techAccent: '#f59e0b',
-    border: '#6a6a8a', // Lightened for better visibility (was #4a4a6a)
+    border: '#6a6a8a',
     available: '#10b981',
     partial: '#0ea5e9',
     full: '#94a3b8',
     selectedBorder: '#2dd4bf',
-    error: '#fca5a5', // Lightened for better contrast (was #e57373)
+    error: '#fca5a5',
     overlay: 'rgba(0,0,0,0.8)',
     expandBg: '#3d3d5c',
-    // High contrast text for colored backgrounds
-    onAccent: '#042f2e', // Dark teal on teal backgrounds
-    onAvailable: '#052e16', // Dark green on green backgrounds
-    onPartial: '#082f49', // Darker blue for better contrast on blue backgrounds
-    onTechAccent: '#451a03', // Dark brown on amber backgrounds
+    onAccent: '#042f2e',
+    onAvailable: '#052e16',
+    onPartial: '#082f49',
+    onTechAccent: '#451a03',
   },
   light: {
     bg: '#f8fafc',
     bgSecondary: '#ffffff',
     text: '#1e293b',
-    textMuted: '#475569', // Darkened for better contrast (was #64748b)
+    textMuted: '#475569',
     title: '#0f172a',
-    accent: '#0f766e', // Darkened for better contrast (was #0d9488)
-    techAccent: '#b45309', // Darkened for better contrast (was #d97706)
-    border: '#94a3b8', // Darkened for better visibility (was #cbd5e1)
-    available: '#047857', // Darkened (was #059669)
-    partial: '#0369a1', // Darkened (was #0284c7)
-    full: '#475569', // Darkened (was #64748b)
+    accent: '#0f766e',
+    techAccent: '#b45309',
+    border: '#94a3b8',
+    available: '#047857',
+    partial: '#0369a1',
+    full: '#475569',
     selectedBorder: '#14b8a6',
     error: '#dc2626',
     overlay: 'rgba(0,0,0,0.5)',
     expandBg: '#e2e8f0',
-    // High contrast text for colored backgrounds
-    onAccent: '#f0fdfa', // Light teal on teal backgrounds
-    onAvailable: '#f0fdf4', // Light green on green backgrounds
-    onPartial: '#f0f9ff', // Light blue on blue backgrounds
-    onTechAccent: '#fffbeb', // Light cream on amber backgrounds
+    onAccent: '#f0fdfa',
+    onAvailable: '#f0fdf4',
+    onPartial: '#f0f9ff',
+    onTechAccent: '#fffbeb',
   }
 };
 
@@ -534,6 +532,59 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
 // ============================================
 // UTILITY FUNCTIONS
 // ============================================
+
+// Format date for ICS files (UTC format)
+const formatICSDate = (date) => {
+  return date.toISOString().replace(/[-:.]/g, '').slice(0, 15) + 'Z';
+};
+
+// Generate ICS file content for all shifts at once (Apple / Outlook)
+const generateICS = (shiftsList, role, roleLabel) => {
+  const events = shiftsList.map((shift, i) => [
+    'BEGIN:VEVENT',
+    `UID:gamicon48v-shift-${shift.id}-${i}@gamicon2026`,
+    `DTSTART:${formatICSDate(shift.start)}`,
+    `DTEND:${formatICSDate(shift.end)}`,
+    `SUMMARY:GamiCon48V 2026 \u2013 ${roleLabel}`,
+    `DESCRIPTION:Your ${roleLabel} shift for GamiCon48V 2026. Questions? Contact Carriann Lane through the Event Champions WhatsApp group.`,
+    'END:VEVENT'
+  ].join('\r\n')).join('\r\n');
+
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//GamiCon48V//Event Champion Scheduler//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    events,
+    'END:VCALENDAR'
+  ].join('\r\n');
+};
+
+// Generate a Google Calendar URL for a single shift
+const getGoogleCalendarURL = (shift, roleLabel) => {
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: `GamiCon48V 2026 \u2013 ${roleLabel}`,
+    dates: `${formatICSDate(shift.start)}/${formatICSDate(shift.end)}`,
+    details: `Your ${roleLabel} shift for GamiCon48V 2026. Questions? Contact Carriann Lane through the Event Champions WhatsApp group.`,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+};
+
+// Trigger ICS file download
+const downloadICS = (content, filename) => {
+  const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 const generateShifts = () => {
   const shifts = [];
   let current = new Date(EVENT_CONFIG.startTime);
@@ -579,7 +630,6 @@ const getUserTimezone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };
 
-// Get display name for timezone (e.g., "CST", "PST", "GMT+7")
 const getTimezoneName = (timezone) => {
   try {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -593,7 +643,6 @@ const getTimezoneName = (timezone) => {
   }
 };
 
-// Get time period (morning, afternoon, evening, night) based on hour
 const getTimePeriod = (date, timezone = 'America/Chicago') => {
   const hour = parseInt(date.toLocaleTimeString('en-US', {
     hour: 'numeric',
@@ -614,7 +663,6 @@ const timePeriodIcons = {
   night: '🌙'
 };
 
-// Group shifts into time blocks for collapsible sections
 const groupShiftsIntoBlocks = (shifts, timezone) => {
   const blocks = [];
   let currentBlock = null;
@@ -640,25 +688,21 @@ const groupShiftsIntoBlocks = (shifts, timezone) => {
   return blocks;
 };
 
-// Determine which block should be expanded based on current time
 const getDefaultExpandedBlocks = (blocks, isEventActive, isEventOver) => {
   const now = new Date();
   
   if (isEventOver) {
-    return {}; // All collapsed after event
+    return {};
   }
   
   if (!isEventActive) {
-    // Before event: first block expanded
     return blocks.length > 0 ? { [blocks[0].key]: true } : {};
   }
   
-  // During event: find current/next block
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
     const lastShift = block.shifts[block.shifts.length - 1];
     
-    // If this block contains current or future shifts
     if (lastShift.end > now) {
       return { [block.key]: true };
     }
@@ -667,7 +711,6 @@ const getDefaultExpandedBlocks = (blocks, isEventActive, isEventOver) => {
   return {};
 };
 
-// Check if event is over
 const isEventOver = () => {
   return new Date() > EVENT_CONFIG.endTime;
 };
@@ -693,13 +736,14 @@ export default function App() {
   const [lastSignedUpShifts, setLastSignedUpShifts] = useState([]);
   const [lastSignedUpRole, setLastSignedUpRole] = useState('champion');
   const [expandedBlocks, setExpandedBlocks] = useState({});
-  const [inlineSignUp, setInlineSignUp] = useState(null); // { shiftId, role }
+  const [inlineSignUp, setInlineSignUp] = useState(null);
   const [showMyShifts, setShowMyShifts] = useState(false);
   const [myShiftsEmail, setMyShiftsEmail] = useState('');
   const [myShiftsList, setMyShiftsList] = useState([]);
   const [myShiftsRole, setMyShiftsRole] = useState('');
   const [myShiftsLoading, setMyShiftsLoading] = useState(false);
   const [myShiftsError, setMyShiftsError] = useState('');
+  const [showCalendarDropdown, setShowCalendarDropdown] = useState(false);
   const [savedUserInfo, setSavedUserInfo] = useState(() => {
     try {
       const saved = localStorage.getItem('gamicon48v-user');
@@ -709,13 +753,11 @@ export default function App() {
     }
   });
   
-  // Inline sign-up form state
   const [inlineName, setInlineName] = useState('');
   const [inlineEmail, setInlineEmail] = useState('');
   const [inlineErrors, setInlineErrors] = useState({});
   const [isInlineSubmitting, setIsInlineSubmitting] = useState(false);
   
-  // Refs for focus management
   const adminButtonRef = React.useRef(null);
   const adminModalRef = React.useRef(null);
   const adminFirstInputRef = React.useRef(null);
@@ -725,16 +767,10 @@ export default function App() {
   const colors = themes[theme];
   const timezone = showLocalTime ? userTimezone : 'America/Chicago';
   
-  // Event status
   const eventOver = isEventOver();
-  
-  // Group shifts into blocks
   const shiftBlocks = groupShiftsIntoBlocks(shifts, timezone);
-  
-  // Generate theme-aware styles
   const styles = getStyles(colors);
   
-  // Responsive: detect mobile width
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 600);
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 600);
@@ -742,20 +778,17 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  // Initialize expanded blocks on first render
   useEffect(() => {
     const defaultExpanded = getDefaultExpandedBlocks(shiftBlocks, false, eventOver);
     setExpandedBlocks(defaultExpanded);
-  }, [eventOver]); // Re-run when event status changes
+  }, [eventOver]);
   
-  // Focus management for admin modal
   useEffect(() => {
     if (showAdminLogin && adminFirstInputRef.current) {
       adminFirstInputRef.current.focus();
     }
   }, [showAdminLogin]);
   
-  // Escape key handler and focus trap
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -763,22 +796,17 @@ export default function App() {
           setShowAdminLogin(false);
           adminButtonRef.current?.focus();
         }
-        if (showExport) {
-          setShowExport(false);
-        }
-        if (showSuccessModal) {
-          setShowSuccessModal(false);
-        }
-        if (inlineSignUp) {
-          setInlineSignUp(null);
-        }
+        if (showExport) setShowExport(false);
+        if (showSuccessModal) setShowSuccessModal(false);
+        if (inlineSignUp) setInlineSignUp(null);
         if (showMyShifts) {
           setShowMyShifts(false);
           setMyShiftsList([]);
+          setShowCalendarDropdown(false);
         }
+        if (showCalendarDropdown) setShowCalendarDropdown(false);
       }
       
-      // Focus trap for modals
       if (e.key === 'Tab') {
         const activeModal = showAdminLogin ? adminModalRef.current : null;
         if (!activeModal) return;
@@ -808,9 +836,8 @@ export default function App() {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [showAdminLogin, showExport, showSuccessModal, showMyShifts, inlineSignUp]);
+  }, [showAdminLogin, showExport, showSuccessModal, showMyShifts, inlineSignUp, showCalendarDropdown]);
   
-  // Load data from Supabase
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -841,7 +868,6 @@ export default function App() {
     loadData();
   }, []);
   
-  // Save data to Supabase
   const saveShifts = useCallback(async (newShifts) => {
     try {
       for (const shift of newShifts) {
@@ -865,7 +891,6 @@ export default function App() {
     setTimeout(() => adminButtonRef.current?.focus(), 0);
   };
   
-  // Toggle block expansion
   const toggleBlock = (blockKey) => {
     setExpandedBlocks(prev => ({
       ...prev,
@@ -873,12 +898,10 @@ export default function App() {
     }));
   };
   
-  // Check if shift can be selected based on rules
   const canSelectShift = (shiftId, currentSelections, userEmail = null, role = 'champion') => {
     const shift = shifts.find(s => s.id === shiftId);
     if (!shift) return { allowed: false, reason: 'invalid' };
     
-    // Check if already full for this role
     if (role === 'champion' && shift.champions.length >= EVENT_CONFIG.maxChampionsPerShift) {
       return { allowed: false, reason: 'full' };
     }
@@ -886,7 +909,6 @@ export default function App() {
       return { allowed: false, reason: 'full' };
     }
     
-    // Check if user already signed up for this shift (either role)
     if (userEmail) {
       const inChampions = shift.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
       const inTech = shift.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
@@ -895,21 +917,17 @@ export default function App() {
       }
     }
     
-    // Get all shifts this user would have
     const allUserShiftIds = [...currentSelections];
     if (userEmail) {
       shifts.forEach(s => {
         const inC = s.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
         const inT = s.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
-        if (inC || inT) {
-          allUserShiftIds.push(s.id);
-        }
+        if (inC || inT) allUserShiftIds.push(s.id);
       });
     }
     
     const potentialShifts = [...new Set([...allUserShiftIds, shiftId])].sort((a, b) => a - b);
     
-    // Check consecutive hours rule
     let consecutiveCount = 0;
     let maxConsecutive = 0;
     
@@ -931,7 +949,6 @@ export default function App() {
       return { allowed: false, reason: 'blocked' };
     }
     
-    // Check total hours limit
     const totalHours = potentialShifts.length * EVENT_CONFIG.shiftDurationHours;
     if (totalHours > EVENT_CONFIG.maxHoursTotal) {
       return { allowed: false, reason: 'totalLimit' };
@@ -1014,7 +1031,7 @@ export default function App() {
   
   const exportSchedule = () => {
     const tz = showLocalTime ? userTimezone : 'America/Chicago';
-    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2,Tech Support,Tech Email\n';
+    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2,Champion 3,Email 3,Champion 4,Email 4,Tech Support,Tech Email\n';
     
     shifts.forEach((shift, index) => {
       const timePeriod = getTimePeriod(shift.start, tz);
@@ -1028,6 +1045,10 @@ export default function App() {
         shift.champions[0]?.email || '',
         shift.champions[1]?.name || '',
         shift.champions[1]?.email || '',
+        shift.champions[2]?.name || '',
+        shift.champions[2]?.email || '',
+        shift.champions[3]?.name || '',
+        shift.champions[3]?.email || '',
         shift.techChampions[0]?.name || '',
         shift.techChampions[0]?.email || ''
       ];
@@ -1055,12 +1076,10 @@ export default function App() {
     }
   };
   
-  // Print full schedule for coordinator
   const printFullSchedule = () => {
     const tz = showLocalTime ? userTimezone : 'America/Chicago';
     const tzLabel = showLocalTime ? getTimezoneName(userTimezone) : 'Central Time';
     
-    // Group shifts by day
     const dayGroups = {};
     shifts.forEach(shift => {
       const dayKey = shift.start.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: tz });
@@ -1070,7 +1089,6 @@ export default function App() {
     
     let tableRows = '';
     Object.entries(dayGroups).forEach(([day, dayShifts]) => {
-      // Day header row
       tableRows += `<tr><td colspan="4" style="padding:12px 12px 8px;font-weight:700;font-size:1.1rem;background:#f1f5f9;border-bottom:2px solid #14b8a6;color:#0f172a">${day}</td></tr>`;
       
       dayShifts.forEach(shift => {
@@ -1078,12 +1096,10 @@ export default function App() {
         const endTime = formatTime(shift.end, tz);
         const timeStr = `${startTime} – ${endTime}`;
         
-        // Collect all volunteers for this shift
         const volunteers = [];
         shift.champions.forEach(c => volunteers.push({ name: c.name, role: 'Event Champion', color: '#14b8a6' }));
         shift.techChampions.forEach(c => volunteers.push({ name: c.name, role: 'Tech Support', color: '#f59e0b' }));
         
-        // Empty slots
         const emptyChampion = EVENT_CONFIG.maxChampionsPerShift - shift.champions.length;
         const emptyTech = EVENT_CONFIG.maxTechPerShift - shift.techChampions.length;
         for (let i = 0; i < emptyChampion; i++) volunteers.push({ name: '—', role: 'Event Champion', color: '#94a3b8', empty: true });
@@ -1099,7 +1115,6 @@ export default function App() {
       });
     });
     
-    // Count stats
     const totalVolunteers = new Set();
     let filledSlots = 0;
     let totalSlots = shifts.length * (EVENT_CONFIG.maxChampionsPerShift + EVENT_CONFIG.maxTechPerShift);
@@ -1133,12 +1148,10 @@ export default function App() {
     printWindow.print();
   };
   
-  // Handle closing success modal
   const handleSuccessClose = () => {
     setShowSuccessModal(false);
   };
 
-  // Look up shifts by email
   const lookupMyShifts = () => {
     if (!myShiftsEmail.trim()) {
       setMyShiftsError(t.emailRequired);
@@ -1168,9 +1181,26 @@ export default function App() {
     setMyShiftsLoading(false);
   };
 
-  // Print my shifts
+  // Add to Calendar handler
+  const handleAddToCalendar = (calendarType) => {
+    setShowCalendarDropdown(false);
+    const roleLabel = myShiftsRole === 'tech' ? t.techSupport : t.eventChampion;
+
+    if (calendarType === 'google') {
+      // Open one tab per shift with a small delay to avoid popup blockers
+      myShiftsList.forEach((shift, i) => {
+        setTimeout(() => {
+          window.open(getGoogleCalendarURL(shift, roleLabel), '_blank');
+        }, i * 400);
+      });
+    } else {
+      // Apple or Outlook — single ICS file with all shifts
+      const ics = generateICS(myShiftsList, myShiftsRole, roleLabel);
+      downloadICS(ics, 'gamicon48v-shifts.ics');
+    }
+  };
+
   const printMyShifts = () => {
-    const tz = showLocalTime ? userTimezone : 'America/Chicago';
     const shiftRows = myShiftsList.map(shift => {
       const dayName = shift.start.toLocaleDateString(undefined, { weekday: 'long' });
       const dateStr = shift.start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
@@ -1203,10 +1233,9 @@ export default function App() {
     printWindow.print();
   };
   
-  // Get status helpers
   const getChampionStatus = (shift) => {
     if (shift.champions.length >= EVENT_CONFIG.maxChampionsPerShift) return 'full';
-    if (shift.champions.length === 1) return 'partial';
+    if (shift.champions.length >= 1) return 'partial';
     return 'available';
   };
   
@@ -1215,7 +1244,6 @@ export default function App() {
     return 'available';
   };
   
-  // Count available spots in a block
   const countAvailableInBlock = (block) => {
     let count = 0;
     block.shifts.forEach(shift => {
@@ -1225,10 +1253,8 @@ export default function App() {
     return count;
   };
   
-  // Open inline sign-up form for a specific slot
   const openInlineSignUp = (shiftId, role) => {
     setInlineSignUp({ shiftId, role });
-    // Pre-fill with saved info if available
     if (savedUserInfo) {
       setInlineName(savedUserInfo.name);
       setInlineEmail(savedUserInfo.email);
@@ -1239,13 +1265,11 @@ export default function App() {
     setInlineErrors({});
   };
   
-  // Close inline sign-up
   const closeInlineSignUp = () => {
     setInlineSignUp(null);
     setInlineErrors({});
   };
   
-  // Validate inline form
   const validateInlineForm = () => {
     const errors = {};
     if (!inlineName.trim()) errors.name = t.nameRequired;
@@ -1255,13 +1279,11 @@ export default function App() {
     return Object.keys(errors).length === 0;
   };
   
-  // Submit inline sign-up
   const handleInlineSubmit = async () => {
     if (!validateInlineForm() || isInlineSubmitting || !inlineSignUp) return;
     
     const { shiftId, role } = inlineSignUp;
     
-    // Validate shift rules (consecutive hours, total hours, etc.)
     const ruleCheck = canSelectShift(shiftId, [], inlineEmail.trim(), role);
     if (!ruleCheck.allowed) {
       setInlineErrors(prev => ({
@@ -1296,12 +1318,10 @@ export default function App() {
       setShifts(newShifts);
       await saveShifts(newShifts);
       
-      // Save user info for future quick sign-ups
       const userInfo = { name: inlineName.trim(), email: inlineEmail.trim() };
       localStorage.setItem('gamicon48v-user', JSON.stringify(userInfo));
       setSavedUserInfo(userInfo);
       
-      // Set up success modal
       setLastSignedUpShifts([shift]);
       setLastSignedUpRole(role);
       
@@ -1343,7 +1363,6 @@ export default function App() {
 
   return (
     <div style={{ ...styles.container, direction: isRTL ? 'rtl' : 'ltr' }}>
-      {/* Skip Link for keyboard navigation */}
       <a 
         href="#main-schedule" 
         style={styles.skipLink}
@@ -1353,7 +1372,6 @@ export default function App() {
         Skip to schedule
       </a>
       
-      {/* Live region for screen reader announcements */}
       <div 
         role="status" 
         aria-live="polite" 
@@ -1364,7 +1382,6 @@ export default function App() {
         {successMessage}
       </div>
       
-      {/* Header */}
       <header style={styles.header}>
         <div style={styles.headerContent}>
           <div style={styles.titleGroup}>
@@ -1373,7 +1390,6 @@ export default function App() {
           </div>
           
           <div style={styles.controls}>
-            {/* Language Selector */}
             <div style={styles.controlGroup}>
               <label htmlFor="language-select" style={styles.controlLabel}>
                 {t.languageLabel}
@@ -1393,7 +1409,6 @@ export default function App() {
               </select>
             </div>
             
-            {/* Timezone Toggle */}
             <div style={styles.controlGroup}>
               <label htmlFor="timezone-toggle" style={styles.controlLabel}>
                 {showLocalTime ? t.yourTimezone : t.sententralTime}
@@ -1408,7 +1423,6 @@ export default function App() {
               </button>
             </div>
             
-            {/* Theme Toggle */}
             <div style={styles.controlGroup}>
               <label htmlFor="theme-toggle" style={styles.controlLabel}>
                 {t.theme}
@@ -1426,19 +1440,16 @@ export default function App() {
         </div>
       </header>
       
-      {/* Timezone Note */}
       <div style={styles.timezoneNote}>
         📍 {t.timezoneNote}
       </div>
       
-      {/* Success Message */}
       {successMessage && (
         <div style={styles.successBanner} role="status" aria-live="polite">
           ✓ {successMessage}
         </div>
       )}
       
-      {/* Admin Action Bar - only visible when in admin mode */}
       {isAdmin && (
         <div style={styles.actionBar}>
           <div style={styles.actionGroup}>
@@ -1451,24 +1462,18 @@ export default function App() {
             <button onClick={handleClearAll} style={styles.dangerButton}>
               {t.clearAll}
             </button>
-            <button
-              onClick={() => setIsAdmin(false)}
-              style={styles.secondaryButton}
-            >
+            <button onClick={() => setIsAdmin(false)} style={styles.secondaryButton}>
               {t.exitAdmin}
             </button>
           </div>
         </div>
       )}
       
-      
-      {/* Rules Panel */}
       <details style={styles.rulesPanel}>
         <summary style={styles.rulesSummary}>{t.rules}</summary>
         <div style={styles.rulesDialogue} dangerouslySetInnerHTML={{ __html: t.rulesDialogue.replace(/\n\n/g, '<br/><br/>') }} />
       </details>
       
-      {/* See My Shifts Button - prominent placement for returning users */}
       <div style={styles.myShiftsBar}>
         <button
           onClick={() => {
@@ -1481,16 +1486,13 @@ export default function App() {
         </button>
       </div>
       
-      {/* Schedule - Collapsible Blocks */}
       <main id="main-schedule" style={styles.scheduleContainer} role="main" aria-label="Shift schedule">
         {shiftBlocks.map((block, blockIndex) => {
           const isExpanded = expandedBlocks[block.key];
           const availableCount = countAvailableInBlock(block);
-          const isFirstBlock = blockIndex === 0;
           
           return (
             <section key={block.key} style={styles.blockSection}>
-              {/* Block Header - Always visible */}
               <button
                 onClick={() => toggleBlock(block.key)}
                 style={{
@@ -1520,7 +1522,6 @@ export default function App() {
                 </div>
               </button>
               
-              {/* Block Content - Shifts */}
               {isExpanded && (
                 <div id={`block-${block.key}`} style={styles.blockContent}>
                   {block.shifts.map((shift) => {
@@ -1532,7 +1533,6 @@ export default function App() {
                         key={shift.id}
                         style={isMobile ? styles.shiftRowMobile : styles.shiftRow}
                       >
-                        {/* Time column */}
                         <div style={isMobile ? styles.shiftTimeColMobile : styles.shiftTimeCol}>
                           <div style={styles.shiftTime}>
                             {formatTime(shift.start, timezone)}
@@ -1543,7 +1543,6 @@ export default function App() {
                           </div>
                         </div>
                         
-                        {/* Champions column */}
                         <div style={styles.roleColumn}>
                           <div style={styles.roleHeader}>
                             <span style={{ ...styles.roleLabel, color: colors.accent }}>
@@ -1592,7 +1591,6 @@ export default function App() {
                           </div>
                         </div>
                         
-                        {/* Tech column */}
                         <div style={styles.roleColumn}>
                           <div style={styles.roleHeader}>
                             <span style={{ ...styles.roleLabel, color: colors.techAccent }}>
@@ -1649,9 +1647,7 @@ export default function App() {
           );
         })}
       </main>
-      
 
-      {/* Footer with Admin Access */}
       {!isAdmin && (
         <footer style={styles.footer}>
           <button 
@@ -1796,20 +1792,15 @@ export default function App() {
         </div>
       )}
       
-      {/* Sign-Up Bottom Sheet Modal (mobile-friendly) */}
+      {/* Sign-Up Bottom Sheet */}
       {inlineSignUp && (
         <>
-          <div 
-            style={styles.modalOverlay} 
-            onClick={closeInlineSignUp}
-          />
+          <div style={styles.modalOverlay} onClick={closeInlineSignUp} />
           <div style={styles.bottomSheet}>
             <div style={styles.bottomSheetHandle} />
             
             <div style={styles.bottomSheetHeader}>
-              <div style={styles.bottomSheetTitle}>
-                {t.signUp}
-              </div>
+              <div style={styles.bottomSheetTitle}>{t.signUp}</div>
               <div style={styles.bottomSheetSubtitle}>
                 {(() => {
                   const shift = shifts.find(s => s.id === inlineSignUp.shiftId);
@@ -1910,7 +1901,12 @@ export default function App() {
       {showMyShifts && (
         <div
           style={styles.modalOverlay}
-          onClick={(e) => e.target === e.currentTarget && setShowMyShifts(false)}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowMyShifts(false);
+              setShowCalendarDropdown(false);
+            }
+          }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="my-shifts-title"
@@ -1988,20 +1984,94 @@ export default function App() {
                   {myShiftsList.length} {myShiftsList.length === 1 ? t.shift : 'shifts'}
                 </p>
 
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-                  <button onClick={printMyShifts} style={{ ...styles.secondaryButton, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    🖨️ {t.print || 'Print'}
-                  </button>
-                  <button onClick={() => setShowMyShifts(false)} style={styles.primaryButton}>
-                    {t.close}
-                  </button>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={printMyShifts}
+                      style={{ ...styles.secondaryButton, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    >
+                      🖨️ {t.print || 'Print'}
+                    </button>
+
+                    {/* Add to Calendar button + dropdown */}
+                    <div style={{ position: 'relative' }}>
+                      <button
+                        onClick={() => setShowCalendarDropdown(prev => !prev)}
+                        style={{ ...styles.secondaryButton, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                        aria-haspopup="true"
+                        aria-expanded={showCalendarDropdown}
+                      >
+                        📅 Add to Calendar
+                      </button>
+
+                      {showCalendarDropdown && (
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '110%',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          backgroundColor: colors.bgSecondary,
+                          border: `2px solid ${colors.accent}`,
+                          borderRadius: '10px',
+                          overflow: 'hidden',
+                          zIndex: 10,
+                          minWidth: '200px',
+                          boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
+                        }}>
+                          {[
+                            { label: '🍎 Apple Calendar', type: 'apple' },
+                            { label: '📅 Google Calendar', type: 'google' },
+                            { label: '📧 Outlook', type: 'outlook' },
+                          ].map(({ label, type }) => (
+                            <button
+                              key={type}
+                              onClick={() => handleAddToCalendar(type)}
+                              style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '0.875rem 1.25rem',
+                                backgroundColor: 'transparent',
+                                color: colors.text,
+                                border: 'none',
+                                borderBottom: type !== 'outlook' ? `1px solid ${colors.border}` : 'none',
+                                cursor: 'pointer',
+                                textAlign: 'left',
+                                fontSize: '0.95rem',
+                                fontWeight: '600',
+                              }}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                          {myShiftsList.length > 1 && (
+                            <p style={{
+                              fontSize: '0.75rem',
+                              color: colors.textMuted,
+                              padding: '0.5rem 1rem',
+                              margin: 0,
+                              borderTop: `1px solid ${colors.border}`,
+                              fontStyle: 'italic',
+                            }}>
+                              Google opens {myShiftsList.length} tabs, one per shift.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => { setShowMyShifts(false); setShowCalendarDropdown(false); }}
+                      style={styles.primaryButton}
+                    >
+                      {t.close}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         </div>
       )}
-
     </div>
   );
 }
@@ -2079,8 +2149,6 @@ const getStyles = (colors) => ({
     color: colors.text,
     fontFamily: '"Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
-  
-  // Skip link for keyboard navigation (visible on focus)
   skipLink: {
     position: 'absolute',
     top: '-100px',
@@ -2095,8 +2163,6 @@ const getStyles = (colors) => ({
     textDecoration: 'none',
     transition: 'top 0.2s ease',
   },
-  
-  // Screen reader only (visually hidden)
   srOnly: {
     position: 'absolute',
     width: '1px',
@@ -2108,7 +2174,6 @@ const getStyles = (colors) => ({
     whiteSpace: 'nowrap',
     border: 0,
   },
-  
   loadingContainer: {
     minHeight: '100vh',
     display: 'flex',
@@ -2116,17 +2181,14 @@ const getStyles = (colors) => ({
     justifyContent: 'center',
     backgroundColor: colors.bg,
   },
-  
   loadingSpinner: {
     textAlign: 'center',
   },
-  
   spinnerGear: {
     fontSize: '4rem',
     color: colors.accent,
     animation: 'spin 2s linear infinite',
   },
-  
   eventEndedMessage: {
     display: 'flex',
     flexDirection: 'column',
@@ -2137,14 +2199,12 @@ const getStyles = (colors) => ({
     padding: '2rem',
     color: colors.accent,
   },
-  
   header: {
     background: `linear-gradient(135deg, ${colors.bgSecondary} 0%, ${colors.bg} 100%)`,
     borderBottom: `3px solid ${colors.title}`,
     padding: '1.5rem max(1rem, env(safe-area-inset-left)) 1.5rem max(1rem, env(safe-area-inset-right))',
     paddingTop: 'max(1.5rem, env(safe-area-inset-top))',
   },
-  
   headerContent: {
     maxWidth: '1400px',
     margin: '0 auto',
@@ -2154,11 +2214,9 @@ const getStyles = (colors) => ({
     alignItems: 'center',
     gap: '1rem',
   },
-  
   titleGroup: {
     flex: '1 1 auto',
   },
-  
   title: {
     fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
     fontWeight: '700',
@@ -2167,34 +2225,29 @@ const getStyles = (colors) => ({
     letterSpacing: '0.05em',
     textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
   },
-  
   subtitle: {
     fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)',
     color: colors.textMuted,
     margin: '0.25rem 0 0 0',
     fontStyle: 'italic',
   },
-  
   controls: {
     display: 'flex',
     flexWrap: 'wrap',
     gap: '1rem',
     alignItems: 'flex-end',
   },
-  
   controlGroup: {
     display: 'flex',
     flexDirection: 'column',
     gap: '0.25rem',
   },
-  
   controlLabel: {
     fontSize: '0.8rem',
     color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
   },
-  
   select: {
     padding: '0.75rem 1rem',
     fontSize: '1rem',
@@ -2207,7 +2260,6 @@ const getStyles = (colors) => ({
     minHeight: '44px',
     touchAction: 'manipulation',
   },
-  
   toggleButton: {
     padding: '0.75rem 1rem',
     fontSize: '0.9rem',
@@ -2222,7 +2274,6 @@ const getStyles = (colors) => ({
     userSelect: 'none',
     WebkitUserSelect: 'none',
   },
-  
   timezoneNote: {
     backgroundColor: colors.bgSecondary,
     color: colors.textMuted,
@@ -2231,7 +2282,6 @@ const getStyles = (colors) => ({
     fontSize: '0.9rem',
     borderBottom: `1px solid ${colors.border}`,
   },
-  
   successBanner: {
     backgroundColor: colors.available,
     color: colors.onAvailable,
@@ -2240,7 +2290,6 @@ const getStyles = (colors) => ({
     fontSize: '1.1rem',
     fontWeight: '600',
   },
-  
   actionBar: {
     maxWidth: '1400px',
     margin: '0 auto',
@@ -2251,13 +2300,11 @@ const getStyles = (colors) => ({
     alignItems: 'center',
     gap: '1rem',
   },
-  
   actionGroup: {
     display: 'flex',
     gap: '0.75rem',
     flexWrap: 'wrap',
   },
-  
   primaryButton: {
     padding: '0.875rem 1.5rem',
     fontSize: '1rem',
@@ -2276,7 +2323,6 @@ const getStyles = (colors) => ({
     WebkitUserSelect: 'none',
     WebkitTapHighlightColor: 'transparent',
   },
-  
   secondaryButton: {
     padding: '0.875rem 1.5rem',
     fontSize: '1rem',
@@ -2293,7 +2339,6 @@ const getStyles = (colors) => ({
     WebkitUserSelect: 'none',
     WebkitTapHighlightColor: 'transparent',
   },
-  
   dangerButton: {
     padding: '0.875rem 1.5rem',
     fontSize: '1rem',
@@ -2310,13 +2355,11 @@ const getStyles = (colors) => ({
     WebkitUserSelect: 'none',
     WebkitTapHighlightColor: 'transparent',
   },
-  
   rulesPanel: {
     maxWidth: '1400px',
     margin: '1.5rem auto 1rem auto',
     padding: '0 max(2rem, env(safe-area-inset-right)) 0 max(2rem, env(safe-area-inset-left))',
   },
-  
   rulesSummary: {
     cursor: 'pointer',
     color: colors.accent,
@@ -2324,7 +2367,6 @@ const getStyles = (colors) => ({
     fontWeight: '600',
     padding: '0.5rem 0',
   },
-  
   rulesDialogue: {
     backgroundColor: colors.bgSecondary,
     padding: '1.25rem',
@@ -2334,22 +2376,18 @@ const getStyles = (colors) => ({
     fontSize: '1rem',
     color: colors.text,
   },
-  
   scheduleContainer: {
     maxWidth: '1400px',
     margin: '0 auto',
     padding: '0 max(1rem, env(safe-area-inset-left)) 3rem max(1rem, env(safe-area-inset-right))',
     paddingBottom: 'max(3rem, env(safe-area-inset-bottom))',
   },
-  
-  // Collapsible Block Styles
   blockSection: {
     marginBottom: '1rem',
     borderRadius: '12px',
     overflow: 'hidden',
     border: `2px solid ${colors.border}`,
   },
-  
   blockHeader: {
     width: '100%',
     padding: '1rem 1.25rem',
@@ -2365,33 +2403,27 @@ const getStyles = (colors) => ({
     minHeight: '60px',
     touchAction: 'manipulation',
   },
-  
   blockHeaderExpanded: {
     backgroundColor: colors.accent,
     color: colors.onAccent,
   },
-  
   blockHeaderLeft: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
   },
-  
   blockIcon: {
     fontSize: '1.5rem',
   },
-  
   blockTitle: {
     fontSize: '1.1rem',
     fontWeight: '600',
   },
-  
   blockHeaderRight: {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
   },
-  
   availableBadge: {
     backgroundColor: colors.available,
     color: colors.onAvailable,
@@ -2400,12 +2432,10 @@ const getStyles = (colors) => ({
     fontSize: '0.85rem',
     fontWeight: '600',
   },
-  
   expandIcon: {
     fontSize: '1rem',
     transition: 'transform 0.2s ease',
   },
-  
   tapHint: {
     backgroundColor: colors.expandBg,
     color: colors.accent,
@@ -2416,13 +2446,10 @@ const getStyles = (colors) => ({
     borderTop: `1px dashed ${colors.border}`,
     animation: 'bounce 1s infinite',
   },
-  
   blockContent: {
     backgroundColor: colors.bg,
     padding: '1rem',
   },
-  
-  // Shift Row Styles (combined layout)
   shiftRow: {
     display: 'grid',
     gridTemplateColumns: '100px 1fr 1fr',
@@ -2433,8 +2460,6 @@ const getStyles = (colors) => ({
     marginBottom: '0.75rem',
     alignItems: 'start',
   },
-  
-  // Stacked layout for mobile (applied via className)
   shiftRowMobile: {
     display: 'grid',
     gridTemplateColumns: '1fr',
@@ -2445,12 +2470,10 @@ const getStyles = (colors) => ({
     marginBottom: '0.75rem',
     alignItems: 'start',
   },
-  
   shiftTimeCol: {
     textAlign: 'center',
     paddingTop: '0.25rem',
   },
-  
   shiftTimeColMobile: {
     display: 'flex',
     alignItems: 'center',
@@ -2459,49 +2482,41 @@ const getStyles = (colors) => ({
     borderBottom: `1px solid ${colors.border}`,
     marginBottom: '0.25rem',
   },
-  
   shiftTime: {
     fontSize: '1rem',
     fontWeight: '700',
     color: colors.text,
   },
-  
   shiftTimeTo: {
     fontSize: '0.75rem',
     color: colors.textMuted,
     margin: '0.125rem 0',
   },
-  
   roleColumn: {
     minWidth: 0,
   },
-  
   roleHeader: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
     marginBottom: '0.5rem',
   },
-  
   roleLabel: {
     fontSize: '0.85rem',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
   },
-  
   statusDot: {
     width: '10px',
     height: '10px',
     borderRadius: '50%',
   },
-  
   championsList: {
     display: 'flex',
     flexDirection: 'column',
     gap: '0.4rem',
   },
-  
   championChip: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -2512,7 +2527,6 @@ const getStyles = (colors) => ({
     fontSize: '0.9rem',
     border: `1px solid ${colors.accent}`,
   },
-  
   removeChip: {
     background: 'none',
     border: 'none',
@@ -2526,14 +2540,12 @@ const getStyles = (colors) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  
   openSlot: {
     fontSize: '0.8rem',
     color: colors.textMuted,
     fontStyle: 'italic',
     padding: '0.25rem 0',
   },
-  
   openSlotButton: {
     display: 'flex',
     alignItems: 'center',
@@ -2551,13 +2563,10 @@ const getStyles = (colors) => ({
     justifyContent: 'center',
     minHeight: '44px',
   },
-  
   openSlotPlus: {
     fontSize: '1.1rem',
     fontWeight: '700',
   },
-  
-  // Bottom sheet modal for sign-up (mobile-friendly)
   bottomSheet: {
     position: 'fixed',
     bottom: 0,
@@ -2573,7 +2582,6 @@ const getStyles = (colors) => ({
     maxHeight: '85vh',
     overflowY: 'auto',
   },
-  
   bottomSheetHandle: {
     width: '40px',
     height: '4px',
@@ -2581,24 +2589,20 @@ const getStyles = (colors) => ({
     borderRadius: '2px',
     margin: '0 auto 1rem',
   },
-  
   bottomSheetHeader: {
     textAlign: 'center',
     marginBottom: '1.5rem',
   },
-  
   bottomSheetTitle: {
     fontSize: '1.25rem',
     fontWeight: '700',
     color: colors.text,
     marginBottom: '0.5rem',
   },
-  
   bottomSheetSubtitle: {
     fontSize: '1rem',
     color: colors.textMuted,
   },
-  
   bottomSheetRole: {
     display: 'inline-block',
     padding: '0.25rem 0.75rem',
@@ -2607,16 +2611,14 @@ const getStyles = (colors) => ({
     fontWeight: '600',
     marginTop: '0.5rem',
   },
-  
   bottomSheetForm: {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
   },
-  
   bottomSheetInput: {
     padding: '1rem',
-    fontSize: '16px', // Prevents iOS zoom
+    fontSize: '16px',
     backgroundColor: colors.bg,
     color: colors.text,
     border: `2px solid ${colors.border}`,
@@ -2624,13 +2626,11 @@ const getStyles = (colors) => ({
     width: '100%',
     boxSizing: 'border-box',
   },
-  
   bottomSheetError: {
     color: colors.error,
     fontSize: '0.85rem',
     marginTop: '0.5rem',
   },
-  
   bottomSheetRulesError: {
     color: colors.error,
     fontSize: '0.9rem',
@@ -2642,13 +2642,11 @@ const getStyles = (colors) => ({
     textAlign: 'center',
     marginBottom: '1rem',
   },
-  
   bottomSheetActions: {
     display: 'flex',
     gap: '1rem',
     marginTop: '0.5rem',
   },
-  
   bottomSheetCancel: {
     flex: 1,
     padding: '1rem',
@@ -2661,7 +2659,6 @@ const getStyles = (colors) => ({
     cursor: 'pointer',
     minHeight: '52px',
   },
-  
   bottomSheetSubmit: {
     flex: 2,
     padding: '1rem',
@@ -2674,7 +2671,6 @@ const getStyles = (colors) => ({
     cursor: 'pointer',
     minHeight: '52px',
   },
-  
   techWarning: {
     fontSize: '0.85rem',
     color: colors.techAccent,
@@ -2685,7 +2681,6 @@ const getStyles = (colors) => ({
     textAlign: 'center',
     marginBottom: '1rem',
   },
-  
   addButton: {
     marginTop: '0.5rem',
     padding: '0.5rem',
@@ -2700,14 +2695,12 @@ const getStyles = (colors) => ({
     minHeight: '36px',
     touchAction: 'manipulation',
   },
-  
   adminAddForm: {
     marginTop: '0.5rem',
     display: 'flex',
     flexDirection: 'column',
     gap: '0.4rem',
   },
-  
   adminInput: {
     padding: '0.5rem',
     fontSize: '14px',
@@ -2719,13 +2712,11 @@ const getStyles = (colors) => ({
     WebkitAppearance: 'none',
     appearance: 'none',
   },
-  
   adminAddActions: {
     display: 'flex',
     gap: '0.4rem',
     justifyContent: 'flex-end',
   },
-  
   smallSecondaryButton: {
     padding: '0.5rem 0.75rem',
     fontSize: '0.85rem',
@@ -2737,7 +2728,6 @@ const getStyles = (colors) => ({
     minHeight: '44px',
     touchAction: 'manipulation',
   },
-  
   smallPrimaryButton: {
     padding: '0.5rem 0.75rem',
     fontSize: '0.85rem',
@@ -2750,15 +2740,12 @@ const getStyles = (colors) => ({
     minHeight: '44px',
     touchAction: 'manipulation',
   },
-  
-  // Footer styles
   footer: {
     padding: '2rem 1rem',
     textAlign: 'center',
     borderTop: `1px solid ${colors.border}`,
     marginTop: '2rem',
   },
-  
   footerAdminButton: {
     padding: '0.5rem 1rem',
     fontSize: '0.85rem',
@@ -2770,8 +2757,6 @@ const getStyles = (colors) => ({
     opacity: 0.6,
     touchAction: 'manipulation',
   },
-  
-  // Modal styles
   modalOverlay: {
     position: 'fixed',
     top: 0,
@@ -2789,7 +2774,6 @@ const getStyles = (colors) => ({
     overflow: 'auto',
     WebkitOverflowScrolling: 'touch',
   },
-  
   modal: {
     backgroundColor: colors.bgSecondary,
     borderRadius: '16px',
@@ -2803,7 +2787,6 @@ const getStyles = (colors) => ({
     overflow: 'auto',
     WebkitOverflowScrolling: 'touch',
   },
-  
   modalTitle: {
     fontSize: '1.75rem',
     color: colors.accent,
@@ -2811,18 +2794,15 @@ const getStyles = (colors) => ({
     marginBottom: '1.5rem',
     textAlign: 'center',
   },
-  
   formGroup: {
     marginBottom: '1.25rem',
   },
-  
   label: {
     display: 'block',
     marginBottom: '0.5rem',
     color: colors.text,
     fontWeight: '600',
   },
-  
   input: {
     width: '100%',
     padding: '0.875rem',
@@ -2836,180 +2816,18 @@ const getStyles = (colors) => ({
     WebkitAppearance: 'none',
     appearance: 'none',
   },
-  
   errorText: {
     color: colors.error,
     fontSize: '0.9rem',
     marginTop: '0.25rem',
     display: 'block',
   },
-  
-  fieldset: {
-    border: `2px solid ${colors.border}`,
-    borderRadius: '8px',
-    padding: '1rem',
-    marginBottom: '1.5rem',
-  },
-  
-  legend2: {
-    color: colors.accent,
-    fontWeight: '600',
-    padding: '0 0.5rem',
-  },
-  
-  // Role selection
-  roleSelection: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '1rem',
-    marginTop: '0.75rem',
-  },
-  
-  roleButton: {
-    padding: '1rem',
-    backgroundColor: colors.bg,
-    color: colors.text,
-    border: `2px solid ${colors.border}`,
-    borderRadius: '12px',
-    cursor: 'pointer',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '0.5rem',
-    transition: 'all 0.2s ease',
-    minHeight: '80px',
-  },
-  
-  roleButtonSelected: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
-    color: colors.bg,
-  },
-  
-  roleButtonTech: {
-    borderColor: colors.techAccent,
-  },
-  
-  roleButtonTechSelected: {
-    backgroundColor: colors.techAccent,
-    borderColor: colors.techAccent,
-    color: colors.onTechAccent,
-  },
-  
-  roleButtonIcon: {
-    fontSize: '1.5rem',
-  },
-  
-  roleButtonText: {
-    fontSize: '0.95rem',
-    fontWeight: '600',
-  },
-  
-  techDescription: {
-    marginTop: '1rem',
-    padding: '0.75rem',
-    backgroundColor: `${colors.techAccent}20`,
-    borderRadius: '8px',
-    fontSize: '0.9rem',
-    color: colors.text,
-    lineHeight: '1.5',
-    borderLeft: `3px solid ${colors.techAccent}`,
-  },
-  
-  // Shift selection grid
-  shiftSelectionGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(min(160px, 100%), 1fr))',
-    gap: '0.75rem',
-    marginTop: '1rem',
-    maxHeight: '45vh',
-    overflow: 'auto',
-    padding: '0.5rem',
-    WebkitOverflowScrolling: 'touch',
-  },
-  
-  shiftSelectButton: {
-    padding: '0.75rem',
-    backgroundColor: colors.bg,
-    color: colors.text,
-    border: `2px solid ${colors.border}`,
-    borderRadius: '8px',
-    cursor: 'pointer',
-    textAlign: 'center',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.2rem',
-    minHeight: '70px',
-    touchAction: 'manipulation',
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
-    WebkitTapHighlightColor: 'transparent',
-  },
-  
-  shiftSelectButton_selected: {
-    backgroundColor: colors.available,
-    borderColor: colors.selectedBorder,
-    color: colors.onAvailable,
-  },
-  
-  shiftSelectButtonTechSelected: {
-    backgroundColor: colors.techAccent,
-    borderColor: colors.techAccent,
-    color: colors.onTechAccent,
-  },
-  
-  shiftSelectButton_disabled: {
-    opacity: 0.5,
-    cursor: 'not-allowed',
-    backgroundColor: colors.bg,
-  },
-  
-  shiftSelectPeriod: {
-    fontSize: '0.7rem',
-    color: colors.textMuted,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.25rem',
-  },
-  
-  shiftSelectDate: {
-    fontSize: '0.8rem',
-    color: colors.textMuted,
-  },
-  
-  shiftSelectTime: {
-    fontSize: '1rem',
-    fontWeight: '600',
-  },
-  
-  shiftSelectReason: {
-    fontSize: '0.75rem',
-    color: colors.error,
-    marginTop: '0.2rem',
-  },
-  
-  shiftSelectPartial: {
-    fontSize: '0.75rem',
-    color: colors.partial,
-    marginTop: '0.2rem',
-  },
-  
-  modalActions: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '1rem',
-    marginTop: '1.5rem',
-  },
-  
   myShiftsBar: {
     maxWidth: '1400px',
     margin: '0.75rem auto 1.5rem',
     padding: '0 max(2rem, env(safe-area-inset-right)) 0 max(2rem, env(safe-area-inset-left))',
     textAlign: 'left',
   },
-  
   myShiftsButton: {
     padding: '0.6rem 1.5rem',
     borderRadius: '10px',
@@ -3043,7 +2861,6 @@ styleSheet.textContent = `
   
   @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
   
-  /* Only apply hover effects on devices that support hover (not touch) */
   @media (hover: hover) and (pointer: fine) {
     button:hover:not(:disabled) {
       transform: translateY(-2px);
@@ -3051,13 +2868,11 @@ styleSheet.textContent = `
     }
   }
   
-  /* Active state for touch devices */
   button:active:not(:disabled) {
     transform: scale(0.98);
     opacity: 0.9;
   }
   
-  /* Enhanced focus indicators for accessibility - 3px solid outline */
   button:focus-visible,
   a:focus-visible,
   summary:focus-visible {
@@ -3075,7 +2890,6 @@ styleSheet.textContent = `
     box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2);
   }
   
-  /* Ensure focus is never hidden by other elements */
   *:focus-visible {
     z-index: 1;
   }
@@ -3084,18 +2898,15 @@ styleSheet.textContent = `
     margin-bottom: 0.5rem;
   }
   
-  /* Better touch scrolling */
   * {
     -webkit-tap-highlight-color: transparent;
   }
   
-  /* Prevent iOS text size adjustment */
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
   
-  /* Hide scrollbars on mobile, show on desktop */
   @media (pointer: coarse) {
     ::-webkit-scrollbar {
       display: none;
@@ -3124,6 +2935,5 @@ styleSheet.textContent = `
       background: #14b8a6;
     }
   }
-  
 `;
 document.head.appendChild(styleSheet);
