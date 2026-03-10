@@ -17,7 +17,7 @@ const EVENT_CONFIG = {
   startTime: new Date('2026-03-21T19:00:00-05:00'), // 7 PM Central
   endTime: new Date('2026-03-23T19:00:00-05:00'),   // 7 PM Central (48 hours)
   shiftDurationHours: 2,
-  maxChampionsPerShift: 2,
+  maxChampionsPerShift: 4,
   maxTechPerShift: 1,
   maxConsecutiveHours: 4,
   requiredBreakHours: 2,
