@@ -92,7 +92,7 @@ const translations = {
     selectRole: "Select Your Role",
     eventChampion: "Event Champion",
     techSupport: "Tech Support Champion",
-    gteSupport: "Games & Talent Exchange",
+    gteSupport: "Games & Talent",
     gteSupportFull: "Games & Talent Exchange Support",
     gteDescription: "You'll support the Games & Talent Exchange sessions, helping participants navigate activities and connecting talent across the event.",
     addGTE: "Add GTE Support",
@@ -194,7 +194,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     selectRole: "选择您的角色",
     eventChampion: "活动冠军",
     techSupport: "技术支持冠军",
-    gteSupport: "游戏与人才交流",
+    gteSupport: "游戏与人才",
     gteSupportFull: "游戏与人才交流支持",
     gteDescription: "您将支持游戏与人才交流环节，帮助参与者参与活动并在活动中连接人才。",
     addGTE: "添加GTE支持",
@@ -286,7 +286,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     selectRole: "เลือกบทบาทของคุณ",
     eventChampion: "แชมเปี้ยนอีเวนต์",
     techSupport: "แชมเปี้ยนฝ่ายเทคนิค",
-    gteSupport: "เกมส์และการแลกเปลี่ยนความสามารถ",
+    gteSupport: "เกมส์และความสามารถ",
     gteSupportFull: "การสนับสนุนเกมส์และการแลกเปลี่ยนความสามารถ",
     gteDescription: "คุณจะสนับสนุนเซสชันเกมส์และการแลกเปลี่ยนความสามารถ ช่วยผู้เข้าร่วมในกิจกรรมต่างๆ",
     addGTE: "เพิ่ม GTE",
@@ -378,7 +378,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     selectRole: "اختر دورك",
     eventChampion: "بطل الحدث",
     techSupport: "بطل الدعم الفني",
-    gteSupport: "الألعاب وتبادل المواهب",
+    gteSupport: "الألعاب والمواهب",
     gteSupportFull: "دعم الألعاب وتبادل المواهب",
     gteDescription: "ستدعم جلسات الألعاب وتبادل المواهب، مساعدة المشاركين على التنقل في الأنشطة.",
     addGTE: "إضافة دعم GTE",
@@ -470,7 +470,7 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     selectRole: "Sélectionnez votre rôle",
     eventChampion: "Champion d'événement",
     techSupport: "Champion support technique",
-    gteSupport: "Jeux et échange de talents",
+    gteSupport: "Jeux et talents",
     gteSupportFull: "Support Jeux et échange de talents",
     gteDescription: "Vous soutiendrez les sessions Jeux et échange de talents, aidant les participants à naviguer dans les activités.",
     addGTE: "Ajouter support GTE",
@@ -798,8 +798,12 @@ export default function App() {
   const styles = getStyles(colors);
   
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 600);
+  const [isTablet, setIsTablet] = useState(() => typeof window !== 'undefined' && window.innerWidth < 900);
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 600);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 600);
+      setIsTablet(window.innerWidth < 900);
+    };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -1481,7 +1485,10 @@ export default function App() {
             <p style={styles.subtitle}>{t.subtitle}</p>
           </div>
           
-          <div style={styles.controls}>
+          <div style={{
+            ...styles.controls,
+            ...(isMobile ? { gap: '0.5rem' } : {})
+          }}>
             <div style={styles.controlGroup}>
               <label htmlFor="language-select" style={styles.controlLabel}>
                 {t.languageLabel}
@@ -1501,31 +1508,40 @@ export default function App() {
               </select>
             </div>
             
-            <div style={styles.controlGroup}>
-              <label htmlFor="timezone-toggle" style={styles.controlLabel}>
-                {showLocalTime ? t.yourTimezone : t.sententralTime}
-              </label>
-              <button
-                id="timezone-toggle"
-                onClick={() => setShowLocalTime(!showLocalTime)}
-                style={styles.toggleButton}
-                aria-pressed={showLocalTime}
-              >
-                {showLocalTime ? getTimezoneName(userTimezone) : t.centralTime}
-              </button>
-            </div>
+            {!isMobile && (
+              <div style={styles.controlGroup}>
+                <label htmlFor="timezone-toggle" style={styles.controlLabel}>
+                  {showLocalTime ? t.yourTimezone : t.sententralTime}
+                </label>
+                <button
+                  id="timezone-toggle"
+                  onClick={() => setShowLocalTime(!showLocalTime)}
+                  style={styles.toggleButton}
+                  aria-pressed={showLocalTime}
+                >
+                  {showLocalTime ? getTimezoneName(userTimezone) : t.centralTime}
+                </button>
+              </div>
+            )}
             
             <div style={styles.controlGroup}>
-              <label htmlFor="theme-toggle" style={styles.controlLabel}>
-                {t.theme}
-              </label>
+              {!isMobile && (
+                <label htmlFor="theme-toggle" style={styles.controlLabel}>
+                  {t.theme}
+                </label>
+              )}
               <button
                 id="theme-toggle"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                style={styles.toggleButton}
+                style={{
+                  ...styles.toggleButton,
+                  ...(isMobile ? { padding: '0.75rem', minWidth: '44px' } : {})
+                }}
                 aria-pressed={theme === 'dark'}
+                aria-label={theme === 'dark' ? t.lightMode : t.darkMode}
               >
-                {theme === 'dark' ? '☀️ ' + t.lightMode : '🌙 ' + t.darkMode}
+                {theme === 'dark' ? '☀️' : '🌙'}
+                {!isMobile && (' ' + (theme === 'dark' ? t.lightMode : t.darkMode))}
               </button>
             </div>
           </div>
@@ -1623,7 +1639,11 @@ export default function App() {
                     return (
                       <div
                         key={shift.id}
-                        style={isMobile ? styles.shiftRowMobile : styles.shiftRow}
+                        style={
+                          isMobile ? styles.shiftRowMobile :
+                          isTablet ? styles.shiftRowTablet :
+                          styles.shiftRow
+                        }
                       >
                         <div style={isMobile ? styles.shiftTimeColMobile : styles.shiftTimeCol}>
                           <div style={styles.shiftTime}>
@@ -1635,6 +1655,7 @@ export default function App() {
                           </div>
                         </div>
                         
+                        {/* Champions — full width on all sizes */}
                         <div style={styles.roleColumn}>
                           <div style={styles.roleHeader}>
                             <span style={{ ...styles.roleLabel, color: colors.accent }}>
@@ -1682,104 +1703,136 @@ export default function App() {
                             )}
                           </div>
                         </div>
-                        
-                        <div style={styles.roleColumn}>
-                          <div style={styles.roleHeader}>
-                            <span style={{ ...styles.roleLabel, color: colors.techAccent }}>
-                              {t.tech}
-                            </span>
-                            <span style={{
-                              ...styles.statusDot,
-                              backgroundColor: techStatus === 'full' ? colors.full : colors.techAccent
-                            }} />
-                          </div>
-                          <div style={styles.championsList}>
-                            {shift.techChampions.map((tech, idx) => (
-                              <div key={idx} style={{ ...styles.championChip, borderColor: colors.techAccent }}>
-                                <span>{tech.name}</span>
-                                {isAdmin && (
-                                  <button
-                                    onClick={() => handleAdminRemove(shift.id, idx, 'tech')}
-                                    style={styles.removeChip}
-                                    aria-label={`${t.remove} ${tech.name}`}
-                                  >
-                                    ✕
-                                  </button>
-                                )}
-                              </div>
-                            ))}
-                            {shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
-                              <button
-                                onClick={() => openInlineSignUp(shift.id, 'tech')}
-                                style={{ ...styles.openSlotButton, borderColor: colors.techAccent, color: colors.techAccent }}
-                                aria-label={`${t.signUpFor} ${t.techSupport} ${formatTime(shift.start, timezone)}`}
-                              >
-                                <span style={styles.openSlotPlus}>+</span>
-                                <span>1 {t.open}</span>
-                              </button>
-                            )}
-                            {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && !inlineSignUp && (
-                              <AdminAddForm
-                                shiftId={shift.id}
-                                onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'tech')}
-                                t={t}
-                                styles={styles}
-                                colors={colors}
-                                roleType="tech"
-                              />
-                            )}
-                          </div>
-                        </div>
 
-                        {/* GTE column */}
-                        <div style={styles.roleColumn}>
-                          <div style={styles.roleHeader}>
-                            <span style={{ ...styles.roleLabel, color: colors.gteAccent }}>
-                              {t.gteSupport}
-                            </span>
-                            <span style={{
-                              ...styles.statusDot,
-                              backgroundColor: getGTEStatus(shift) === 'full' ? colors.full :
-                                              getGTEStatus(shift) === 'partial' ? colors.gteAccent : colors.gteAccent
-                            }} />
-                          </div>
-                          <div style={styles.championsList}>
-                            {shift.gteChampions.map((gte, idx) => (
-                              <div key={idx} style={{ ...styles.championChip, borderColor: colors.gteAccent }}>
-                                <span>{gte.name}</span>
-                                {isAdmin && (
-                                  <button
-                                    onClick={() => handleAdminRemove(shift.id, idx, 'gte')}
-                                    style={styles.removeChip}
-                                    aria-label={`${t.remove} ${gte.name}`}
-                                  >
-                                    ✕
+                        {/* Tech + GTE — side by side on mobile, separate columns on desktop */}
+                        {isMobile ? (
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                            <div style={styles.roleColumn}>
+                              <div style={styles.roleHeader}>
+                                <span style={{ ...styles.roleLabel, color: colors.techAccent }}>
+                                  {t.tech}
+                                </span>
+                                <span style={{
+                                  ...styles.statusDot,
+                                  backgroundColor: techStatus === 'full' ? colors.full : colors.techAccent
+                                }} />
+                              </div>
+                              <div style={styles.championsList}>
+                                {shift.techChampions.map((tech, idx) => (
+                                  <div key={idx} style={{ ...styles.championChip, borderColor: colors.techAccent }}>
+                                    <span style={{ fontSize: '0.8rem' }}>{tech.name}</span>
+                                    {isAdmin && (
+                                      <button onClick={() => handleAdminRemove(shift.id, idx, 'tech')} style={styles.removeChip} aria-label={`${t.remove} ${tech.name}`}>✕</button>
+                                    )}
+                                  </div>
+                                ))}
+                                {shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
+                                  <button onClick={() => openInlineSignUp(shift.id, 'tech')} style={{ ...styles.openSlotButton, borderColor: colors.techAccent, color: colors.techAccent, fontSize: '0.8rem', padding: '0.4rem' }} aria-label={`${t.signUpFor} ${t.techSupport}`}>
+                                    <span style={styles.openSlotPlus}>+</span><span>1 {t.open}</span>
                                   </button>
                                 )}
+                                {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && !inlineSignUp && (
+                                  <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'tech')} t={t} styles={styles} colors={colors} roleType="tech" />
+                                )}
                               </div>
-                            ))}
-                            {shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && (
-                              <button
-                                onClick={() => openInlineSignUp(shift.id, 'gte')}
-                                style={{ ...styles.openSlotButton, borderColor: colors.gteAccent, color: colors.gteAccent }}
-                                aria-label={`${t.signUpFor} ${t.gteSupportFull} ${formatTime(shift.start, timezone)}`}
-                              >
-                                <span style={styles.openSlotPlus}>+</span>
-                                <span>{EVENT_CONFIG.maxGTEPerShift - shift.gteChampions.length} {t.open}</span>
-                              </button>
-                            )}
-                            {isAdmin && shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && !inlineSignUp && (
-                              <AdminAddForm
-                                shiftId={shift.id}
-                                onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'gte')}
-                                t={t}
-                                styles={styles}
-                                colors={colors}
-                                roleType="gte"
-                              />
-                            )}
+                            </div>
+                            <div style={styles.roleColumn}>
+                              <div style={styles.roleHeader}>
+                                <span style={{ ...styles.roleLabel, color: colors.gteAccent }}>
+                                  {t.gteSupport}
+                                </span>
+                                <span style={{
+                                  ...styles.statusDot,
+                                  backgroundColor: getGTEStatus(shift) === 'full' ? colors.full : colors.gteAccent
+                                }} />
+                              </div>
+                              <div style={styles.championsList}>
+                                {shift.gteChampions.map((gte, idx) => (
+                                  <div key={idx} style={{ ...styles.championChip, borderColor: colors.gteAccent }}>
+                                    <span style={{ fontSize: '0.8rem' }}>{gte.name}</span>
+                                    {isAdmin && (
+                                      <button onClick={() => handleAdminRemove(shift.id, idx, 'gte')} style={styles.removeChip} aria-label={`${t.remove} ${gte.name}`}>✕</button>
+                                    )}
+                                  </div>
+                                ))}
+                                {shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && (
+                                  <button onClick={() => openInlineSignUp(shift.id, 'gte')} style={{ ...styles.openSlotButton, borderColor: colors.gteAccent, color: colors.gteAccent, fontSize: '0.8rem', padding: '0.4rem' }} aria-label={`${t.signUpFor} ${t.gteSupportFull}`}>
+                                    <span style={styles.openSlotPlus}>+</span><span>{EVENT_CONFIG.maxGTEPerShift - shift.gteChampions.length} {t.open}</span>
+                                  </button>
+                                )}
+                                {isAdmin && shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && !inlineSignUp && (
+                                  <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'gte')} t={t} styles={styles} colors={colors} roleType="gte" />
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        ) : (
+                          <>
+                            <div style={styles.roleColumn}>
+                              <div style={styles.roleHeader}>
+                                <span style={{ ...styles.roleLabel, color: colors.techAccent }}>
+                                  {t.tech}
+                                </span>
+                                <span style={{
+                                  ...styles.statusDot,
+                                  backgroundColor: techStatus === 'full' ? colors.full : colors.techAccent
+                                }} />
+                              </div>
+                              <div style={styles.championsList}>
+                                {shift.techChampions.map((tech, idx) => (
+                                  <div key={idx} style={{ ...styles.championChip, borderColor: colors.techAccent }}>
+                                    <span>{tech.name}</span>
+                                    {isAdmin && (
+                                      <button onClick={() => handleAdminRemove(shift.id, idx, 'tech')} style={styles.removeChip} aria-label={`${t.remove} ${tech.name}`}>✕</button>
+                                    )}
+                                  </div>
+                                ))}
+                                {shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
+                                  <button onClick={() => openInlineSignUp(shift.id, 'tech')} style={{ ...styles.openSlotButton, borderColor: colors.techAccent, color: colors.techAccent }} aria-label={`${t.signUpFor} ${t.techSupport} ${formatTime(shift.start, timezone)}`}>
+                                    <span style={styles.openSlotPlus}>+</span>
+                                    <span>1 {t.open}</span>
+                                  </button>
+                                )}
+                                {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && !inlineSignUp && (
+                                  <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'tech')} t={t} styles={styles} colors={colors} roleType="tech" />
+                                )}
+                              </div>
+                            </div>
+
+                            {/* GTE column */}
+                            <div style={styles.roleColumn}>
+                              <div style={styles.roleHeader}>
+                                <span style={{ ...styles.roleLabel, color: colors.gteAccent }}>
+                                  {t.gteSupport}
+                                </span>
+                                <span style={{
+                                  ...styles.statusDot,
+                                  backgroundColor: getGTEStatus(shift) === 'full' ? colors.full :
+                                                  getGTEStatus(shift) === 'partial' ? colors.gteAccent : colors.gteAccent
+                                }} />
+                              </div>
+                              <div style={styles.championsList}>
+                                {shift.gteChampions.map((gte, idx) => (
+                                  <div key={idx} style={{ ...styles.championChip, borderColor: colors.gteAccent }}>
+                                    <span>{gte.name}</span>
+                                    {isAdmin && (
+                                      <button onClick={() => handleAdminRemove(shift.id, idx, 'gte')} style={styles.removeChip} aria-label={`${t.remove} ${gte.name}`}>✕</button>
+                                    )}
+                                  </div>
+                                ))}
+                                {shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && (
+                                  <button onClick={() => openInlineSignUp(shift.id, 'gte')} style={{ ...styles.openSlotButton, borderColor: colors.gteAccent, color: colors.gteAccent }} aria-label={`${t.signUpFor} ${t.gteSupportFull} ${formatTime(shift.start, timezone)}`}>
+                                    <span style={styles.openSlotPlus}>+</span>
+                                    <span>{EVENT_CONFIG.maxGTEPerShift - shift.gteChampions.length} {t.open}</span>
+                                  </button>
+                                )}
+                                {isAdmin && shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && !inlineSignUp && (
+                                  <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'gte')} t={t} styles={styles} colors={colors} roleType="gte" />
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                     );
                   })}
@@ -2167,19 +2220,39 @@ export default function App() {
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <div style={{
+                    display: 'flex',
+                    gap: '0.75rem',
+                    justifyContent: 'center',
+                    flexWrap: 'wrap',
+                    flexDirection: isMobile ? 'column' : 'row',
+                    width: isMobile ? '100%' : 'auto',
+                  }}>
                     <button
                       onClick={printMyShifts}
-                      style={{ ...styles.secondaryButton, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                      style={{
+                        ...styles.secondaryButton,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        ...(isMobile ? { width: '100%' } : {})
+                      }}
                     >
                       🖨️ {t.print || 'Print'}
                     </button>
 
-                    {/* Add to Calendar button + dropdown */}
-                    <div style={{ position: 'relative' }}>
+                    <div style={{ position: 'relative', ...(isMobile ? { width: '100%' } : {}) }}>
                       <button
                         onClick={() => setShowCalendarDropdown(prev => !prev)}
-                        style={{ ...styles.secondaryButton, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                        style={{
+                          ...styles.secondaryButton,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          ...(isMobile ? { width: '100%' } : {})
+                        }}
                         aria-haspopup="true"
                         aria-expanded={showCalendarDropdown}
                       >
@@ -2188,16 +2261,17 @@ export default function App() {
 
                       {showCalendarDropdown && (
                         <div style={{
-                          position: 'absolute',
-                          bottom: '110%',
+                          position: 'fixed',
+                          bottom: '6rem',
                           left: '50%',
                           transform: 'translateX(-50%)',
                           backgroundColor: colors.bgSecondary,
                           border: `2px solid ${colors.accent}`,
                           borderRadius: '10px',
                           overflow: 'hidden',
-                          zIndex: 10,
-                          minWidth: '200px',
+                          zIndex: 1010,
+                          minWidth: '220px',
+                          maxWidth: 'calc(100vw - 2rem)',
                           boxShadow: '0 -4px 16px rgba(0,0,0,0.3)',
                         }}>
                           {[
@@ -2243,7 +2317,10 @@ export default function App() {
 
                     <button
                       onClick={() => { setShowMyShifts(false); setShowCalendarDropdown(false); }}
-                      style={styles.primaryButton}
+                      style={{
+                        ...styles.primaryButton,
+                        ...(isMobile ? { width: '100%' } : {})
+                      }}
                     >
                       {t.close}
                     </button>
@@ -2642,6 +2719,16 @@ const getStyles = (colors) => ({
     display: 'grid',
     gridTemplateColumns: '100px 1fr 1fr 1fr',
     gap: '1rem',
+    padding: '1rem',
+    backgroundColor: colors.bgSecondary,
+    borderRadius: '8px',
+    marginBottom: '0.75rem',
+    alignItems: 'start',
+  },
+  shiftRowTablet: {
+    display: 'grid',
+    gridTemplateColumns: '80px 1fr 1fr',
+    gap: '0.75rem',
     padding: '1rem',
     backgroundColor: colors.bgSecondary,
     borderRadius: '8px',
