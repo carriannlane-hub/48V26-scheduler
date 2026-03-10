@@ -20,7 +20,6 @@ const EVENT_CONFIG = {
   maxChampionsPerShift: 4,
   maxTechPerShift: 1,
   maxGTEPerShift: 2,
-  maxHostPerShift: 2,
   maxProducerPerShift: 2,
   maxConsecutiveHours: 4,
   requiredBreakHours: 2,
@@ -41,7 +40,6 @@ const themes = {
     accent: '#14b8a6',
     techAccent: '#f59e0b',
     gteAccent: '#8b5cf6',
-    hostAccent: '#ec4899',
     producerAccent: '#f97316',
     border: '#6a6a8a',
     available: '#10b981',
@@ -56,7 +54,6 @@ const themes = {
     onPartial: '#082f49',
     onTechAccent: '#451a03',
     onGTEAccent: '#f5f3ff',
-    onHostAccent: '#fdf2f8',
     onProducerAccent: '#fff7ed',
   },
   light: {
@@ -68,7 +65,6 @@ const themes = {
     accent: '#0f766e',
     techAccent: '#b45309',
     gteAccent: '#7c3aed',
-    hostAccent: '#db2777',
     producerAccent: '#ea580c',
     border: '#94a3b8',
     available: '#047857',
@@ -83,7 +79,6 @@ const themes = {
     onPartial: '#f0f9ff',
     onTechAccent: '#fffbeb',
     onGTEAccent: '#f5f3ff',
-    onHostAccent: '#fdf2f8',
     onProducerAccent: '#fff7ed',
   }
 };
@@ -106,10 +101,6 @@ const translations = {
     gteSupportFull: "Games & Talent Exchange Support",
     gteDescription: "You'll support the Games & Talent Exchange sessions, helping participants navigate activities and connecting talent across the event.",
     addGTE: "Add GTE Support",
-    host: "Host",
-    hostFull: "Event Host",
-    hostDescription: "As a Host, you'll welcome participants, guide sessions, and keep the event energy high.",
-    addHost: "Add Host",
     producer: "Producer",
     producerFull: "Event Producer",
     producerDescription: "As a Producer, you'll manage behind-the-scenes logistics, coordination, and technical production support.",
@@ -217,10 +208,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     gteSupportFull: "游戏与人才交流支持",
     gteDescription: "您将支持游戏与人才交流环节，帮助参与者参与活动并在活动中连接人才。",
     addGTE: "添加GTE支持",
-    host: "主持人",
-    hostFull: "活动主持人",
-    hostDescription: "作为主持人，您将欢迎参与者、引导会议并保持活动的高能量。",
-    addHost: "添加主持人",
     producer: "制作人",
     producerFull: "活动制作人",
     producerDescription: "作为制作人，您将管理幕后后勤、协调和技术制作支持。",
@@ -318,10 +305,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     gteSupportFull: "การสนับสนุนเกมส์และการแลกเปลี่ยนความสามารถ",
     gteDescription: "คุณจะสนับสนุนเซสชันเกมส์และการแลกเปลี่ยนความสามารถ ช่วยผู้เข้าร่วมในกิจกรรมต่างๆ",
     addGTE: "เพิ่ม GTE",
-    host: "พิธีกร",
-    hostFull: "พิธีกรงาน",
-    hostDescription: "ในฐานะพิธีกร คุณจะต้อนรับผู้เข้าร่วม นำเสนอเซสชัน และรักษาบรรยากาศของงาน",
-    addHost: "เพิ่มพิธีกร",
     producer: "ผู้จัดการ",
     producerFull: "ผู้จัดการงาน",
     producerDescription: "ในฐานะผู้จัดการ คุณจะดูแลด้านหลังเวที ประสานงาน และสนับสนุนการผลิต",
@@ -419,10 +402,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     gteSupportFull: "دعم الألعاب وتبادل المواهب",
     gteDescription: "ستدعم جلسات الألعاب وتبادل المواهب، مساعدة المشاركين على التنقل في الأنشطة.",
     addGTE: "إضافة دعم GTE",
-    host: "مضيف",
-    hostFull: "مضيف الفعالية",
-    hostDescription: "بصفتك مضيفاً، ستستقبل المشاركين وتوجه الجلسات وتحافظ على أجواء الفعالية.",
-    addHost: "إضافة مضيف",
     producer: "منتج",
     producerFull: "منتج الفعالية",
     producerDescription: "بصفتك منتجاً، ستدير الخدمات اللوجستية خلف الكواليس والتنسيق ودعم الإنتاج التقني.",
@@ -520,10 +499,6 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     gteSupportFull: "Support Jeux et échange de talents",
     gteDescription: "Vous soutiendrez les sessions Jeux et échange de talents, aidant les participants à naviguer dans les activités.",
     addGTE: "Ajouter support GTE",
-    host: "Animateur",
-    hostFull: "Animateur de l'événement",
-    hostDescription: "En tant qu'animateur, vous accueillerez les participants, guiderez les sessions et maintiendrez l'énergie de l'événement.",
-    addHost: "Ajouter animateur",
     producer: "Producteur",
     producerFull: "Producteur de l'événement",
     producerDescription: "En tant que producteur, vous gérerez la logistique en coulisses, la coordination et le support technique.",
@@ -681,7 +656,6 @@ const generateShifts = () => {
       champions: [],
       techChampions: [],
       gteChampions: [],
-      hostChampions: [],
       producerChampions: [],
     });
     
@@ -930,7 +904,7 @@ export default function App() {
       try {
         const { data, error } = await supabase
           .from('shifts')
-          .select('id, champions, tech_champions, gte_champions, host_champions, producer_champions')
+          .select('id, champions, tech_champions, gte_champions, producer_champions')
           .order('id');
         
         if (error) throw error;
@@ -944,7 +918,6 @@ export default function App() {
               champions: saved.champions || [],
               techChampions: saved.tech_champions || [],
               gteChampions: saved.gte_champions || [],
-              hostChampions: saved.host_champions || [],
               producerChampions: saved.producer_champions || [],
             } : shift;
           });
@@ -967,7 +940,6 @@ export default function App() {
             champions: shift.champions,
             tech_champions: shift.techChampions,
             gte_champions: shift.gteChampions,
-            host_champions: shift.hostChampions,
             producer_champions: shift.producerChampions,
           })
           .eq('id', shift.id);
@@ -1004,9 +976,6 @@ export default function App() {
     if (role === 'gte' && shift.gteChampions.length >= EVENT_CONFIG.maxGTEPerShift) {
       return { allowed: false, reason: 'full' };
     }
-    if (role === 'host' && shift.hostChampions.length >= EVENT_CONFIG.maxHostPerShift) {
-      return { allowed: false, reason: 'full' };
-    }
     if (role === 'producer' && shift.producerChampions.length >= EVENT_CONFIG.maxProducerPerShift) {
       return { allowed: false, reason: 'full' };
     }
@@ -1015,9 +984,8 @@ export default function App() {
       const inChampions = shift.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
       const inTech = shift.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
       const inGTE = shift.gteChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
-      const inHost = shift.hostChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
       const inProducer = shift.producerChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
-      if (inChampions || inTech || inGTE || inHost || inProducer) {
+      if (inChampions || inTech || inGTE || inProducer) {
         return { allowed: false, reason: 'alreadySignedUp' };
       }
     }
@@ -1028,9 +996,8 @@ export default function App() {
         const inC = s.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
         const inT = s.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
         const inG = s.gteChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
-        const inH = s.hostChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
         const inP = s.producerChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
-        if (inC || inT || inG || inH || inP) allUserShiftIds.push(s.id);
+        if (inC || inT || inG || inP) allUserShiftIds.push(s.id);
       });
     }
     
@@ -1078,10 +1045,6 @@ export default function App() {
           const newGTE = [...shift.gteChampions];
           newGTE.splice(championIndex, 1);
           return { ...shift, gteChampions: newGTE };
-        } else if (roleType === 'host') {
-          const newHost = [...shift.hostChampions];
-          newHost.splice(championIndex, 1);
-          return { ...shift, hostChampions: newHost };
         } else if (roleType === 'producer') {
           const newProducer = [...shift.producerChampions];
           newProducer.splice(championIndex, 1);
@@ -1108,8 +1071,6 @@ export default function App() {
           return { ...shift, techChampions: [...shift.techChampions, { name: name.trim(), email: email.trim() }] };
         } else if (roleType === 'gte') {
           return { ...shift, gteChampions: [...shift.gteChampions, { name: name.trim(), email: email.trim() }] };
-        } else if (roleType === 'host') {
-          return { ...shift, hostChampions: [...shift.hostChampions, { name: name.trim(), email: email.trim() }] };
         } else if (roleType === 'producer') {
           return { ...shift, producerChampions: [...shift.producerChampions, { name: name.trim(), email: email.trim() }] };
         } else {
@@ -1131,7 +1092,6 @@ export default function App() {
       champions: [],
       techChampions: [],
       gteChampions: [],
-      hostChampions: [],
       producerChampions: [],
     }));
     
@@ -1154,7 +1114,7 @@ export default function App() {
   
   const exportSchedule = () => {
     const tz = showLocalTime ? userTimezone : 'America/Chicago';
-    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2,Champion 3,Email 3,Champion 4,Email 4,Tech Support,Tech Email,GTE 1,GTE Email 1,GTE 2,GTE Email 2,Host 1,Host Email 1,Host 2,Host Email 2,Producer 1,Producer Email 1,Producer 2,Producer Email 2\n';
+    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2,Champion 3,Email 3,Champion 4,Email 4,Tech Support,Tech Email,GTE 1,GTE Email 1,GTE 2,GTE Email 2,Producer 1,Producer Email 1,Producer 2,Producer Email 2\n';
     
     shifts.forEach((shift, index) => {
       const timePeriod = getTimePeriod(shift.start, tz);
@@ -1171,8 +1131,6 @@ export default function App() {
         shift.techChampions[0]?.name || '', shift.techChampions[0]?.email || '',
         shift.gteChampions[0]?.name || '', shift.gteChampions[0]?.email || '',
         shift.gteChampions[1]?.name || '', shift.gteChampions[1]?.email || '',
-        shift.hostChampions[0]?.name || '', shift.hostChampions[0]?.email || '',
-        shift.hostChampions[1]?.name || '', shift.hostChampions[1]?.email || '',
         shift.producerChampions[0]?.name || '', shift.producerChampions[0]?.email || '',
         shift.producerChampions[1]?.name || '', shift.producerChampions[1]?.email || '',
       ];
@@ -1222,18 +1180,15 @@ export default function App() {
         
         const volunteers = [];
         shift.champions.forEach(c => volunteers.push({ name: c.name, role: 'Event Champion', color: '#14b8a6' }));
-        shift.hostChampions.forEach(c => volunteers.push({ name: c.name, role: 'Host', color: '#ec4899' }));
         shift.producerChampions.forEach(c => volunteers.push({ name: c.name, role: 'Producer', color: '#f97316' }));
         shift.gteChampions.forEach(c => volunteers.push({ name: c.name, role: 'Games & Talent', color: '#8b5cf6' }));
         shift.techChampions.forEach(c => volunteers.push({ name: c.name, role: 'Tech Support', color: '#f59e0b' }));
-        
+
         const emptyChampion = EVENT_CONFIG.maxChampionsPerShift - shift.champions.length;
-        const emptyHost = EVENT_CONFIG.maxHostPerShift - shift.hostChampions.length;
         const emptyProducer = EVENT_CONFIG.maxProducerPerShift - shift.producerChampions.length;
         const emptyGTE = EVENT_CONFIG.maxGTEPerShift - shift.gteChampions.length;
         const emptyTech = EVENT_CONFIG.maxTechPerShift - shift.techChampions.length;
         for (let i = 0; i < emptyChampion; i++) volunteers.push({ name: '—', role: 'Event Champion', color: '#94a3b8', empty: true });
-        for (let i = 0; i < emptyHost; i++) volunteers.push({ name: '—', role: 'Host', color: '#94a3b8', empty: true });
         for (let i = 0; i < emptyProducer; i++) volunteers.push({ name: '—', role: 'Producer', color: '#94a3b8', empty: true });
         for (let i = 0; i < emptyGTE; i++) volunteers.push({ name: '—', role: 'Games & Talent', color: '#94a3b8', empty: true });
         for (let i = 0; i < emptyTech; i++) volunteers.push({ name: '—', role: 'Tech Support', color: '#94a3b8', empty: true });
@@ -1250,14 +1205,13 @@ export default function App() {
     
     const totalVolunteers = new Set();
     let filledSlots = 0;
-    let totalSlots = shifts.length * (EVENT_CONFIG.maxChampionsPerShift + EVENT_CONFIG.maxGTEPerShift + EVENT_CONFIG.maxTechPerShift + EVENT_CONFIG.maxHostPerShift + EVENT_CONFIG.maxProducerPerShift);
+    let totalSlots = shifts.length * (EVENT_CONFIG.maxChampionsPerShift + EVENT_CONFIG.maxGTEPerShift + EVENT_CONFIG.maxTechPerShift + EVENT_CONFIG.maxProducerPerShift);
     shifts.forEach(s => {
       s.champions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
       s.techChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
       s.gteChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
-      s.hostChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
       s.producerChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
-      filledSlots += s.champions.length + s.techChampions.length + s.gteChampions.length + s.hostChampions.length + s.producerChampions.length;
+      filledSlots += s.champions.length + s.techChampions.length + s.gteChampions.length + s.producerChampions.length;
     });
     
     const printWindow = window.open('', '_blank');
@@ -1306,12 +1260,10 @@ export default function App() {
       const inChampions = shift.champions.some(c => c.email.toLowerCase() === email);
       const inTech = shift.techChampions.some(c => c.email.toLowerCase() === email);
       const inGTE = shift.gteChampions.some(c => c.email.toLowerCase() === email);
-      const inHost = shift.hostChampions.some(c => c.email.toLowerCase() === email);
       const inProducer = shift.producerChampions.some(c => c.email.toLowerCase() === email);
       if (inChampions) found.push({ ...shift, myRole: 'champion' });
       if (inTech) { found.push({ ...shift, myRole: 'tech' }); role = 'tech'; }
       if (inGTE) found.push({ ...shift, myRole: 'gte' });
-      if (inHost) found.push({ ...shift, myRole: 'host' });
       if (inProducer) found.push({ ...shift, myRole: 'producer' });
     });
     setMyShiftsList(found);
@@ -1335,7 +1287,6 @@ export default function App() {
         champions: s.champions.filter(c => c.email.toLowerCase() !== email),
         techChampions: s.techChampions.filter(c => c.email.toLowerCase() !== email),
         gteChampions: s.gteChampions.filter(c => c.email.toLowerCase() !== email),
-        hostChampions: s.hostChampions.filter(c => c.email.toLowerCase() !== email),
         producerChampions: s.producerChampions.filter(c => c.email.toLowerCase() !== email),
       };
     });
@@ -1424,7 +1375,6 @@ export default function App() {
       if (shift.champions.length < EVENT_CONFIG.maxChampionsPerShift) count++;
       if (shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift) count++;
       if (shift.techChampions.length < EVENT_CONFIG.maxTechPerShift) count++;
-      if (shift.hostChampions.length < EVENT_CONFIG.maxHostPerShift) count++;
       if (shift.producerChampions.length < EVENT_CONFIG.maxProducerPerShift) count++;
     });
     return count;
@@ -1481,8 +1431,6 @@ export default function App() {
             return { ...s, techChampions: [...s.techChampions, { name: inlineName.trim(), email: inlineEmail.trim() }] };
           } else if (role === 'gte') {
             return { ...s, gteChampions: [...s.gteChampions, { name: inlineName.trim(), email: inlineEmail.trim() }] };
-          } else if (role === 'host') {
-            return { ...s, hostChampions: [...s.hostChampions, { name: inlineName.trim(), email: inlineEmail.trim() }] };
           } else if (role === 'producer') {
             return { ...s, producerChampions: [...s.producerChampions, { name: inlineName.trim(), email: inlineEmail.trim() }] };
           } else {
@@ -1774,7 +1722,6 @@ export default function App() {
                           {[
                             { key: 'tech',     label: t.tech,       color: colors.techAccent,     list: shift.techChampions,     max: EVENT_CONFIG.maxTechPerShift,     roleType: 'tech',     ariaLabel: t.techSupport },
                             { key: 'gte',      label: t.gteSupport, color: colors.gteAccent,      list: shift.gteChampions,      max: EVENT_CONFIG.maxGTEPerShift,      roleType: 'gte',      ariaLabel: t.gteSupportFull },
-                            { key: 'host',     label: t.host,       color: colors.hostAccent,     list: shift.hostChampions,     max: EVENT_CONFIG.maxHostPerShift,     roleType: 'host',     ariaLabel: t.hostFull },
                             { key: 'producer', label: t.producer,   color: colors.producerAccent, list: shift.producerChampions, max: EVENT_CONFIG.maxProducerPerShift, roleType: 'producer', ariaLabel: t.producerFull },
                           ].map(({ key, label, color, list, max, roleType, ariaLabel }) => (
                             <div key={key} style={styles.roleColumn}>
@@ -1934,7 +1881,6 @@ export default function App() {
               ...styles.modalTitle,
               color: lastSignedUpRole === 'tech' ? colors.techAccent :
                      lastSignedUpRole === 'gte' ? colors.gteAccent :
-                     lastSignedUpRole === 'host' ? colors.hostAccent :
                      lastSignedUpRole === 'producer' ? colors.producerAccent :
                      colors.accent
             }}>
@@ -1946,7 +1892,6 @@ export default function App() {
               {' • '}
               {lastSignedUpRole === 'tech' ? t.techSupport :
                lastSignedUpRole === 'gte' ? t.gteSupportFull :
-               lastSignedUpRole === 'host' ? t.hostFull :
                lastSignedUpRole === 'producer' ? t.producerFull :
                t.eventChampion}
             </p>
@@ -1961,7 +1906,6 @@ export default function App() {
                 ...styles.primaryButton,
                 ...(lastSignedUpRole === 'tech' ? { backgroundColor: colors.techAccent, color: colors.onTechAccent } :
                     lastSignedUpRole === 'gte' ? { backgroundColor: colors.gteAccent, color: colors.onGTEAccent } :
-                    lastSignedUpRole === 'host' ? { backgroundColor: colors.hostAccent, color: colors.onHostAccent } :
                     lastSignedUpRole === 'producer' ? { backgroundColor: colors.producerAccent, color: colors.onProducerAccent } : {})
               }}
             >
@@ -1991,18 +1935,15 @@ export default function App() {
                 ...styles.bottomSheetRole,
                 backgroundColor: inlineSignUp.role === 'tech' ? `${colors.techAccent}20` :
                                  inlineSignUp.role === 'gte' ? `${colors.gteAccent}20` :
-                                 inlineSignUp.role === 'host' ? `${colors.hostAccent}20` :
                                  inlineSignUp.role === 'producer' ? `${colors.producerAccent}20` :
                                  `${colors.accent}20`,
                 color: inlineSignUp.role === 'tech' ? colors.techAccent :
                        inlineSignUp.role === 'gte' ? colors.gteAccent :
-                       inlineSignUp.role === 'host' ? colors.hostAccent :
                        inlineSignUp.role === 'producer' ? colors.producerAccent :
                        colors.accent,
               }}>
                 {inlineSignUp.role === 'tech' ? `🔧 ${t.techSupport}` :
                  inlineSignUp.role === 'gte' ? `🎮 ${t.gteSupportFull}` :
-                 inlineSignUp.role === 'host' ? `🎤 ${t.hostFull}` :
                  inlineSignUp.role === 'producer' ? `🎬 ${t.producerFull}` :
                  `🏆 ${t.eventChampion}`}
               </div>
@@ -2013,9 +1954,6 @@ export default function App() {
             )}
             {inlineSignUp.role === 'gte' && (
               <div style={{ ...styles.techWarning, color: colors.gteAccent, backgroundColor: `${colors.gteAccent}15` }} role="note">{t.gteDescription}</div>
-            )}
-            {inlineSignUp.role === 'host' && (
-              <div style={{ ...styles.techWarning, color: colors.hostAccent, backgroundColor: `${colors.hostAccent}15` }} role="note">{t.hostDescription}</div>
             )}
             {inlineSignUp.role === 'producer' && (
               <div style={{ ...styles.techWarning, color: colors.producerAccent, backgroundColor: `${colors.producerAccent}15` }} role="note">{t.producerDescription}</div>
@@ -2040,7 +1978,6 @@ export default function App() {
                     ...styles.bottomSheetInput,
                     borderColor: inlineSignUp.role === 'tech' ? colors.techAccent :
                                  inlineSignUp.role === 'gte' ? colors.gteAccent :
-                                 inlineSignUp.role === 'host' ? colors.hostAccent :
                                  inlineSignUp.role === 'producer' ? colors.producerAccent :
                                  colors.accent,
                   }}
@@ -2063,7 +2000,6 @@ export default function App() {
                     ...styles.bottomSheetInput,
                     borderColor: inlineSignUp.role === 'tech' ? colors.techAccent :
                                  inlineSignUp.role === 'gte' ? colors.gteAccent :
-                                 inlineSignUp.role === 'host' ? colors.hostAccent :
                                  inlineSignUp.role === 'producer' ? colors.producerAccent :
                                  colors.accent,
                   }}
@@ -2090,7 +2026,6 @@ export default function App() {
                     ...styles.bottomSheetSubmit,
                     backgroundColor: inlineSignUp.role === 'tech' ? colors.techAccent :
                                      inlineSignUp.role === 'gte' ? colors.gteAccent :
-                                     inlineSignUp.role === 'host' ? colors.hostAccent :
                                      inlineSignUp.role === 'producer' ? colors.producerAccent :
                                      colors.accent,
                     ...(isInlineSubmitting ? { opacity: 0.7, cursor: 'wait' } : {}),
@@ -2166,7 +2101,6 @@ export default function App() {
                     const endTime = shift.end.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
                     const roleColor = shift.myRole === 'tech' ? colors.techAccent :
                                       shift.myRole === 'gte' ? colors.gteAccent :
-                                      shift.myRole === 'host' ? colors.hostAccent :
                                       shift.myRole === 'producer' ? colors.producerAccent :
                                       colors.accent;
                     return (
@@ -2190,7 +2124,6 @@ export default function App() {
                         }}>
                           {shift.myRole === 'tech' ? t.techSupport :
                            shift.myRole === 'gte' ? t.gteSupportFull :
-                           shift.myRole === 'host' ? t.hostFull :
                            shift.myRole === 'producer' ? t.producerFull :
                            t.eventChampion}
                         </div>
