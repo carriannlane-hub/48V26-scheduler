@@ -42,6 +42,7 @@ const themes = {
     techAccent: '#f59e0b',
     gamesAccent: '#8b5cf6',
     talentAccent: '#06b6d4',
+    producerAccent: '#fb923c',
     onGamesAccent: '#f5f3ff',
     onTalentAccent: '#083344',
     border: '#6a6a8a',
@@ -1770,7 +1771,7 @@ export default function App() {
                           gridTemplateColumns: '1fr 1fr',
                           gap: '0.75rem',
                           padding: '0.75rem',
-                          backgroundColor: colors.bg,
+                          backgroundColor: colors.expandBg,
                           borderRadius: '8px',
                           border: `1px solid ${colors.border}`,
                         }}>
