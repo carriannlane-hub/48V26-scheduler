@@ -19,6 +19,7 @@ const EVENT_CONFIG = {
   shiftDurationHours: 2,
   maxChampionsPerShift: 4,
   maxTechPerShift: 1,
+  maxGTEPerShift: 2,
   maxConsecutiveHours: 4,
   requiredBreakHours: 2,
   maxHoursTotal: 12,
@@ -37,6 +38,7 @@ const themes = {
     title: '#e2e8f0',
     accent: '#14b8a6',
     techAccent: '#f59e0b',
+    gteAccent: '#8b5cf6',
     border: '#6a6a8a',
     available: '#10b981',
     partial: '#0ea5e9',
@@ -49,6 +51,7 @@ const themes = {
     onAvailable: '#052e16',
     onPartial: '#082f49',
     onTechAccent: '#451a03',
+    onGTEAccent: '#f5f3ff',
   },
   light: {
     bg: '#f8fafc',
@@ -58,6 +61,7 @@ const themes = {
     title: '#0f172a',
     accent: '#0f766e',
     techAccent: '#b45309',
+    gteAccent: '#7c3aed',
     border: '#94a3b8',
     available: '#047857',
     partial: '#0369a1',
@@ -70,6 +74,7 @@ const themes = {
     onAvailable: '#f0fdf4',
     onPartial: '#f0f9ff',
     onTechAccent: '#fffbeb',
+    onGTEAccent: '#f5f3ff',
   }
 };
 
@@ -87,6 +92,10 @@ const translations = {
     selectRole: "Select Your Role",
     eventChampion: "Event Champion",
     techSupport: "Tech Support Champion",
+    gteSupport: "Games & Talent Exchange",
+    gteSupportFull: "Games & Talent Exchange Support",
+    gteDescription: "You'll support the Games & Talent Exchange sessions, helping participants navigate activities and connecting talent across the event.",
+    addGTE: "Add GTE Support",
     techDescription: "Technical troubleshooting experience required. You'll help with A/V, streaming, and technical issues.",
     submit: "Submit Sign-Up",
     submitting: "Submitting...",
@@ -185,6 +194,10 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     selectRole: "选择您的角色",
     eventChampion: "活动冠军",
     techSupport: "技术支持冠军",
+    gteSupport: "游戏与人才交流",
+    gteSupportFull: "游戏与人才交流支持",
+    gteDescription: "您将支持游戏与人才交流环节，帮助参与者参与活动并在活动中连接人才。",
+    addGTE: "添加GTE支持",
     techDescription: "需要技术故障排除经验。您将帮助处理音视频、流媒体和技术问题。",
     submit: "提交报名",
     submitting: "提交中...",
@@ -273,6 +286,10 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     selectRole: "เลือกบทบาทของคุณ",
     eventChampion: "แชมเปี้ยนอีเวนต์",
     techSupport: "แชมเปี้ยนฝ่ายเทคนิค",
+    gteSupport: "เกมส์และการแลกเปลี่ยนความสามารถ",
+    gteSupportFull: "การสนับสนุนเกมส์และการแลกเปลี่ยนความสามารถ",
+    gteDescription: "คุณจะสนับสนุนเซสชันเกมส์และการแลกเปลี่ยนความสามารถ ช่วยผู้เข้าร่วมในกิจกรรมต่างๆ",
+    addGTE: "เพิ่ม GTE",
     techDescription: "ต้องมีประสบการณ์ด้านเทคนิค คุณจะช่วยเรื่องเสียง/ภาพ การสตรีม และปัญหาทางเทคนิค",
     submit: "ส่งการลงทะเบียน",
     submitting: "กำลังส่ง...",
@@ -361,6 +378,10 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     selectRole: "اختر دورك",
     eventChampion: "بطل الحدث",
     techSupport: "بطل الدعم الفني",
+    gteSupport: "الألعاب وتبادل المواهب",
+    gteSupportFull: "دعم الألعاب وتبادل المواهب",
+    gteDescription: "ستدعم جلسات الألعاب وتبادل المواهب، مساعدة المشاركين على التنقل في الأنشطة.",
+    addGTE: "إضافة دعم GTE",
     techDescription: "يتطلب خبرة في استكشاف الأخطاء التقنية. ستساعد في الصوت والفيديو والبث والمشاكل التقنية.",
     submit: "إرسال التسجيل",
     submitting: "جارٍ الإرسال...",
@@ -449,6 +470,10 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     selectRole: "Sélectionnez votre rôle",
     eventChampion: "Champion d'événement",
     techSupport: "Champion support technique",
+    gteSupport: "Jeux et échange de talents",
+    gteSupportFull: "Support Jeux et échange de talents",
+    gteDescription: "Vous soutiendrez les sessions Jeux et échange de talents, aidant les participants à naviguer dans les activités.",
+    addGTE: "Ajouter support GTE",
     techDescription: "Expérience technique requise. Vous aiderez avec l'audio/vidéo, le streaming et les problèmes techniques.",
     submit: "Soumettre l'inscription",
     submitting: "Envoi en cours...",
@@ -599,7 +624,8 @@ const generateShifts = () => {
       start,
       end,
       champions: [],
-      techChampions: []
+      techChampions: [],
+      gteChampions: []
     });
     
     current = end;
@@ -843,7 +869,7 @@ export default function App() {
       try {
         const { data, error } = await supabase
           .from('shifts')
-          .select('id, champions, tech_champions')
+          .select('id, champions, tech_champions, gte_champions')
           .order('id');
         
         if (error) throw error;
@@ -855,7 +881,8 @@ export default function App() {
             return saved ? { 
               ...shift, 
               champions: saved.champions || [],
-              techChampions: saved.tech_champions || []
+              techChampions: saved.tech_champions || [],
+              gteChampions: saved.gte_champions || []
             } : shift;
           });
           setShifts(mergedShifts);
@@ -875,7 +902,8 @@ export default function App() {
           .from('shifts')
           .update({ 
             champions: shift.champions,
-            tech_champions: shift.techChampions 
+            tech_champions: shift.techChampions,
+            gte_champions: shift.gteChampions
           })
           .eq('id', shift.id);
         
@@ -908,11 +936,15 @@ export default function App() {
     if (role === 'tech' && shift.techChampions.length >= EVENT_CONFIG.maxTechPerShift) {
       return { allowed: false, reason: 'full' };
     }
+    if (role === 'gte' && shift.gteChampions.length >= EVENT_CONFIG.maxGTEPerShift) {
+      return { allowed: false, reason: 'full' };
+    }
     
     if (userEmail) {
       const inChampions = shift.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
       const inTech = shift.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
-      if (inChampions || inTech) {
+      const inGTE = shift.gteChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+      if (inChampions || inTech || inGTE) {
         return { allowed: false, reason: 'alreadySignedUp' };
       }
     }
@@ -922,7 +954,8 @@ export default function App() {
       shifts.forEach(s => {
         const inC = s.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
         const inT = s.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
-        if (inC || inT) allUserShiftIds.push(s.id);
+        const inG = s.gteChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+        if (inC || inT || inG) allUserShiftIds.push(s.id);
       });
     }
     
@@ -957,15 +990,19 @@ export default function App() {
     return { allowed: true };
   };
   
-  const handleAdminRemove = async (shiftId, championIndex, isTech = false) => {
+  const handleAdminRemove = async (shiftId, championIndex, roleType = 'champion') => {
     if (!window.confirm(t.removeConfirm)) return;
     
     const newShifts = shifts.map(shift => {
       if (shift.id === shiftId) {
-        if (isTech) {
+        if (roleType === 'tech') {
           const newTech = [...shift.techChampions];
           newTech.splice(championIndex, 1);
           return { ...shift, techChampions: newTech };
+        } else if (roleType === 'gte') {
+          const newGTE = [...shift.gteChampions];
+          newGTE.splice(championIndex, 1);
+          return { ...shift, gteChampions: newGTE };
         } else {
           const newChampions = [...shift.champions];
           newChampions.splice(championIndex, 1);
@@ -979,15 +1016,20 @@ export default function App() {
     await saveShifts(newShifts);
   };
   
-  const handleAdminAdd = async (shiftId, name, email, isTech = false) => {
+  const handleAdminAdd = async (shiftId, name, email, roleType = 'champion') => {
     if (!name.trim() || !email.trim()) return;
     
     const newShifts = shifts.map(shift => {
       if (shift.id === shiftId) {
-        if (isTech) {
+        if (roleType === 'tech') {
           return {
             ...shift,
             techChampions: [...shift.techChampions, { name: name.trim(), email: email.trim() }]
+          };
+        } else if (roleType === 'gte') {
+          return {
+            ...shift,
+            gteChampions: [...shift.gteChampions, { name: name.trim(), email: email.trim() }]
           };
         } else {
           return {
@@ -1009,7 +1051,8 @@ export default function App() {
     const clearedShifts = shifts.map(shift => ({
       ...shift,
       champions: [],
-      techChampions: []
+      techChampions: [],
+      gteChampions: []
     }));
     
     setShifts(clearedShifts);
@@ -1031,7 +1074,7 @@ export default function App() {
   
   const exportSchedule = () => {
     const tz = showLocalTime ? userTimezone : 'America/Chicago';
-    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2,Champion 3,Email 3,Champion 4,Email 4,Tech Support,Tech Email\n';
+    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2,Champion 3,Email 3,Champion 4,Email 4,GTE 1,GTE Email 1,GTE 2,GTE Email 2,Tech Support,Tech Email\n';
     
     shifts.forEach((shift, index) => {
       const timePeriod = getTimePeriod(shift.start, tz);
@@ -1049,6 +1092,10 @@ export default function App() {
         shift.champions[2]?.email || '',
         shift.champions[3]?.name || '',
         shift.champions[3]?.email || '',
+        shift.gteChampions[0]?.name || '',
+        shift.gteChampions[0]?.email || '',
+        shift.gteChampions[1]?.name || '',
+        shift.gteChampions[1]?.email || '',
         shift.techChampions[0]?.name || '',
         shift.techChampions[0]?.email || ''
       ];
@@ -1098,11 +1145,14 @@ export default function App() {
         
         const volunteers = [];
         shift.champions.forEach(c => volunteers.push({ name: c.name, role: 'Event Champion', color: '#14b8a6' }));
+        shift.gteChampions.forEach(c => volunteers.push({ name: c.name, role: 'Games & Talent Exchange', color: '#8b5cf6' }));
         shift.techChampions.forEach(c => volunteers.push({ name: c.name, role: 'Tech Support', color: '#f59e0b' }));
         
         const emptyChampion = EVENT_CONFIG.maxChampionsPerShift - shift.champions.length;
+        const emptyGTE = EVENT_CONFIG.maxGTEPerShift - shift.gteChampions.length;
         const emptyTech = EVENT_CONFIG.maxTechPerShift - shift.techChampions.length;
         for (let i = 0; i < emptyChampion; i++) volunteers.push({ name: '—', role: 'Event Champion', color: '#94a3b8', empty: true });
+        for (let i = 0; i < emptyGTE; i++) volunteers.push({ name: '—', role: 'Games & Talent Exchange', color: '#94a3b8', empty: true });
         for (let i = 0; i < emptyTech; i++) volunteers.push({ name: '—', role: 'Tech Support', color: '#94a3b8', empty: true });
         
         volunteers.forEach((vol, idx) => {
@@ -1117,11 +1167,12 @@ export default function App() {
     
     const totalVolunteers = new Set();
     let filledSlots = 0;
-    let totalSlots = shifts.length * (EVENT_CONFIG.maxChampionsPerShift + EVENT_CONFIG.maxTechPerShift);
+    let totalSlots = shifts.length * (EVENT_CONFIG.maxChampionsPerShift + EVENT_CONFIG.maxGTEPerShift + EVENT_CONFIG.maxTechPerShift);
     shifts.forEach(s => {
       s.champions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
       s.techChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
-      filledSlots += s.champions.length + s.techChampions.length;
+      s.gteChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
+      filledSlots += s.champions.length + s.techChampions.length + s.gteChampions.length;
     });
     
     const printWindow = window.open('', '_blank');
@@ -1169,11 +1220,13 @@ export default function App() {
     shifts.forEach(shift => {
       const inChampions = shift.champions.some(c => c.email.toLowerCase() === email);
       const inTech = shift.techChampions.some(c => c.email.toLowerCase() === email);
+      const inGTE = shift.gteChampions.some(c => c.email.toLowerCase() === email);
       if (inChampions) found.push({ ...shift, myRole: 'champion' });
       if (inTech) {
         found.push({ ...shift, myRole: 'tech' });
         role = 'tech';
       }
+      if (inGTE) found.push({ ...shift, myRole: 'gte' });
     });
     setMyShiftsList(found);
     setMyShiftsRole(role);
@@ -1195,6 +1248,7 @@ export default function App() {
         ...s,
         champions: s.champions.filter(c => c.email.toLowerCase() !== email),
         techChampions: s.techChampions.filter(c => c.email.toLowerCase() !== email),
+        gteChampions: s.gteChampions.filter(c => c.email.toLowerCase() !== email),
       };
     });
 
@@ -1269,11 +1323,18 @@ export default function App() {
     if (shift.techChampions.length >= EVENT_CONFIG.maxTechPerShift) return 'full';
     return 'available';
   };
+
+  const getGTEStatus = (shift) => {
+    if (shift.gteChampions.length >= EVENT_CONFIG.maxGTEPerShift) return 'full';
+    if (shift.gteChampions.length >= 1) return 'partial';
+    return 'available';
+  };
   
   const countAvailableInBlock = (block) => {
     let count = 0;
     block.shifts.forEach(shift => {
       if (shift.champions.length < EVENT_CONFIG.maxChampionsPerShift) count++;
+      if (shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift) count++;
       if (shift.techChampions.length < EVENT_CONFIG.maxTechPerShift) count++;
     });
     return count;
@@ -1330,6 +1391,11 @@ export default function App() {
             return {
               ...s,
               techChampions: [...s.techChampions, { name: inlineName.trim(), email: inlineEmail.trim() }]
+            };
+          } else if (role === 'gte') {
+            return {
+              ...s,
+              gteChampions: [...s.gteChampions, { name: inlineName.trim(), email: inlineEmail.trim() }]
             };
           } else {
             return {
@@ -1633,7 +1699,7 @@ export default function App() {
                                 <span>{tech.name}</span>
                                 {isAdmin && (
                                   <button
-                                    onClick={() => handleAdminRemove(shift.id, idx, true)}
+                                    onClick={() => handleAdminRemove(shift.id, idx, 'tech')}
                                     style={styles.removeChip}
                                     aria-label={`${t.remove} ${tech.name}`}
                                   >
@@ -1655,11 +1721,61 @@ export default function App() {
                             {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && !inlineSignUp && (
                               <AdminAddForm
                                 shiftId={shift.id}
-                                onAdd={(id, name, email) => handleAdminAdd(id, name, email, true)}
+                                onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'tech')}
                                 t={t}
                                 styles={styles}
                                 colors={colors}
-                                isTech={true}
+                                roleType="tech"
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* GTE column */}
+                        <div style={styles.roleColumn}>
+                          <div style={styles.roleHeader}>
+                            <span style={{ ...styles.roleLabel, color: colors.gteAccent }}>
+                              {t.gteSupport}
+                            </span>
+                            <span style={{
+                              ...styles.statusDot,
+                              backgroundColor: getGTEStatus(shift) === 'full' ? colors.full :
+                                              getGTEStatus(shift) === 'partial' ? colors.gteAccent : colors.gteAccent
+                            }} />
+                          </div>
+                          <div style={styles.championsList}>
+                            {shift.gteChampions.map((gte, idx) => (
+                              <div key={idx} style={{ ...styles.championChip, borderColor: colors.gteAccent }}>
+                                <span>{gte.name}</span>
+                                {isAdmin && (
+                                  <button
+                                    onClick={() => handleAdminRemove(shift.id, idx, 'gte')}
+                                    style={styles.removeChip}
+                                    aria-label={`${t.remove} ${gte.name}`}
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            {shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && (
+                              <button
+                                onClick={() => openInlineSignUp(shift.id, 'gte')}
+                                style={{ ...styles.openSlotButton, borderColor: colors.gteAccent, color: colors.gteAccent }}
+                                aria-label={`${t.signUpFor} ${t.gteSupportFull} ${formatTime(shift.start, timezone)}`}
+                              >
+                                <span style={styles.openSlotPlus}>+</span>
+                                <span>{EVENT_CONFIG.maxGTEPerShift - shift.gteChampions.length} {t.open}</span>
+                              </button>
+                            )}
+                            {isAdmin && shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && !inlineSignUp && (
+                              <AdminAddForm
+                                shiftId={shift.id}
+                                onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'gte')}
+                                t={t}
+                                styles={styles}
+                                colors={colors}
+                                roleType="gte"
                               />
                             )}
                           </div>
@@ -1790,7 +1906,8 @@ export default function App() {
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
             <h2 id="success-title" style={{
               ...styles.modalTitle,
-              color: lastSignedUpRole === 'tech' ? colors.techAccent : colors.accent
+              color: lastSignedUpRole === 'tech' ? colors.techAccent :
+                     lastSignedUpRole === 'gte' ? colors.gteAccent : colors.accent
             }}>
               {t.signUpSuccess}
             </h2>
@@ -1798,7 +1915,9 @@ export default function App() {
             <p style={{ color: colors.textMuted, marginBottom: '1.5rem' }}>
               {lastSignedUpShifts.length} {lastSignedUpShifts.length === 1 ? t.shift : 'shifts'} 
               {' • '}
-              {lastSignedUpRole === 'tech' ? t.techSupport : t.eventChampion}
+              {lastSignedUpRole === 'tech' ? t.techSupport :
+               lastSignedUpRole === 'gte' ? t.gteSupportFull :
+               t.eventChampion}
             </p>
             
             <p style={{ color: colors.textMuted, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
@@ -1809,7 +1928,8 @@ export default function App() {
               onClick={handleSuccessClose}
               style={{
                 ...styles.primaryButton,
-                ...(lastSignedUpRole === 'tech' ? { backgroundColor: colors.techAccent, color: colors.onTechAccent } : {})
+                ...(lastSignedUpRole === 'tech' ? { backgroundColor: colors.techAccent, color: colors.onTechAccent } :
+                    lastSignedUpRole === 'gte' ? { backgroundColor: colors.gteAccent, color: colors.onGTEAccent } : {})
               }}
             >
               {t.close}
@@ -1836,16 +1956,26 @@ export default function App() {
               </div>
               <div style={{
                 ...styles.bottomSheetRole,
-                backgroundColor: inlineSignUp.role === 'tech' ? `${colors.techAccent}20` : `${colors.accent}20`,
-                color: inlineSignUp.role === 'tech' ? colors.techAccent : colors.accent,
+                backgroundColor: inlineSignUp.role === 'tech' ? `${colors.techAccent}20` :
+                                 inlineSignUp.role === 'gte' ? `${colors.gteAccent}20` : `${colors.accent}20`,
+                color: inlineSignUp.role === 'tech' ? colors.techAccent :
+                       inlineSignUp.role === 'gte' ? colors.gteAccent : colors.accent,
               }}>
-                {inlineSignUp.role === 'tech' ? `🔧 ${t.techSupport}` : `🏆 ${t.eventChampion}`}
+                {inlineSignUp.role === 'tech' ? `🔧 ${t.techSupport}` :
+                 inlineSignUp.role === 'gte' ? `🎮 ${t.gteSupportFull}` :
+                 `🏆 ${t.eventChampion}`}
               </div>
             </div>
             
             {inlineSignUp.role === 'tech' && (
               <div style={styles.techWarning} role="note">
                 {t.techDescription}
+              </div>
+            )}
+
+            {inlineSignUp.role === 'gte' && (
+              <div style={{ ...styles.techWarning, color: colors.gteAccent, backgroundColor: `${colors.gteAccent}15` }} role="note">
+                {t.gteDescription}
               </div>
             )}
             
@@ -1866,7 +1996,8 @@ export default function App() {
                   onChange={(e) => setInlineName(e.target.value)}
                   style={{
                     ...styles.bottomSheetInput,
-                    borderColor: inlineSignUp.role === 'tech' ? colors.techAccent : colors.accent,
+                    borderColor: inlineSignUp.role === 'tech' ? colors.techAccent :
+                                 inlineSignUp.role === 'gte' ? colors.gteAccent : colors.accent,
                   }}
                   autoFocus
                   aria-invalid={!!inlineErrors.name}
@@ -1885,7 +2016,8 @@ export default function App() {
                   onKeyDown={(e) => e.key === 'Enter' && handleInlineSubmit()}
                   style={{
                     ...styles.bottomSheetInput,
-                    borderColor: inlineSignUp.role === 'tech' ? colors.techAccent : colors.accent,
+                    borderColor: inlineSignUp.role === 'tech' ? colors.techAccent :
+                                 inlineSignUp.role === 'gte' ? colors.gteAccent : colors.accent,
                   }}
                   aria-invalid={!!inlineErrors.email}
                 />
@@ -1908,7 +2040,8 @@ export default function App() {
                   onClick={handleInlineSubmit} 
                   style={{
                     ...styles.bottomSheetSubmit,
-                    backgroundColor: inlineSignUp.role === 'tech' ? colors.techAccent : colors.accent,
+                    backgroundColor: inlineSignUp.role === 'tech' ? colors.techAccent :
+                                     inlineSignUp.role === 'gte' ? colors.gteAccent : colors.accent,
                     ...(isInlineSubmitting ? { opacity: 0.7, cursor: 'wait' } : {}),
                   }}
                   disabled={isInlineSubmitting}
@@ -1980,7 +2113,8 @@ export default function App() {
                     const dateStr = shift.start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                     const startTime = shift.start.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
                     const endTime = shift.end.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
-                    const roleColor = shift.myRole === 'tech' ? colors.techAccent : colors.accent;
+                    const roleColor = shift.myRole === 'tech' ? colors.techAccent :
+                                      shift.myRole === 'gte' ? colors.gteAccent : colors.accent;
                     return (
                       <div key={shift.id} style={{
                         padding: '1rem', backgroundColor: colors.bg, borderRadius: '10px',
@@ -2000,7 +2134,9 @@ export default function App() {
                           fontWeight: '600', backgroundColor: `${roleColor}20`, color: roleColor,
                           whiteSpace: 'nowrap',
                         }}>
-                          {shift.myRole === 'tech' ? t.techSupport : t.eventChampion}
+                          {shift.myRole === 'tech' ? t.techSupport :
+                           shift.myRole === 'gte' ? t.gteSupportFull :
+                           t.eventChampion}
                         </div>
                         <button
                           onClick={() => handleDeleteMyShift(shift)}
@@ -2123,7 +2259,7 @@ export default function App() {
 }
 
 // Admin Add Form Component
-function AdminAddForm({ shiftId, onAdd, t, styles, colors, isTech = false }) {
+function AdminAddForm({ shiftId, onAdd, t, styles, colors, roleType = 'champion' }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -2134,6 +2270,11 @@ function AdminAddForm({ shiftId, onAdd, t, styles, colors, isTech = false }) {
     setEmail('');
     setIsOpen(false);
   };
+
+  const accentColor = roleType === 'tech' ? colors.techAccent :
+                      roleType === 'gte' ? colors.gteAccent : colors.accent;
+  const buttonLabel = roleType === 'tech' ? t.addTech :
+                      roleType === 'gte' ? t.addGTE : t.add;
   
   if (!isOpen) {
     return (
@@ -2141,10 +2282,11 @@ function AdminAddForm({ shiftId, onAdd, t, styles, colors, isTech = false }) {
         onClick={() => setIsOpen(true)} 
         style={{
           ...styles.addButton,
-          ...(isTech ? { borderColor: colors.techAccent, color: colors.techAccent } : {})
+          borderColor: accentColor,
+          color: accentColor,
         }}
       >
-        + {isTech ? t.addTech : t.add}
+        + {buttonLabel}
       </button>
     );
   }
@@ -2175,7 +2317,7 @@ function AdminAddForm({ shiftId, onAdd, t, styles, colors, isTech = false }) {
           onClick={handleSubmit} 
           style={{
             ...styles.smallPrimaryButton,
-            ...(isTech ? { backgroundColor: colors.techAccent } : {})
+            backgroundColor: accentColor,
           }}
         >
           {t.save}
@@ -2498,7 +2640,7 @@ const getStyles = (colors) => ({
   },
   shiftRow: {
     display: 'grid',
-    gridTemplateColumns: '100px 1fr 1fr',
+    gridTemplateColumns: '100px 1fr 1fr 1fr',
     gap: '1rem',
     padding: '1rem',
     backgroundColor: colors.bgSecondary,
