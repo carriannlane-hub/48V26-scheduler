@@ -40,10 +40,10 @@ const themes = {
     title: '#e2e8f0',
     accent: '#14b8a6',
     techAccent: '#f59e0b',
-    gamesAccent: '#8b5cf6',
+    gamesAccent: '#84cc16',
     talentAccent: '#06b6d4',
     producerAccent: '#fb923c',
-    onGamesAccent: '#f5f3ff',
+    onGamesAccent: '#1a2e05',
     onTalentAccent: '#083344',
     border: '#6a6a8a',
     available: '#10b981',
@@ -67,7 +67,7 @@ const themes = {
     title: '#0f172a',
     accent: '#0f766e',
     techAccent: '#b45309',
-    gamesAccent: '#7c3aed',
+    gamesAccent: '#65a30d',
     talentAccent: '#0891b2',
     producerAccent: '#ea580c',
     border: '#94a3b8',
@@ -82,7 +82,7 @@ const themes = {
     onAvailable: '#f0fdf4',
     onPartial: '#f0f9ff',
     onTechAccent: '#fffbeb',
-    onGamesAccent: '#f5f3ff',
+    onGamesAccent: '#f7fee7',
     onTalentAccent: '#ecfeff',
     onProducerAccent: '#fff7ed',
   }
@@ -1777,9 +1777,9 @@ export default function App() {
                         }}>
                           {[
                             { key: 'tech',          label: t.tech,          color: colors.techAccent,     list: shift.techChampions,            max: EVENT_CONFIG.maxTechPerShift,          roleType: 'tech',          ariaLabel: t.techSupport },
+                            { key: 'producer',      label: t.producer,      color: colors.producerAccent, list: shift.producerChampions,        max: EVENT_CONFIG.maxProducerPerShift,      roleType: 'producer',      ariaLabel: t.producerFull },
                             { key: 'games',         label: t.games,         color: colors.gamesAccent,    list: shift.gamesChampions,           max: EVENT_CONFIG.maxGamesPerShift,         roleType: 'games',         ariaLabel: t.gamesFull },
                             { key: 'talentExchange',label: t.talentExchange, color: colors.talentAccent,  list: shift.talentExchangeChampions,  max: EVENT_CONFIG.maxTalentExchangePerShift, roleType: 'talentExchange', ariaLabel: t.talentExchangeFull },
-                            { key: 'producer',      label: t.producer,      color: colors.producerAccent, list: shift.producerChampions,        max: EVENT_CONFIG.maxProducerPerShift,      roleType: 'producer',      ariaLabel: t.producerFull },
                           ].map(({ key, label, color, list, max, roleType, ariaLabel }) => (
                             <div key={key} style={styles.roleColumn}>
                               <div style={styles.roleHeader}>
