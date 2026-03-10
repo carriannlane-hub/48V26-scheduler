@@ -20,6 +20,8 @@ const EVENT_CONFIG = {
   maxChampionsPerShift: 4,
   maxTechPerShift: 1,
   maxGTEPerShift: 2,
+  maxHostPerShift: 2,
+  maxProducerPerShift: 2,
   maxConsecutiveHours: 4,
   requiredBreakHours: 2,
   maxHoursTotal: 12,
@@ -39,6 +41,8 @@ const themes = {
     accent: '#14b8a6',
     techAccent: '#f59e0b',
     gteAccent: '#8b5cf6',
+    hostAccent: '#ec4899',
+    producerAccent: '#f97316',
     border: '#6a6a8a',
     available: '#10b981',
     partial: '#0ea5e9',
@@ -52,6 +56,8 @@ const themes = {
     onPartial: '#082f49',
     onTechAccent: '#451a03',
     onGTEAccent: '#f5f3ff',
+    onHostAccent: '#fdf2f8',
+    onProducerAccent: '#fff7ed',
   },
   light: {
     bg: '#f8fafc',
@@ -62,6 +68,8 @@ const themes = {
     accent: '#0f766e',
     techAccent: '#b45309',
     gteAccent: '#7c3aed',
+    hostAccent: '#db2777',
+    producerAccent: '#ea580c',
     border: '#94a3b8',
     available: '#047857',
     partial: '#0369a1',
@@ -75,6 +83,8 @@ const themes = {
     onPartial: '#f0f9ff',
     onTechAccent: '#fffbeb',
     onGTEAccent: '#f5f3ff',
+    onHostAccent: '#fdf2f8',
+    onProducerAccent: '#fff7ed',
   }
 };
 
@@ -96,6 +106,15 @@ const translations = {
     gteSupportFull: "Games & Talent Exchange Support",
     gteDescription: "You'll support the Games & Talent Exchange sessions, helping participants navigate activities and connecting talent across the event.",
     addGTE: "Add GTE Support",
+    host: "Host",
+    hostFull: "Event Host",
+    hostDescription: "As a Host, you'll welcome participants, guide sessions, and keep the event energy high.",
+    addHost: "Add Host",
+    producer: "Producer",
+    producerFull: "Event Producer",
+    producerDescription: "As a Producer, you'll manage behind-the-scenes logistics, coordination, and technical production support.",
+    addProducer: "Add Producer",
+    specialtyRoles: "Specialty Roles",
     techDescription: "Technical troubleshooting experience required. You'll help with A/V, streaming, and technical issues.",
     submit: "Submit Sign-Up",
     submitting: "Submitting...",
@@ -198,6 +217,15 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     gteSupportFull: "游戏与人才交流支持",
     gteDescription: "您将支持游戏与人才交流环节，帮助参与者参与活动并在活动中连接人才。",
     addGTE: "添加GTE支持",
+    host: "主持人",
+    hostFull: "活动主持人",
+    hostDescription: "作为主持人，您将欢迎参与者、引导会议并保持活动的高能量。",
+    addHost: "添加主持人",
+    producer: "制作人",
+    producerFull: "活动制作人",
+    producerDescription: "作为制作人，您将管理幕后后勤、协调和技术制作支持。",
+    addProducer: "添加制作人",
+    specialtyRoles: "专业角色",
     techDescription: "需要技术故障排除经验。您将帮助处理音视频、流媒体和技术问题。",
     submit: "提交报名",
     submitting: "提交中...",
@@ -290,6 +318,15 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     gteSupportFull: "การสนับสนุนเกมส์และการแลกเปลี่ยนความสามารถ",
     gteDescription: "คุณจะสนับสนุนเซสชันเกมส์และการแลกเปลี่ยนความสามารถ ช่วยผู้เข้าร่วมในกิจกรรมต่างๆ",
     addGTE: "เพิ่ม GTE",
+    host: "พิธีกร",
+    hostFull: "พิธีกรงาน",
+    hostDescription: "ในฐานะพิธีกร คุณจะต้อนรับผู้เข้าร่วม นำเสนอเซสชัน และรักษาบรรยากาศของงาน",
+    addHost: "เพิ่มพิธีกร",
+    producer: "ผู้จัดการ",
+    producerFull: "ผู้จัดการงาน",
+    producerDescription: "ในฐานะผู้จัดการ คุณจะดูแลด้านหลังเวที ประสานงาน และสนับสนุนการผลิต",
+    addProducer: "เพิ่มผู้จัดการ",
+    specialtyRoles: "บทบาทพิเศษ",
     techDescription: "ต้องมีประสบการณ์ด้านเทคนิค คุณจะช่วยเรื่องเสียง/ภาพ การสตรีม และปัญหาทางเทคนิค",
     submit: "ส่งการลงทะเบียน",
     submitting: "กำลังส่ง...",
@@ -382,6 +419,15 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     gteSupportFull: "دعم الألعاب وتبادل المواهب",
     gteDescription: "ستدعم جلسات الألعاب وتبادل المواهب، مساعدة المشاركين على التنقل في الأنشطة.",
     addGTE: "إضافة دعم GTE",
+    host: "مضيف",
+    hostFull: "مضيف الفعالية",
+    hostDescription: "بصفتك مضيفاً، ستستقبل المشاركين وتوجه الجلسات وتحافظ على أجواء الفعالية.",
+    addHost: "إضافة مضيف",
+    producer: "منتج",
+    producerFull: "منتج الفعالية",
+    producerDescription: "بصفتك منتجاً، ستدير الخدمات اللوجستية خلف الكواليس والتنسيق ودعم الإنتاج التقني.",
+    addProducer: "إضافة منتج",
+    specialtyRoles: "الأدوار المتخصصة",
     techDescription: "يتطلب خبرة في استكشاف الأخطاء التقنية. ستساعد في الصوت والفيديو والبث والمشاكل التقنية.",
     submit: "إرسال التسجيل",
     submitting: "جارٍ الإرسال...",
@@ -474,6 +520,15 @@ Shifts are 2 hours each. You can take up to 2 shifts back-to-back (4 hours max),
     gteSupportFull: "Support Jeux et échange de talents",
     gteDescription: "Vous soutiendrez les sessions Jeux et échange de talents, aidant les participants à naviguer dans les activités.",
     addGTE: "Ajouter support GTE",
+    host: "Animateur",
+    hostFull: "Animateur de l'événement",
+    hostDescription: "En tant qu'animateur, vous accueillerez les participants, guiderez les sessions et maintiendrez l'énergie de l'événement.",
+    addHost: "Ajouter animateur",
+    producer: "Producteur",
+    producerFull: "Producteur de l'événement",
+    producerDescription: "En tant que producteur, vous gérerez la logistique en coulisses, la coordination et le support technique.",
+    addProducer: "Ajouter producteur",
+    specialtyRoles: "Rôles spécialisés",
     techDescription: "Expérience technique requise. Vous aiderez avec l'audio/vidéo, le streaming et les problèmes techniques.",
     submit: "Soumettre l'inscription",
     submitting: "Envoi en cours...",
@@ -625,7 +680,9 @@ const generateShifts = () => {
       end,
       champions: [],
       techChampions: [],
-      gteChampions: []
+      gteChampions: [],
+      hostChampions: [],
+      producerChampions: [],
     });
     
     current = end;
@@ -873,7 +930,7 @@ export default function App() {
       try {
         const { data, error } = await supabase
           .from('shifts')
-          .select('id, champions, tech_champions, gte_champions')
+          .select('id, champions, tech_champions, gte_champions, host_champions, producer_champions')
           .order('id');
         
         if (error) throw error;
@@ -886,7 +943,9 @@ export default function App() {
               ...shift, 
               champions: saved.champions || [],
               techChampions: saved.tech_champions || [],
-              gteChampions: saved.gte_champions || []
+              gteChampions: saved.gte_champions || [],
+              hostChampions: saved.host_champions || [],
+              producerChampions: saved.producer_champions || [],
             } : shift;
           });
           setShifts(mergedShifts);
@@ -907,7 +966,9 @@ export default function App() {
           .update({ 
             champions: shift.champions,
             tech_champions: shift.techChampions,
-            gte_champions: shift.gteChampions
+            gte_champions: shift.gteChampions,
+            host_champions: shift.hostChampions,
+            producer_champions: shift.producerChampions,
           })
           .eq('id', shift.id);
         
@@ -943,12 +1004,20 @@ export default function App() {
     if (role === 'gte' && shift.gteChampions.length >= EVENT_CONFIG.maxGTEPerShift) {
       return { allowed: false, reason: 'full' };
     }
+    if (role === 'host' && shift.hostChampions.length >= EVENT_CONFIG.maxHostPerShift) {
+      return { allowed: false, reason: 'full' };
+    }
+    if (role === 'producer' && shift.producerChampions.length >= EVENT_CONFIG.maxProducerPerShift) {
+      return { allowed: false, reason: 'full' };
+    }
     
     if (userEmail) {
       const inChampions = shift.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
       const inTech = shift.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
       const inGTE = shift.gteChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
-      if (inChampions || inTech || inGTE) {
+      const inHost = shift.hostChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+      const inProducer = shift.producerChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+      if (inChampions || inTech || inGTE || inHost || inProducer) {
         return { allowed: false, reason: 'alreadySignedUp' };
       }
     }
@@ -959,7 +1028,9 @@ export default function App() {
         const inC = s.champions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
         const inT = s.techChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
         const inG = s.gteChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
-        if (inC || inT || inG) allUserShiftIds.push(s.id);
+        const inH = s.hostChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+        const inP = s.producerChampions.some(c => c.email.toLowerCase() === userEmail.toLowerCase());
+        if (inC || inT || inG || inH || inP) allUserShiftIds.push(s.id);
       });
     }
     
@@ -1007,6 +1078,14 @@ export default function App() {
           const newGTE = [...shift.gteChampions];
           newGTE.splice(championIndex, 1);
           return { ...shift, gteChampions: newGTE };
+        } else if (roleType === 'host') {
+          const newHost = [...shift.hostChampions];
+          newHost.splice(championIndex, 1);
+          return { ...shift, hostChampions: newHost };
+        } else if (roleType === 'producer') {
+          const newProducer = [...shift.producerChampions];
+          newProducer.splice(championIndex, 1);
+          return { ...shift, producerChampions: newProducer };
         } else {
           const newChampions = [...shift.champions];
           newChampions.splice(championIndex, 1);
@@ -1026,20 +1105,15 @@ export default function App() {
     const newShifts = shifts.map(shift => {
       if (shift.id === shiftId) {
         if (roleType === 'tech') {
-          return {
-            ...shift,
-            techChampions: [...shift.techChampions, { name: name.trim(), email: email.trim() }]
-          };
+          return { ...shift, techChampions: [...shift.techChampions, { name: name.trim(), email: email.trim() }] };
         } else if (roleType === 'gte') {
-          return {
-            ...shift,
-            gteChampions: [...shift.gteChampions, { name: name.trim(), email: email.trim() }]
-          };
+          return { ...shift, gteChampions: [...shift.gteChampions, { name: name.trim(), email: email.trim() }] };
+        } else if (roleType === 'host') {
+          return { ...shift, hostChampions: [...shift.hostChampions, { name: name.trim(), email: email.trim() }] };
+        } else if (roleType === 'producer') {
+          return { ...shift, producerChampions: [...shift.producerChampions, { name: name.trim(), email: email.trim() }] };
         } else {
-          return {
-            ...shift,
-            champions: [...shift.champions, { name: name.trim(), email: email.trim() }]
-          };
+          return { ...shift, champions: [...shift.champions, { name: name.trim(), email: email.trim() }] };
         }
       }
       return shift;
@@ -1056,7 +1130,9 @@ export default function App() {
       ...shift,
       champions: [],
       techChampions: [],
-      gteChampions: []
+      gteChampions: [],
+      hostChampions: [],
+      producerChampions: [],
     }));
     
     setShifts(clearedShifts);
@@ -1078,7 +1154,7 @@ export default function App() {
   
   const exportSchedule = () => {
     const tz = showLocalTime ? userTimezone : 'America/Chicago';
-    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2,Champion 3,Email 3,Champion 4,Email 4,GTE 1,GTE Email 1,GTE 2,GTE Email 2,Tech Support,Tech Email\n';
+    let csv = 'Shift,Date,Start Time,End Time,Time Period,Champion 1,Email 1,Champion 2,Email 2,Champion 3,Email 3,Champion 4,Email 4,Tech Support,Tech Email,GTE 1,GTE Email 1,GTE 2,GTE Email 2,Host 1,Host Email 1,Host 2,Host Email 2,Producer 1,Producer Email 1,Producer 2,Producer Email 2\n';
     
     shifts.forEach((shift, index) => {
       const timePeriod = getTimePeriod(shift.start, tz);
@@ -1088,20 +1164,17 @@ export default function App() {
         formatTime(shift.start, tz),
         formatTime(shift.end, tz),
         timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1),
-        shift.champions[0]?.name || '',
-        shift.champions[0]?.email || '',
-        shift.champions[1]?.name || '',
-        shift.champions[1]?.email || '',
-        shift.champions[2]?.name || '',
-        shift.champions[2]?.email || '',
-        shift.champions[3]?.name || '',
-        shift.champions[3]?.email || '',
-        shift.gteChampions[0]?.name || '',
-        shift.gteChampions[0]?.email || '',
-        shift.gteChampions[1]?.name || '',
-        shift.gteChampions[1]?.email || '',
-        shift.techChampions[0]?.name || '',
-        shift.techChampions[0]?.email || ''
+        shift.champions[0]?.name || '', shift.champions[0]?.email || '',
+        shift.champions[1]?.name || '', shift.champions[1]?.email || '',
+        shift.champions[2]?.name || '', shift.champions[2]?.email || '',
+        shift.champions[3]?.name || '', shift.champions[3]?.email || '',
+        shift.techChampions[0]?.name || '', shift.techChampions[0]?.email || '',
+        shift.gteChampions[0]?.name || '', shift.gteChampions[0]?.email || '',
+        shift.gteChampions[1]?.name || '', shift.gteChampions[1]?.email || '',
+        shift.hostChampions[0]?.name || '', shift.hostChampions[0]?.email || '',
+        shift.hostChampions[1]?.name || '', shift.hostChampions[1]?.email || '',
+        shift.producerChampions[0]?.name || '', shift.producerChampions[0]?.email || '',
+        shift.producerChampions[1]?.name || '', shift.producerChampions[1]?.email || '',
       ];
       csv += row.map(cell => `"${cell}"`).join(',') + '\n';
     });
@@ -1149,14 +1222,20 @@ export default function App() {
         
         const volunteers = [];
         shift.champions.forEach(c => volunteers.push({ name: c.name, role: 'Event Champion', color: '#14b8a6' }));
-        shift.gteChampions.forEach(c => volunteers.push({ name: c.name, role: 'Games & Talent Exchange', color: '#8b5cf6' }));
+        shift.hostChampions.forEach(c => volunteers.push({ name: c.name, role: 'Host', color: '#ec4899' }));
+        shift.producerChampions.forEach(c => volunteers.push({ name: c.name, role: 'Producer', color: '#f97316' }));
+        shift.gteChampions.forEach(c => volunteers.push({ name: c.name, role: 'Games & Talent', color: '#8b5cf6' }));
         shift.techChampions.forEach(c => volunteers.push({ name: c.name, role: 'Tech Support', color: '#f59e0b' }));
         
         const emptyChampion = EVENT_CONFIG.maxChampionsPerShift - shift.champions.length;
+        const emptyHost = EVENT_CONFIG.maxHostPerShift - shift.hostChampions.length;
+        const emptyProducer = EVENT_CONFIG.maxProducerPerShift - shift.producerChampions.length;
         const emptyGTE = EVENT_CONFIG.maxGTEPerShift - shift.gteChampions.length;
         const emptyTech = EVENT_CONFIG.maxTechPerShift - shift.techChampions.length;
         for (let i = 0; i < emptyChampion; i++) volunteers.push({ name: '—', role: 'Event Champion', color: '#94a3b8', empty: true });
-        for (let i = 0; i < emptyGTE; i++) volunteers.push({ name: '—', role: 'Games & Talent Exchange', color: '#94a3b8', empty: true });
+        for (let i = 0; i < emptyHost; i++) volunteers.push({ name: '—', role: 'Host', color: '#94a3b8', empty: true });
+        for (let i = 0; i < emptyProducer; i++) volunteers.push({ name: '—', role: 'Producer', color: '#94a3b8', empty: true });
+        for (let i = 0; i < emptyGTE; i++) volunteers.push({ name: '—', role: 'Games & Talent', color: '#94a3b8', empty: true });
         for (let i = 0; i < emptyTech; i++) volunteers.push({ name: '—', role: 'Tech Support', color: '#94a3b8', empty: true });
         
         volunteers.forEach((vol, idx) => {
@@ -1171,12 +1250,14 @@ export default function App() {
     
     const totalVolunteers = new Set();
     let filledSlots = 0;
-    let totalSlots = shifts.length * (EVENT_CONFIG.maxChampionsPerShift + EVENT_CONFIG.maxGTEPerShift + EVENT_CONFIG.maxTechPerShift);
+    let totalSlots = shifts.length * (EVENT_CONFIG.maxChampionsPerShift + EVENT_CONFIG.maxGTEPerShift + EVENT_CONFIG.maxTechPerShift + EVENT_CONFIG.maxHostPerShift + EVENT_CONFIG.maxProducerPerShift);
     shifts.forEach(s => {
       s.champions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
       s.techChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
       s.gteChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
-      filledSlots += s.champions.length + s.techChampions.length + s.gteChampions.length;
+      s.hostChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
+      s.producerChampions.forEach(c => totalVolunteers.add(c.email.toLowerCase()));
+      filledSlots += s.champions.length + s.techChampions.length + s.gteChampions.length + s.hostChampions.length + s.producerChampions.length;
     });
     
     const printWindow = window.open('', '_blank');
@@ -1225,12 +1306,13 @@ export default function App() {
       const inChampions = shift.champions.some(c => c.email.toLowerCase() === email);
       const inTech = shift.techChampions.some(c => c.email.toLowerCase() === email);
       const inGTE = shift.gteChampions.some(c => c.email.toLowerCase() === email);
+      const inHost = shift.hostChampions.some(c => c.email.toLowerCase() === email);
+      const inProducer = shift.producerChampions.some(c => c.email.toLowerCase() === email);
       if (inChampions) found.push({ ...shift, myRole: 'champion' });
-      if (inTech) {
-        found.push({ ...shift, myRole: 'tech' });
-        role = 'tech';
-      }
+      if (inTech) { found.push({ ...shift, myRole: 'tech' }); role = 'tech'; }
       if (inGTE) found.push({ ...shift, myRole: 'gte' });
+      if (inHost) found.push({ ...shift, myRole: 'host' });
+      if (inProducer) found.push({ ...shift, myRole: 'producer' });
     });
     setMyShiftsList(found);
     setMyShiftsRole(role);
@@ -1253,6 +1335,8 @@ export default function App() {
         champions: s.champions.filter(c => c.email.toLowerCase() !== email),
         techChampions: s.techChampions.filter(c => c.email.toLowerCase() !== email),
         gteChampions: s.gteChampions.filter(c => c.email.toLowerCase() !== email),
+        hostChampions: s.hostChampions.filter(c => c.email.toLowerCase() !== email),
+        producerChampions: s.producerChampions.filter(c => c.email.toLowerCase() !== email),
       };
     });
 
@@ -1340,6 +1424,8 @@ export default function App() {
       if (shift.champions.length < EVENT_CONFIG.maxChampionsPerShift) count++;
       if (shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift) count++;
       if (shift.techChampions.length < EVENT_CONFIG.maxTechPerShift) count++;
+      if (shift.hostChampions.length < EVENT_CONFIG.maxHostPerShift) count++;
+      if (shift.producerChampions.length < EVENT_CONFIG.maxProducerPerShift) count++;
     });
     return count;
   };
@@ -1392,20 +1478,15 @@ export default function App() {
       const newShifts = shifts.map(s => {
         if (s.id === shiftId) {
           if (role === 'tech') {
-            return {
-              ...s,
-              techChampions: [...s.techChampions, { name: inlineName.trim(), email: inlineEmail.trim() }]
-            };
+            return { ...s, techChampions: [...s.techChampions, { name: inlineName.trim(), email: inlineEmail.trim() }] };
           } else if (role === 'gte') {
-            return {
-              ...s,
-              gteChampions: [...s.gteChampions, { name: inlineName.trim(), email: inlineEmail.trim() }]
-            };
+            return { ...s, gteChampions: [...s.gteChampions, { name: inlineName.trim(), email: inlineEmail.trim() }] };
+          } else if (role === 'host') {
+            return { ...s, hostChampions: [...s.hostChampions, { name: inlineName.trim(), email: inlineEmail.trim() }] };
+          } else if (role === 'producer') {
+            return { ...s, producerChampions: [...s.producerChampions, { name: inlineName.trim(), email: inlineEmail.trim() }] };
           } else {
-            return {
-              ...s,
-              champions: [...s.champions, { name: inlineName.trim(), email: inlineEmail.trim() }]
-            };
+            return { ...s, champions: [...s.champions, { name: inlineName.trim(), email: inlineEmail.trim() }] };
           }
         }
         return s;
@@ -1655,184 +1736,76 @@ export default function App() {
                           </div>
                         </div>
                         
-                        {/* Champions — full width on all sizes */}
+                        {/* Champions column */}
                         <div style={styles.roleColumn}>
                           <div style={styles.roleHeader}>
-                            <span style={{ ...styles.roleLabel, color: colors.accent }}>
-                              {t.champions}
-                            </span>
-                            <span style={{
-                              ...styles.statusDot,
-                              backgroundColor: champStatus === 'full' ? colors.full : 
-                                              champStatus === 'partial' ? colors.partial : colors.available
-                            }} />
+                            <span style={{ ...styles.roleLabel, color: colors.accent }}>{t.champions}</span>
+                            <span style={{ ...styles.statusDot, backgroundColor: champStatus === 'full' ? colors.full : champStatus === 'partial' ? colors.partial : colors.available }} />
                           </div>
                           <div style={styles.championsList}>
                             {shift.champions.map((champ, idx) => (
                               <div key={idx} style={styles.championChip}>
                                 <span>{champ.name}</span>
-                                {isAdmin && (
-                                  <button
-                                    onClick={() => handleAdminRemove(shift.id, idx, false)}
-                                    style={styles.removeChip}
-                                    aria-label={`${t.remove} ${champ.name}`}
-                                  >
-                                    ✕
-                                  </button>
-                                )}
+                                {isAdmin && <button onClick={() => handleAdminRemove(shift.id, idx, false)} style={styles.removeChip} aria-label={`${t.remove} ${champ.name}`}>✕</button>}
                               </div>
                             ))}
                             {shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && (
-                              <button
-                                onClick={() => openInlineSignUp(shift.id, 'champion')}
-                                style={styles.openSlotButton}
-                                aria-label={`${t.signUpFor} ${formatTime(shift.start, timezone)}`}
-                              >
+                              <button onClick={() => openInlineSignUp(shift.id, 'champion')} style={styles.openSlotButton} aria-label={`${t.signUpFor} ${formatTime(shift.start, timezone)}`}>
                                 <span style={styles.openSlotPlus}>+</span>
                                 <span>{EVENT_CONFIG.maxChampionsPerShift - shift.champions.length} {t.open}</span>
                               </button>
                             )}
                             {isAdmin && shift.champions.length < EVENT_CONFIG.maxChampionsPerShift && !inlineSignUp && (
-                              <AdminAddForm
-                                shiftId={shift.id}
-                                onAdd={(id, name, email) => handleAdminAdd(id, name, email, false)}
-                                t={t}
-                                styles={styles}
-                                colors={colors}
-                              />
+                              <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, false)} t={t} styles={styles} colors={colors} />
                             )}
                           </div>
                         </div>
 
-                        {/* Tech + GTE — side by side on mobile, separate columns on desktop */}
-                        {isMobile ? (
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                            <div style={styles.roleColumn}>
+                        {/* Specialty Roles panel — 2×2 grid of Tech, GTE, Host, Producer */}
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: '0.75rem',
+                          padding: '0.75rem',
+                          backgroundColor: colors.bg,
+                          borderRadius: '8px',
+                          border: `1px solid ${colors.border}`,
+                        }}>
+                          {[
+                            { key: 'tech',     label: t.tech,       color: colors.techAccent,     list: shift.techChampions,     max: EVENT_CONFIG.maxTechPerShift,     roleType: 'tech',     ariaLabel: t.techSupport },
+                            { key: 'gte',      label: t.gteSupport, color: colors.gteAccent,      list: shift.gteChampions,      max: EVENT_CONFIG.maxGTEPerShift,      roleType: 'gte',      ariaLabel: t.gteSupportFull },
+                            { key: 'host',     label: t.host,       color: colors.hostAccent,     list: shift.hostChampions,     max: EVENT_CONFIG.maxHostPerShift,     roleType: 'host',     ariaLabel: t.hostFull },
+                            { key: 'producer', label: t.producer,   color: colors.producerAccent, list: shift.producerChampions, max: EVENT_CONFIG.maxProducerPerShift, roleType: 'producer', ariaLabel: t.producerFull },
+                          ].map(({ key, label, color, list, max, roleType, ariaLabel }) => (
+                            <div key={key} style={styles.roleColumn}>
                               <div style={styles.roleHeader}>
-                                <span style={{ ...styles.roleLabel, color: colors.techAccent }}>
-                                  {t.tech}
-                                </span>
-                                <span style={{
-                                  ...styles.statusDot,
-                                  backgroundColor: techStatus === 'full' ? colors.full : colors.techAccent
-                                }} />
+                                <span style={{ ...styles.roleLabel, color, fontSize: '0.78rem' }}>{label}</span>
+                                <span style={{ ...styles.statusDot, backgroundColor: list.length >= max ? colors.full : color }} />
                               </div>
                               <div style={styles.championsList}>
-                                {shift.techChampions.map((tech, idx) => (
-                                  <div key={idx} style={{ ...styles.championChip, borderColor: colors.techAccent }}>
-                                    <span style={{ fontSize: '0.8rem' }}>{tech.name}</span>
-                                    {isAdmin && (
-                                      <button onClick={() => handleAdminRemove(shift.id, idx, 'tech')} style={styles.removeChip} aria-label={`${t.remove} ${tech.name}`}>✕</button>
-                                    )}
+                                {list.map((person, idx) => (
+                                  <div key={idx} style={{ ...styles.championChip, borderColor: color }}>
+                                    <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem' }}>{person.name}</span>
+                                    {isAdmin && <button onClick={() => handleAdminRemove(shift.id, idx, roleType)} style={styles.removeChip} aria-label={`${t.remove} ${person.name}`}>✕</button>}
                                   </div>
                                 ))}
-                                {shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
-                                  <button onClick={() => openInlineSignUp(shift.id, 'tech')} style={{ ...styles.openSlotButton, borderColor: colors.techAccent, color: colors.techAccent, fontSize: '0.8rem', padding: '0.4rem' }} aria-label={`${t.signUpFor} ${t.techSupport}`}>
-                                    <span style={styles.openSlotPlus}>+</span><span>1 {t.open}</span>
-                                  </button>
-                                )}
-                                {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && !inlineSignUp && (
-                                  <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'tech')} t={t} styles={styles} colors={colors} roleType="tech" />
-                                )}
-                              </div>
-                            </div>
-                            <div style={styles.roleColumn}>
-                              <div style={styles.roleHeader}>
-                                <span style={{ ...styles.roleLabel, color: colors.gteAccent }}>
-                                  {t.gteSupport}
-                                </span>
-                                <span style={{
-                                  ...styles.statusDot,
-                                  backgroundColor: getGTEStatus(shift) === 'full' ? colors.full : colors.gteAccent
-                                }} />
-                              </div>
-                              <div style={styles.championsList}>
-                                {shift.gteChampions.map((gte, idx) => (
-                                  <div key={idx} style={{ ...styles.championChip, borderColor: colors.gteAccent }}>
-                                    <span style={{ fontSize: '0.8rem' }}>{gte.name}</span>
-                                    {isAdmin && (
-                                      <button onClick={() => handleAdminRemove(shift.id, idx, 'gte')} style={styles.removeChip} aria-label={`${t.remove} ${gte.name}`}>✕</button>
-                                    )}
-                                  </div>
-                                ))}
-                                {shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && (
-                                  <button onClick={() => openInlineSignUp(shift.id, 'gte')} style={{ ...styles.openSlotButton, borderColor: colors.gteAccent, color: colors.gteAccent, fontSize: '0.8rem', padding: '0.4rem' }} aria-label={`${t.signUpFor} ${t.gteSupportFull}`}>
-                                    <span style={styles.openSlotPlus}>+</span><span>{EVENT_CONFIG.maxGTEPerShift - shift.gteChampions.length} {t.open}</span>
-                                  </button>
-                                )}
-                                {isAdmin && shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && !inlineSignUp && (
-                                  <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'gte')} t={t} styles={styles} colors={colors} roleType="gte" />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div style={styles.roleColumn}>
-                              <div style={styles.roleHeader}>
-                                <span style={{ ...styles.roleLabel, color: colors.techAccent }}>
-                                  {t.tech}
-                                </span>
-                                <span style={{
-                                  ...styles.statusDot,
-                                  backgroundColor: techStatus === 'full' ? colors.full : colors.techAccent
-                                }} />
-                              </div>
-                              <div style={styles.championsList}>
-                                {shift.techChampions.map((tech, idx) => (
-                                  <div key={idx} style={{ ...styles.championChip, borderColor: colors.techAccent }}>
-                                    <span>{tech.name}</span>
-                                    {isAdmin && (
-                                      <button onClick={() => handleAdminRemove(shift.id, idx, 'tech')} style={styles.removeChip} aria-label={`${t.remove} ${tech.name}`}>✕</button>
-                                    )}
-                                  </div>
-                                ))}
-                                {shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && (
-                                  <button onClick={() => openInlineSignUp(shift.id, 'tech')} style={{ ...styles.openSlotButton, borderColor: colors.techAccent, color: colors.techAccent }} aria-label={`${t.signUpFor} ${t.techSupport} ${formatTime(shift.start, timezone)}`}>
+                                {list.length < max && (
+                                  <button
+                                    onClick={() => openInlineSignUp(shift.id, roleType)}
+                                    style={{ ...styles.openSlotButton, borderColor: color, color, fontSize: '0.78rem', padding: '0.35rem 0.5rem' }}
+                                    aria-label={`${t.signUpFor} ${ariaLabel} ${formatTime(shift.start, timezone)}`}
+                                  >
                                     <span style={styles.openSlotPlus}>+</span>
-                                    <span>1 {t.open}</span>
+                                    <span>{max - list.length} {t.open}</span>
                                   </button>
                                 )}
-                                {isAdmin && shift.techChampions.length < EVENT_CONFIG.maxTechPerShift && !inlineSignUp && (
-                                  <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'tech')} t={t} styles={styles} colors={colors} roleType="tech" />
+                                {isAdmin && list.length < max && !inlineSignUp && (
+                                  <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, roleType)} t={t} styles={styles} colors={colors} roleType={roleType} />
                                 )}
                               </div>
                             </div>
-
-                            {/* GTE column */}
-                            <div style={styles.roleColumn}>
-                              <div style={styles.roleHeader}>
-                                <span style={{ ...styles.roleLabel, color: colors.gteAccent }}>
-                                  {t.gteSupport}
-                                </span>
-                                <span style={{
-                                  ...styles.statusDot,
-                                  backgroundColor: getGTEStatus(shift) === 'full' ? colors.full :
-                                                  getGTEStatus(shift) === 'partial' ? colors.gteAccent : colors.gteAccent
-                                }} />
-                              </div>
-                              <div style={styles.championsList}>
-                                {shift.gteChampions.map((gte, idx) => (
-                                  <div key={idx} style={{ ...styles.championChip, borderColor: colors.gteAccent }}>
-                                    <span>{gte.name}</span>
-                                    {isAdmin && (
-                                      <button onClick={() => handleAdminRemove(shift.id, idx, 'gte')} style={styles.removeChip} aria-label={`${t.remove} ${gte.name}`}>✕</button>
-                                    )}
-                                  </div>
-                                ))}
-                                {shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && (
-                                  <button onClick={() => openInlineSignUp(shift.id, 'gte')} style={{ ...styles.openSlotButton, borderColor: colors.gteAccent, color: colors.gteAccent }} aria-label={`${t.signUpFor} ${t.gteSupportFull} ${formatTime(shift.start, timezone)}`}>
-                                    <span style={styles.openSlotPlus}>+</span>
-                                    <span>{EVENT_CONFIG.maxGTEPerShift - shift.gteChampions.length} {t.open}</span>
-                                  </button>
-                                )}
-                                {isAdmin && shift.gteChampions.length < EVENT_CONFIG.maxGTEPerShift && !inlineSignUp && (
-                                  <AdminAddForm shiftId={shift.id} onAdd={(id, name, email) => handleAdminAdd(id, name, email, 'gte')} t={t} styles={styles} colors={colors} roleType="gte" />
-                                )}
-                              </div>
-                            </div>
-                          </>
-                        )}
+                          ))}
+                        </div>
                       </div>
                     );
                   })}
@@ -1960,7 +1933,10 @@ export default function App() {
             <h2 id="success-title" style={{
               ...styles.modalTitle,
               color: lastSignedUpRole === 'tech' ? colors.techAccent :
-                     lastSignedUpRole === 'gte' ? colors.gteAccent : colors.accent
+                     lastSignedUpRole === 'gte' ? colors.gteAccent :
+                     lastSignedUpRole === 'host' ? colors.hostAccent :
+                     lastSignedUpRole === 'producer' ? colors.producerAccent :
+                     colors.accent
             }}>
               {t.signUpSuccess}
             </h2>
@@ -1970,6 +1946,8 @@ export default function App() {
               {' • '}
               {lastSignedUpRole === 'tech' ? t.techSupport :
                lastSignedUpRole === 'gte' ? t.gteSupportFull :
+               lastSignedUpRole === 'host' ? t.hostFull :
+               lastSignedUpRole === 'producer' ? t.producerFull :
                t.eventChampion}
             </p>
             
@@ -1982,7 +1960,9 @@ export default function App() {
               style={{
                 ...styles.primaryButton,
                 ...(lastSignedUpRole === 'tech' ? { backgroundColor: colors.techAccent, color: colors.onTechAccent } :
-                    lastSignedUpRole === 'gte' ? { backgroundColor: colors.gteAccent, color: colors.onGTEAccent } : {})
+                    lastSignedUpRole === 'gte' ? { backgroundColor: colors.gteAccent, color: colors.onGTEAccent } :
+                    lastSignedUpRole === 'host' ? { backgroundColor: colors.hostAccent, color: colors.onHostAccent } :
+                    lastSignedUpRole === 'producer' ? { backgroundColor: colors.producerAccent, color: colors.onProducerAccent } : {})
               }}
             >
               {t.close}
@@ -2010,26 +1990,35 @@ export default function App() {
               <div style={{
                 ...styles.bottomSheetRole,
                 backgroundColor: inlineSignUp.role === 'tech' ? `${colors.techAccent}20` :
-                                 inlineSignUp.role === 'gte' ? `${colors.gteAccent}20` : `${colors.accent}20`,
+                                 inlineSignUp.role === 'gte' ? `${colors.gteAccent}20` :
+                                 inlineSignUp.role === 'host' ? `${colors.hostAccent}20` :
+                                 inlineSignUp.role === 'producer' ? `${colors.producerAccent}20` :
+                                 `${colors.accent}20`,
                 color: inlineSignUp.role === 'tech' ? colors.techAccent :
-                       inlineSignUp.role === 'gte' ? colors.gteAccent : colors.accent,
+                       inlineSignUp.role === 'gte' ? colors.gteAccent :
+                       inlineSignUp.role === 'host' ? colors.hostAccent :
+                       inlineSignUp.role === 'producer' ? colors.producerAccent :
+                       colors.accent,
               }}>
                 {inlineSignUp.role === 'tech' ? `🔧 ${t.techSupport}` :
                  inlineSignUp.role === 'gte' ? `🎮 ${t.gteSupportFull}` :
+                 inlineSignUp.role === 'host' ? `🎤 ${t.hostFull}` :
+                 inlineSignUp.role === 'producer' ? `🎬 ${t.producerFull}` :
                  `🏆 ${t.eventChampion}`}
               </div>
             </div>
             
             {inlineSignUp.role === 'tech' && (
-              <div style={styles.techWarning} role="note">
-                {t.techDescription}
-              </div>
+              <div style={styles.techWarning} role="note">{t.techDescription}</div>
             )}
-
             {inlineSignUp.role === 'gte' && (
-              <div style={{ ...styles.techWarning, color: colors.gteAccent, backgroundColor: `${colors.gteAccent}15` }} role="note">
-                {t.gteDescription}
-              </div>
+              <div style={{ ...styles.techWarning, color: colors.gteAccent, backgroundColor: `${colors.gteAccent}15` }} role="note">{t.gteDescription}</div>
+            )}
+            {inlineSignUp.role === 'host' && (
+              <div style={{ ...styles.techWarning, color: colors.hostAccent, backgroundColor: `${colors.hostAccent}15` }} role="note">{t.hostDescription}</div>
+            )}
+            {inlineSignUp.role === 'producer' && (
+              <div style={{ ...styles.techWarning, color: colors.producerAccent, backgroundColor: `${colors.producerAccent}15` }} role="note">{t.producerDescription}</div>
             )}
             
             {inlineErrors.rules && (
@@ -2050,7 +2039,10 @@ export default function App() {
                   style={{
                     ...styles.bottomSheetInput,
                     borderColor: inlineSignUp.role === 'tech' ? colors.techAccent :
-                                 inlineSignUp.role === 'gte' ? colors.gteAccent : colors.accent,
+                                 inlineSignUp.role === 'gte' ? colors.gteAccent :
+                                 inlineSignUp.role === 'host' ? colors.hostAccent :
+                                 inlineSignUp.role === 'producer' ? colors.producerAccent :
+                                 colors.accent,
                   }}
                   autoFocus
                   aria-invalid={!!inlineErrors.name}
@@ -2070,7 +2062,10 @@ export default function App() {
                   style={{
                     ...styles.bottomSheetInput,
                     borderColor: inlineSignUp.role === 'tech' ? colors.techAccent :
-                                 inlineSignUp.role === 'gte' ? colors.gteAccent : colors.accent,
+                                 inlineSignUp.role === 'gte' ? colors.gteAccent :
+                                 inlineSignUp.role === 'host' ? colors.hostAccent :
+                                 inlineSignUp.role === 'producer' ? colors.producerAccent :
+                                 colors.accent,
                   }}
                   aria-invalid={!!inlineErrors.email}
                 />
@@ -2094,7 +2089,10 @@ export default function App() {
                   style={{
                     ...styles.bottomSheetSubmit,
                     backgroundColor: inlineSignUp.role === 'tech' ? colors.techAccent :
-                                     inlineSignUp.role === 'gte' ? colors.gteAccent : colors.accent,
+                                     inlineSignUp.role === 'gte' ? colors.gteAccent :
+                                     inlineSignUp.role === 'host' ? colors.hostAccent :
+                                     inlineSignUp.role === 'producer' ? colors.producerAccent :
+                                     colors.accent,
                     ...(isInlineSubmitting ? { opacity: 0.7, cursor: 'wait' } : {}),
                   }}
                   disabled={isInlineSubmitting}
@@ -2167,7 +2165,10 @@ export default function App() {
                     const startTime = shift.start.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
                     const endTime = shift.end.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
                     const roleColor = shift.myRole === 'tech' ? colors.techAccent :
-                                      shift.myRole === 'gte' ? colors.gteAccent : colors.accent;
+                                      shift.myRole === 'gte' ? colors.gteAccent :
+                                      shift.myRole === 'host' ? colors.hostAccent :
+                                      shift.myRole === 'producer' ? colors.producerAccent :
+                                      colors.accent;
                     return (
                       <div key={shift.id} style={{
                         padding: '1rem', backgroundColor: colors.bg, borderRadius: '10px',
@@ -2189,6 +2190,8 @@ export default function App() {
                         }}>
                           {shift.myRole === 'tech' ? t.techSupport :
                            shift.myRole === 'gte' ? t.gteSupportFull :
+                           shift.myRole === 'host' ? t.hostFull :
+                           shift.myRole === 'producer' ? t.producerFull :
                            t.eventChampion}
                         </div>
                         <button
@@ -2717,7 +2720,7 @@ const getStyles = (colors) => ({
   },
   shiftRow: {
     display: 'grid',
-    gridTemplateColumns: '100px 1fr 1fr 1fr',
+    gridTemplateColumns: '90px 1fr 1.2fr',
     gap: '1rem',
     padding: '1rem',
     backgroundColor: colors.bgSecondary,
@@ -2727,9 +2730,9 @@ const getStyles = (colors) => ({
   },
   shiftRowTablet: {
     display: 'grid',
-    gridTemplateColumns: '80px 1fr 1fr',
+    gridTemplateColumns: '80px 1fr 1.1fr',
     gap: '0.75rem',
-    padding: '1rem',
+    padding: '0.875rem',
     backgroundColor: colors.bgSecondary,
     borderRadius: '8px',
     marginBottom: '0.75rem',
