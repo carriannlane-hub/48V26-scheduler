@@ -1181,6 +1181,32 @@ export default function App() {
     setMyShiftsLoading(false);
   };
 
+  // Delete a single shift for the current user
+  const handleDeleteMyShift = async (shift) => {
+    const timeStr = shift.start.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
+    const dateStr = shift.start.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+    if (!window.confirm(`Remove your shift on ${dateStr} at ${timeStr}? This cannot be undone.`)) return;
+
+    const email = myShiftsEmail.trim().toLowerCase();
+
+    const newShifts = shifts.map(s => {
+      if (s.id !== shift.id) return s;
+      return {
+        ...s,
+        champions: s.champions.filter(c => c.email.toLowerCase() !== email),
+        techChampions: s.techChampions.filter(c => c.email.toLowerCase() !== email),
+      };
+    });
+
+    setShifts(newShifts);
+    await saveShifts(newShifts);
+
+    // Update the displayed list
+    setMyShiftsList(prev => prev.filter(ms => ms.id !== shift.id));
+    setSuccessMessage('Shift removed successfully.');
+    setTimeout(() => setSuccessMessage(''), 3000);
+  };
+
   // Add to Calendar handler
   const handleAddToCalendar = (calendarType) => {
     setShowCalendarDropdown(false);
@@ -1959,9 +1985,9 @@ export default function App() {
                       <div key={shift.id} style={{
                         padding: '1rem', backgroundColor: colors.bg, borderRadius: '10px',
                         borderLeft: `4px solid ${roleColor}`, display: 'flex',
-                        justifyContent: 'space-between', alignItems: 'center'
+                        justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem'
                       }}>
-                        <div>
+                        <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: '700', fontSize: '1rem', color: colors.text }}>
                             {dayName}, {dateStr}
                           </div>
@@ -1971,10 +1997,30 @@ export default function App() {
                         </div>
                         <div style={{
                           padding: '0.25rem 0.6rem', borderRadius: '20px', fontSize: '0.8rem',
-                          fontWeight: '600', backgroundColor: `${roleColor}20`, color: roleColor
+                          fontWeight: '600', backgroundColor: `${roleColor}20`, color: roleColor,
+                          whiteSpace: 'nowrap',
                         }}>
                           {shift.myRole === 'tech' ? t.techSupport : t.eventChampion}
                         </div>
+                        <button
+                          onClick={() => handleDeleteMyShift(shift)}
+                          style={{
+                            background: 'none',
+                            border: `1px solid ${colors.error}`,
+                            borderRadius: '6px',
+                            color: colors.error,
+                            cursor: 'pointer',
+                            fontSize: '0.8rem',
+                            fontWeight: '600',
+                            padding: '0.3rem 0.6rem',
+                            minHeight: '32px',
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0,
+                          }}
+                          aria-label={`Remove shift on ${dateStr} at ${startTime}`}
+                        >
+                          ✕ Remove
+                        </button>
                       </div>
                     );
                   })}
