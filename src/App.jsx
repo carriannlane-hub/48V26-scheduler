@@ -1460,18 +1460,38 @@ export default function App() {
     return Object.keys(errors).length === 0;
   };
   
-  const handleInlineSubmit = async () => {
+ const handleInlineSubmit = async () => {
     if (!validateInlineForm() || isInlineSubmitting || !inlineSignUp) return;
     
     const { shiftId, role } = inlineSignUp;
     
-    const ruleCheck = canSelectShift(shiftId, [], inlineEmail.trim(), role);
-    if (!ruleCheck.allowed) {
-      setInlineErrors(prev => ({
-        ...prev,
-        rules: t[ruleCheck.reason] || t.blocked
-      }));
-      return;
+    // Check only if slot is full or user already signed up
+    const shift = shifts.find(s => s.id === shiftId);
+    if (shift) {
+      const email = inlineEmail.trim().toLowerCase();
+      const isAlreadyInShift = 
+        shift.champions.some(c => c.email.toLowerCase() === email) ||
+        shift.techChampions.some(c => c.email.toLowerCase() === email) ||
+        shift.gamesChampions.some(c => c.email.toLowerCase() === email) ||
+        shift.talentExchangeChampions.some(c => c.email.toLowerCase() === email) ||
+        shift.producerChampions.some(c => c.email.toLowerCase() === email);
+      
+      if (isAlreadyInShift) {
+        setInlineErrors(prev => ({ ...prev, rules: t.alreadySignedUp }));
+        return;
+      }
+      
+      const isFull = 
+        (role === 'champion' && shift.champions.length >= EVENT_CONFIG.maxChampionsPerShift) ||
+        (role === 'tech' && shift.techChampions.length >= EVENT_CONFIG.maxTechPerShift) ||
+        (role === 'games' && shift.gamesChampions.length >= EVENT_CONFIG.maxGamesPerShift) ||
+        (role === 'talentExchange' && shift.talentExchangeChampions.length >= EVENT_CONFIG.maxTalentExchangePerShift) ||
+        (role === 'producer' && shift.producerChampions.length >= EVENT_CONFIG.maxProducerPerShift);
+      
+      if (isFull) {
+        setInlineErrors(prev => ({ ...prev, rules: t.full }));
+        return;
+      }
     }
     
     setIsInlineSubmitting(true);
